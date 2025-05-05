@@ -2,7 +2,7 @@
 
 import { useAuth0 } from '@auth0/auth0-react'
 import axios from 'axios'
-import { API_ROUTES } from '@/lib/api.config'
+import { API_ROUTES } from '@/config/api.config'
 import { useEffect, useState } from 'react'
 
 export const useAuth = () => {
@@ -37,8 +37,11 @@ export const useAuth = () => {
         name: string,
         last_name: string
     ) => {
+        const appState = { role, name, last_name }
+        localStorage.setItem('appState', JSON.stringify(appState))
+
         await loginWithRedirect({
-            appState: { role, name, last_name },
+            appState,
             authorizationParams: {
                 redirect_uri: `${window.location.origin}/callback`,
                 scope: 'openid profile email offline_access',
@@ -64,13 +67,14 @@ export const useAuth = () => {
     }
 
     return {
-        login: () =>
-            loginWithRedirect({
+        login: () => {
+            return loginWithRedirect({
                 authorizationParams: {
                     redirect_uri: `${window.location.origin}/callback`,
                     scope: 'openid profile email offline_access',
                 },
-            }),
+            })
+        },
         register,
         createUser,
         logout: () =>
