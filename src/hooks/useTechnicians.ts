@@ -17,9 +17,14 @@ export const useTechnicians = () => {
     }, []);
 
     const getById = useCallback(async (id: number): Promise<TechnicianProfile> => {
-        const res = await axios.get<TechnicianProfile>(`${API_ROUTES.technicians}/${id}`);
+        const token = await getAccessTokenSilently();
+        const res = await axios.get<TechnicianProfile>(`${API_ROUTES.technicians}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return res.data;
-    }, []);
+    }, [getAccessTokenSilently]);
 
     const create = useCallback(async (data: CreateTechnicianProfileDto): Promise<TechnicianProfile> => {
         const token = await getAccessTokenSilently(); // ✅ Agregar el token

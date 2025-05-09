@@ -6,8 +6,11 @@ import { useRequests } from "@/hooks/useRequests";
 import {ServiceRequest, Status, StatusMap} from "@/interfaces/auroraDb";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
-import {Menu, Wrench, MessageCircle, Badge} from "lucide-react";
+import {Menu, Wrench, MessageCircle} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {RequestDialog} from "@/components/dialogs/request-dialog";
+import {RequestViewDialog} from "@/components/dialogs/requests-view-dialog";
+import {useSocket} from "@/hooks/useSocket";
 
 export default function TechnicianHomePage() {
     const { user } = useAuth();
@@ -26,6 +29,7 @@ export default function TechnicianHomePage() {
             r.status === Status.CHAT_ACTIVO
     );
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogMode, setDialogMode] = useState<"edit" | "view">("edit");
 
     const openDialog = (req: ServiceRequest) => {
         setSelectedRequest(req);
@@ -44,6 +48,17 @@ export default function TechnicianHomePage() {
             console.error("Error al cargar solicitudes:", err);
         }
     };
+
+    useSocket(
+        (newRequest) => {
+            setRequests((prev) => [newRequest, ...prev]);
+        },
+        (updatedRequest) => {
+            setRequests((prev) =>
+                prev.map((r) => (r.id === updatedRequest.id ? updatedRequest : r))
+            );
+        }
+    );
 
     return (
         <div className="min-h-screen bg-[--neutral-400] pb-16 text-[--foreground]">
@@ -66,7 +81,10 @@ export default function TechnicianHomePage() {
                     {newRequests.map((request) => (
                         <div
                             key={request.id}
-                            onClick={() => openDialog(request)}
+                            onClick={() => {
+                                setDialogMode("edit");
+                                openDialog(request);
+                            }}
                             className="cursor-pointer bg-[--neutral-100] rounded-xl shadow-md p-4 border border-[--neutral-300] hover:shadow-lg transition"
                         >
                             <div className="flex items-center gap-3">
@@ -95,22 +113,35 @@ export default function TechnicianHomePage() {
                     {inProgressRequests.map((request) => (
                         <div
                             key={request.id}
-                            onClick={() => openDialog(request)}
-                            className="cursor-pointer bg-[--neutral-100] rounded-xl shadow-md p-4 border border-[--neutral-300] hover:shadow-lg transition"
+                            onClick={() => {
+                                setDialogMode("view");
+                                openDialog(request);
+                            }}
+                            className="cursor-pointer bg-[--neutral-100] rounded-xl shadow-md p-4 border border-[--neutral-300] hover:shadow-lg transition flex flex-col justify-between gap-3"
                         >
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-semibold">{request.description}</p>
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-2">
+                                    <Wrench className="w-4 h-4 text-[--secondary-default] mt-0.5" />
+                                    <p className="text-sm font-semibold leading-snug line-clamp-2">
+                                        {request.description}
+                                    </p>
+                                </div>
                                 <Badge color={StatusMap[request.status as Status].color}>
                                     {StatusMap[request.status as Status].label}
                                 </Badge>
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                                {request.client?.name} {request.client?.last_name}
+
+                            <div className="text-xs text-muted-foreground pl-6">
+                                <p>
+                                    <strong>Cliente:</strong> {request.client?.name} {request.client?.last_name}
+                                </p>
                             </div>
-                            <div className="text-sm font-semibold mt-1">
+
+                            <div className="text-sm font-semibold text-right">
                                 Bs. {request.offered_price?.toFixed(2) || "0.00"}
                             </div>
                         </div>
+
                     ))}
                     {inProgressRequests.length === 0 && (
                         <p className="text-sm text-muted-foreground">No hay solicitudes en progreso.</p>
@@ -118,12 +149,20 @@ export default function TechnicianHomePage() {
                 </div>
             </section>
 
-            {selectedRequest && (
+            {selectedRequest && dialogMode === "edit" && (
                 <RequestDialog
                     isOpen={dialogOpen}
                     onClose={() => setDialogOpen(false)}
                     request={selectedRequest}
                     onActionComplete={loadRequests}
+                />
+            )}
+
+            {selectedRequest && dialogMode === "view" && (
+                <RequestViewDialog
+                    isOpen={dialogOpen}
+                    onClose={() => setDialogOpen(false)}
+                    request={selectedRequest}
                 />
             )}
 

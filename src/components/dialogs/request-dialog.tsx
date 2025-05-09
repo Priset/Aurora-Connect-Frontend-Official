@@ -9,7 +9,7 @@ import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/hooks/useAuth";
 import { CheckCircle } from "lucide-react";
 
-export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) {
+export function RequestDialog({ isOpen, onClose, request, onActionComplete  }: RequestDialogProps) {
     const { profile } = useAuth();
     const { create: createOffer, updateStatus: updateOfferStatus } = useOffers();
     const { updateStatus } = useRequests();
@@ -28,6 +28,7 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             });
             await updateStatus(request.id, Status.ACEPTADO_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.ACEPTADO_POR_TECNICO);
+            onActionComplete?.();
             toast.success("✅ Solicitud aceptada.");
             onClose();
         } catch (err) {
@@ -47,6 +48,7 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             });
             await updateStatus(request.id, Status.RECHAZADO_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.RECHAZADO_POR_TECNICO);
+            onActionComplete?.();
             toast.success("🛑 Solicitud rechazada.");
             onClose();
         } catch (err) {
@@ -76,6 +78,7 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             });
             await updateStatus(request.id, Status.CONTRAOFERTA_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.CONTRAOFERTA_POR_TECNICO);
+            onActionComplete?.();
             toast.success("📤 Contraoferta enviada.");
             onClose();
         } catch (err) {

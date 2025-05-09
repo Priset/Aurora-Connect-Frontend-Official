@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { FacebookIcon, LinkedinIcon, Camera } from 'lucide-react';
+import { FacebookIcon, LinkedinIcon, InstagramIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export function Footer() {
@@ -40,7 +40,7 @@ export function Footer() {
                         aria-label="Instagram"
                     >
                         <Button variant="ghost" size="icon">
-                            <Camera className="h-5 w-5 text-white" />
+                            <InstagramIcon className="h-5 w-5 text-white" />
                         </Button>
                     </Link>
                 </div>

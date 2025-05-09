@@ -3,16 +3,21 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
-import { ServiceRequest } from "@/interfaces/auroraDb";
+import { ServiceRequest, Status, StatusMap } from "@/interfaces/auroraDb";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Menu, Wrench } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
+import { ClientOfferDialog } from "@/components/dialogs/client-offer-dialog";
 
 export default function ClientRequestsPage() {
     const { user, profile } = useAuth();
     const { getAll } = useRequests();
 
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
+    const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
+    const [dialogType, setDialogType] = useState<"view" | "offer" | null>(null);
 
     useEffect(() => {
         if (!profile) return;
@@ -25,38 +30,146 @@ export default function ClientRequestsPage() {
             .catch((err) => console.error("Error al obtener solicitudes:", err));
     }, [profile]);
 
+    const openDialog = (type: "view" | "offer", request: ServiceRequest) => {
+        setSelectedRequest(request);
+        setDialogType(type);
+    };
+
+    const closeDialog = () => {
+        setSelectedRequest(null);
+        setDialogType(null);
+    };
+
+    const createdRequests = requests.filter(r => r.status === Status.PENDIENTE);
+    const offerRequests = requests.filter(r =>
+        r.serviceOffers?.some((offer) =>
+            [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO].includes(offer.status)
+        )
+    );
+    const statusRequests = requests.filter(r =>
+        [
+            Status.ACEPTADO_POR_TECNICO,
+            Status.CONTRAOFERTA_POR_TECNICO,
+            Status.RECHAZADO_POR_TECNICO,
+            Status.RECHAZADO_POR_CLIENTE,
+            Status.ACEPTADO_POR_CLIENTE,
+            Status.CHAT_ACTIVO,
+            Status.FINALIZADO_CON_VALORACION
+        ].includes(r.status)
+    );
+
     return (
         <div className="min-h-screen flex flex-col bg-[--neutral-400]">
-            <header className="h-16 px-4 flex items-center justify-between bg-[--primary-default] text-white shadow-md">
-                <Button size="icon" variant="ghost">
-                    <Menu className="h-5 w-5" />
-                </Button>
-                <div className="flex-1" />
+            <header className="bg-[--primary-default] text-white px-6 h-20 flex items-center justify-between shadow-xl">
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" className="text-white p-0 hover:bg-transparent">
+                        <Menu className="h-5 w-5" />
+                    </Button>
+                    <h1 className="text-xl font-display font-bold tracking-wide">
+                        AURORA CONNECT
+                    </h1>
+                </div>
+
                 {user && (
                     <UserMenu
                         userName={user.name || "Usuario"}
-                        userPictureUrl={user.picture}
+                        userPictureUrl={user.picture || undefined}
                     />
                 )}
             </header>
 
-            <div className="text-[--foreground] font-semibold text-lg px-6 py-4">
-                Solicitudes en progreso
+            {/* SECCIÓN 1: Solicitudes Creadas */}
+            <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
+                Solicitudes creadas
             </div>
-
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-8">
-                {requests.map((req) => (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-4">
+                {createdRequests.map((req) => (
                     <div
                         key={req.id}
-                        className="bg-white rounded-xl shadow p-4 flex flex-col items-center"
+                        onClick={() => openDialog("view", req)}
+                        className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
                     >
-                        <Wrench className="w-8 h-8 text-[--secondary-default] mb-2" />
-                        <div className="text-center text-[--foreground] text-sm">
-                            {req.description}
+                        <Wrench className="w-5 h-5 text-[--secondary-default] mb-1" />
+                        <div className="text-sm font-semibold mb-1">{req.description}</div>
+                        <div className="text-xs text-muted-foreground">
+                            Bs. {req.offered_price.toFixed(2)}
                         </div>
                     </div>
                 ))}
+                {createdRequests.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No hay solicitudes creadas.</p>
+                )}
             </div>
+
+            {/* SECCIÓN 2: Ofertas de técnicos */}
+            <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
+                Ofertas de técnicos
+            </div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-4">
+                {offerRequests.map((req) => {
+                    const offer = req.serviceOffers?.[0];
+                    return (
+                        <div
+                            key={req.id}
+                            onClick={() => openDialog("offer", req)}
+                            className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
+                        >
+                            <div className="text-sm font-semibold mb-1">{req.description}</div>
+                            <div className="text-xs text-muted-foreground mb-1">
+                                {offer?.message || "Sin mensaje del técnico"}
+                            </div>
+                            <div className="text-xs text-muted-foreground mb-1">
+                                Precio propuesto: <strong>Bs. {offer?.proposed_price?.toFixed(2) || "0.00"}</strong>
+                            </div>
+                        </div>
+                    );
+                })}
+                {offerRequests.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No hay ofertas de técnicos aún.</p>
+                )}
+            </div>
+
+            {/* SECCIÓN 3: Estado de solicitudes */}
+            <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
+                Estado de solicitudes
+            </div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-16">
+                {statusRequests.map((req) => (
+                    <div
+                        key={req.id}
+                        onClick={() => openDialog("view", req)}
+                        className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
+                    >
+                        <div className="flex justify-between items-start mb-1">
+                            <div className="text-sm font-semibold">{req.description}</div>
+                            <Badge color={StatusMap[req.status as Status].color}>
+                                {StatusMap[req.status as Status].label}
+                            </Badge>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                            Precio ofertado: Bs. {req.offered_price.toFixed(2)}
+                        </div>
+                    </div>
+                ))}
+                {statusRequests.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No hay actualizaciones aún.</p>
+                )}
+            </div>
+
+            {selectedRequest && dialogType === "view" && (
+                <RequestViewDialog
+                    isOpen={true}
+                    onClose={closeDialog}
+                    request={selectedRequest}
+                />
+            )}
+            {selectedRequest && dialogType === "offer" && (
+                <ClientOfferDialog
+                    isOpen={true}
+                    onClose={closeDialog}
+                    request={selectedRequest}
+                />
+            )}
 
             <Button
                 size="icon"

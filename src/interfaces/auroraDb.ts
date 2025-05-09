@@ -62,6 +62,7 @@ export interface ServiceRequest {
         name: string;
         last_name: string;
     };
+    serviceOffers?: ServiceOffer[];
 }
 
 export interface CreateServiceRequestDto {
@@ -253,6 +254,12 @@ export interface RequestDialogProps {
     onClose: () => void;
     request: ServiceRequest;
     onActionComplete?: () => void;
+}
+
+export interface TechnicianProfileSlideProps {
+    isOpen: boolean;
+    onClose: () => void;
+    technicianId: number;
 }
 
 export enum Status {
