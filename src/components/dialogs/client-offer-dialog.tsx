@@ -10,10 +10,12 @@ import {TechnicianProfileSlide} from "@/components/dialogs/technician-profile-sl
 export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }: RequestDialogProps) {
     const { updateStatus } = useRequests();
     const [showProfile, setShowProfile] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
     const offer = request.serviceOffers?.[0];
 
     const handleAccept = async () => {
         if (!offer) return;
+        setIsProcessing(true);
         try {
             await updateStatus(request.id, Status.ACEPTADO_POR_CLIENTE);
             toast.success("✅ Oferta aceptada.");
@@ -22,11 +24,14 @@ export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }
         } catch (err) {
             console.error(err);
             toast.error("❌ Error al aceptar la oferta.");
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     const handleReject = async () => {
         if (!offer) return;
+        setIsProcessing(true);
         try {
             await updateStatus(request.id, Status.RECHAZADO_POR_CLIENTE);
             toast.success("🛑 Oferta rechazada.");
@@ -35,6 +40,8 @@ export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }
         } catch (err) {
             console.error(err);
             toast.error("❌ Error al rechazar la oferta.");
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -69,14 +76,25 @@ export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }
 
                 <div className="flex flex-col gap-3 pt-4">
                     <div className="flex justify-between gap-2">
-                        <Button onClick={handleAccept} className="flex-1 bg-green-500 hover:bg-green-600 text-white">
+                        <Button
+                            onClick={handleAccept}
+                            disabled={isProcessing}
+                            className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                        >
                             Aceptar Oferta
                         </Button>
-                        <Button onClick={handleReject} className="flex-1 bg-red-500 hover:bg-red-600 text-white">
+                        <Button
+                            onClick={handleReject}
+                            disabled={isProcessing}
+                            className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+                        >
                             Rechazar Oferta
                         </Button>
                     </div>
-                    <Button onClick={handleViewProfile} className="bg-[--secondary-default] hover:opacity-90 text-white w-full">
+                    <Button
+                        onClick={handleViewProfile}
+                        className="bg-[--secondary-default] hover:opacity-90 text-white w-full"
+                    >
                         Ver Perfil del Técnico
                     </Button>
                 </div>

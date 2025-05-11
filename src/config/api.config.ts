@@ -12,5 +12,6 @@ export const API_ROUTES = {
     aiSupportChats: `${API_BASE_URL}/api/ai-support-chats`,
     aiSupportMessages: `${API_BASE_URL}/api/ai-support-messages`,
     technicians: `${API_BASE_URL}/api/technician-profiles`,
+    techniciansPublic: `${API_BASE_URL}/api/public/technician-profile`,
     auth: `${API_BASE_URL}/api/auth`,
 };

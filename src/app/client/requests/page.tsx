@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
+import { useSocket } from "@/hooks/useSocket";
 import { ServiceRequest, Status, StatusMap } from "@/interfaces/auroraDb";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
@@ -19,16 +20,35 @@ export default function ClientRequestsPage() {
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
     const [dialogType, setDialogType] = useState<"view" | "offer" | null>(null);
 
-    useEffect(() => {
+    const loadRequests = async () => {
         if (!profile) return;
+        try {
+            const data = await getAll();
+            const filtered = data.filter((r) => r.client_id === profile.id);
+            setRequests(filtered);
+        } catch (err) {
+            console.error("Error al obtener solicitudes:", err);
+        }
+    };
 
-        getAll()
-            .then((data) => {
-                const filtered = data.filter((r) => r.client_id === profile.id);
-                setRequests(filtered);
-            })
-            .catch((err) => console.error("Error al obtener solicitudes:", err));
+    useEffect(() => {
+        loadRequests();
     }, [profile]);
+
+    useSocket(
+        (newRequest) => {
+            if (newRequest.client_id === profile?.id) {
+                setRequests((prev) => [newRequest, ...prev]);
+            }
+        },
+        (updatedRequest) => {
+            if (updatedRequest.client_id === profile?.id) {
+                setRequests((prev) =>
+                    prev.map((r) => (r.id === updatedRequest.id ? updatedRequest : r))
+                );
+            }
+        }
+    );
 
     const openDialog = (type: "view" | "offer", request: ServiceRequest) => {
         setSelectedRequest(request);
@@ -78,7 +98,7 @@ export default function ClientRequestsPage() {
                 )}
             </header>
 
-            {/* SECCIÓN 1: Solicitudes Creadas */}
+            {/* Sección: Solicitudes creadas */}
             <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
                 Solicitudes creadas
             </div>
@@ -101,7 +121,7 @@ export default function ClientRequestsPage() {
                 )}
             </div>
 
-            {/* SECCIÓN 2: Ofertas de técnicos */}
+            {/* Sección: Ofertas de técnicos */}
             <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
                 Ofertas de técnicos
             </div>
@@ -129,7 +149,7 @@ export default function ClientRequestsPage() {
                 )}
             </div>
 
-            {/* SECCIÓN 3: Estado de solicitudes */}
+            {/* Sección: Estado de solicitudes */}
             <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
                 Estado de solicitudes
             </div>
@@ -168,6 +188,7 @@ export default function ClientRequestsPage() {
                     isOpen={true}
                     onClose={closeDialog}
                     request={selectedRequest}
+                    onActionComplete={loadRequests}
                 />
             )}
 

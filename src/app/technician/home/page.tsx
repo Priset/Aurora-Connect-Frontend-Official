@@ -6,14 +6,14 @@ import { useRequests } from "@/hooks/useRequests";
 import {ServiceRequest, Status, StatusMap} from "@/interfaces/auroraDb";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
-import {Menu, Wrench, MessageCircle} from "lucide-react";
+import {Menu, MessageCircle} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {RequestDialog} from "@/components/dialogs/request-dialog";
 import {RequestViewDialog} from "@/components/dialogs/requests-view-dialog";
 import {useSocket} from "@/hooks/useSocket";
 
 export default function TechnicianHomePage() {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const { getAllForTechnicians } = useRequests();
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
@@ -21,12 +21,16 @@ export default function TechnicianHomePage() {
         (r) => r.status === Status.PENDIENTE
     );
 
+    const offerRequests = requests.filter(
+        (r) =>
+            r.status === Status.CONTRAOFERTA_POR_TECNICO &&
+            r.serviceOffers?.some((offer) => offer.technician_id === profile?.id)
+    );
+
     const inProgressRequests = requests.filter(
         (r) =>
-            r.status === Status.ACEPTADO_POR_TECNICO ||
-            r.status === Status.CONTRAOFERTA_POR_TECNICO ||
-            r.status === Status.ACEPTADO_POR_CLIENTE ||
-            r.status === Status.CHAT_ACTIVO
+            [Status.ACEPTADO_POR_TECNICO, Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_CLIENTE, Status.CHAT_ACTIVO].includes(r.status) &&
+            r.serviceOffers?.some((offer) => offer.technician_id === profile?.id)
     );
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"edit" | "view">("edit");
@@ -88,7 +92,6 @@ export default function TechnicianHomePage() {
                             className="cursor-pointer bg-[--neutral-100] rounded-xl shadow-md p-4 border border-[--neutral-300] hover:shadow-lg transition"
                         >
                             <div className="flex items-center gap-3">
-                                <Wrench className="w-5 h-5 text-[--secondary-default]" />
                                 <p className="text-sm font-semibold">
                                     {request.description}
                                 </p>
@@ -108,6 +111,46 @@ export default function TechnicianHomePage() {
             </section>
 
             <section className="px-6 pb-8">
+                <h2 className="text-lg font-bold mb-4">Ofertas enviadas</h2>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
+                    {offerRequests.map((request) => (
+                        <div
+                            key={request.id}
+                            onClick={() => {
+                                setDialogMode("view");
+                                openDialog(request);
+                            }}
+                            className="cursor-pointer bg-[--neutral-100] rounded-xl shadow-md p-4 border border-[--neutral-300] hover:shadow-lg transition flex flex-col justify-between gap-3"
+                        >
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-2">
+                                    <p className="text-sm font-semibold leading-snug line-clamp-2">
+                                        {request.description}
+                                    </p>
+                                </div>
+                                <Badge color={StatusMap[request.status as Status].color}>
+                                    {StatusMap[request.status as Status].label}
+                                </Badge>
+                            </div>
+
+                            <div className="text-xs text-muted-foreground pl-6">
+                                <p>
+                                    <strong>Cliente:</strong> {request.client?.name} {request.client?.last_name}
+                                </p>
+                            </div>
+
+                            <div className="text-sm font-semibold text-right">
+                                Bs. {request.offered_price?.toFixed(2) || "0.00"}
+                            </div>
+                        </div>
+                    ))}
+                    {offerRequests.length === 0 && (
+                        <p className="text-sm text-muted-foreground">No hay ofertas enviadas.</p>
+                    )}
+                </div>
+            </section>
+
+            <section className="px-6 pb-8">
                 <h2 className="text-lg font-bold mb-4">Solicitudes en progreso</h2>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
                     {inProgressRequests.map((request) => (
@@ -121,7 +164,6 @@ export default function TechnicianHomePage() {
                         >
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-2">
-                                    <Wrench className="w-4 h-4 text-[--secondary-default] mt-0.5" />
                                     <p className="text-sm font-semibold leading-snug line-clamp-2">
                                         {request.description}
                                     </p>
