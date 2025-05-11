@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { UserMenu } from "@/components/layout/user-menu";
+import {Menu} from "lucide-react";
 
 interface RequestForm {
     description: string;
@@ -71,7 +72,7 @@ export default function ClientHomePage() {
             <header className="bg-[--primary-default] text-white px-6 h-20 flex items-center justify-between shadow-xl">
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" className="text-white p-0 hover:bg-transparent">
-                        ☰
+                        <Menu className="h-5 w-5" />
                     </Button>
                     <h1 className="text-xl font-display font-bold tracking-wide">
                         AURORA CONNECT

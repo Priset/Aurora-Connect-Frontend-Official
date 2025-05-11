@@ -2,22 +2,33 @@ import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} fro
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { RequestDialogProps, Status } from "@/interfaces/auroraDb";
 import { useOffers } from "@/hooks/useOffers";
 import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/hooks/useAuth";
 import { CheckCircle } from "lucide-react";
 
-export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) {
+export function RequestDialog({ isOpen, onClose, request, onActionComplete  }: RequestDialogProps) {
     const { profile } = useAuth();
     const { create: createOffer, updateStatus: updateOfferStatus } = useOffers();
     const { updateStatus } = useRequests();
     const [showOfferInput, setShowOfferInput] = useState(false);
     const [newPrice, setNewPrice] = useState("");
     const [offerReason, setOfferReason] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setShowOfferInput(false);
+            setNewPrice("");
+            setOfferReason("");
+            setIsProcessing(false);
+        }
+    }, [isOpen]);
 
     const handleAccept = async () => {
+        setIsProcessing(true);
         try {
             const offer = await createOffer({
                 requestId: request.id,
@@ -28,15 +39,19 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             });
             await updateStatus(request.id, Status.ACEPTADO_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.ACEPTADO_POR_TECNICO);
+            onActionComplete?.();
             toast.success("✅ Solicitud aceptada.");
             onClose();
         } catch (err) {
             toast.error("❌ Error al aceptar la solicitud.");
             console.error(err);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     const handleReject = async () => {
+        setIsProcessing(true);
         try {
             const offer = await createOffer({
                 requestId: request.id,
@@ -47,11 +62,14 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             });
             await updateStatus(request.id, Status.RECHAZADO_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.RECHAZADO_POR_TECNICO);
+            onActionComplete?.();
             toast.success("🛑 Solicitud rechazada.");
             onClose();
         } catch (err) {
             toast.error("❌ Error al rechazar la solicitud.");
             console.error(err);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -66,6 +84,7 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             return;
         }
 
+        setIsProcessing(true);
         try {
             const offer = await createOffer({
                 requestId: request.id,
@@ -76,11 +95,14 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
             });
             await updateStatus(request.id, Status.CONTRAOFERTA_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.CONTRAOFERTA_POR_TECNICO);
+            onActionComplete?.();
             toast.success("📤 Contraoferta enviada.");
             onClose();
         } catch (err) {
             toast.error("❌ Error al enviar contraoferta.");
             console.error(err);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -128,6 +150,7 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
                         />
                         <Button
                             onClick={handleSubmitOffer}
+                            disabled={isProcessing}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                         >
                             Enviar contraoferta
@@ -140,12 +163,14 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
                         <div className="flex gap-3 w-full max-w-xs">
                             <Button
                                 onClick={handleAccept}
+                                disabled={isProcessing}
                                 className="bg-green-500 hover:bg-green-600 text-white flex-1"
                             >
                                 Aceptar Solicitud
                             </Button>
                             <Button
                                 onClick={handleReject}
+                                disabled={isProcessing}
                                 className="bg-red-500 hover:bg-red-600 text-white flex-1"
                             >
                                 Rechazar Solicitud
@@ -153,6 +178,7 @@ export function RequestDialog({ isOpen, onClose, request }: RequestDialogProps) 
                         </div>
                         <Button
                             onClick={() => setShowOfferInput(true)}
+                            disabled={isProcessing}
                             className="bg-blue-600 hover:bg-blue-700 text-white w-[220px]"
                         >
                             Ofertar nuevo precio
