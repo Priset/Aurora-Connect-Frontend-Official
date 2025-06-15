@@ -48,6 +48,7 @@ export default function ClientHomePage() {
     }, [user, profile]);
 
     const loadRequests = async () => {
+        setIsLoading(true);
         try {
             const data = await getAll();
             const filtered = data.filter((r) => r.client_id === profile?.id);
@@ -86,10 +87,14 @@ export default function ClientHomePage() {
 
     return (
         <main className="px-4 sm:px-6 md:px-10 py-8 space-y-10 w-full">
-            {user && (
-                <h1 className="text-2xl font-display font-bold text-white">
-                    Bienvenido, {user.name?.split(" ")[0] || "Usuario"}!
-                </h1>
+            {isLoading ? (
+                <Skeleton className="h-10 w-1/2 rounded-lg animate-pulse" />
+            ) : (
+                user && (
+                    <h1 className="text-2xl font-display font-bold text-white">
+                        Bienvenido, {user.name?.split(" ")[0] || "Usuario"}!
+                    </h1>
+                )
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

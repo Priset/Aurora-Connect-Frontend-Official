@@ -6,9 +6,9 @@ import { useChats } from "@/hooks/useChats";
 import { Chat, Status } from "@/interfaces/auroraDb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { MessageCircle } from "lucide-react";
+import {MessageCircle, XIcon} from "lucide-react";
 import { ClientChatWindow } from "@/components/chat/client-chat-window";
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 interface Props {
     isOpen: boolean;
@@ -23,11 +23,13 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
     const [search, setSearch] = useState("");
     const [activeChat, setActiveChat] = useState<Chat | null>(null);
     const [chatKey, setChatKey] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (!isOpen || !profile) return;
 
         const loadChats = async () => {
+            setIsLoading(true);
             try {
                 const all = await getAll();
                 const myChats = all.filter(
@@ -39,6 +41,8 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                 setFiltered(myChats);
             } catch (err) {
                 console.error("❌ Error al obtener chats activos:", err);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -48,9 +52,8 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
     useEffect(() => {
         const lowerSearch = search.toLowerCase();
         const filteredChats = chats.filter((chat) =>
-            `${chat.technician?.user?.name || ""} ${chat.technician?.user?.last_name || ""}`
-                .toLowerCase()
-                .includes(lowerSearch)
+            chat.technician?.user?.name.toLowerCase().includes(lowerSearch) ||
+            chat.technician?.user?.last_name.toLowerCase().includes(lowerSearch)
         );
         setFiltered(filteredChats);
     }, [search, chats]);
@@ -59,72 +62,64 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
 
     return (
         <div className="fixed bottom-6 right-6 w-[360px] h-[400px] bg-white dark:bg-[--neutral-100] shadow-2xl rounded-xl border border-[--primary-default] z-50 flex flex-col">
-            {activeChat ? (
-                <>
-                    <ClientChatWindow
-                        key={`chat-${chatKey}`}
-                        chat={activeChat}
-                        onClose={() => {
-                            setActiveChat(null);
-                            setChatKey(Date.now());
-                        }}
-                    />
-                </>
+            <div className="bg-[--secondary-default] text-white px-4 py-3 rounded-t-xl flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm font-semibold truncate">
+                    <MessageCircle className="w-4 h-4" />
+                    Chats Activos
+                </div>
+                <Button
+                    size="icon"
+                    onClick={onClose}
+                    className="bg-secondary-light hover:bg-[--secondary-hover] text-[--foreground] transition"
+                >
+                    <XIcon className="w-4 h-4" />
+                </Button>
+            </div>
+
+            {isLoading ? (
+                <div className="flex-1 px-4 py-3 space-y-3 animate-pulse">
+                    {[...Array(3)].map((_, idx) => (
+                        <div key={idx} className="h-12 bg-[--neutral-300] rounded-lg" />
+                    ))}
+                </div>
             ) : (
-                <>
-                    <div className="bg-[--primary-default] text-white px-4 py-3 rounded-t-xl flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                            <MessageCircle className="w-5 h-5" />
-                            <h2 className="font-semibold text-sm">Tus chats activos</h2>
-                        </div>
-                        <Button
-                            onClick={onClose}
-                            className="text-white hover:text-[--neutral-200] active:text-[--neutral-400] transition-colors text-lg font-bold"
-                        >
-                            &times;
-                        </Button>
-                    </div>
+                <ScrollArea className="flex-1 px-4 py-3">
+                    <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Buscar técnico..."
+                        className="mb-3 text-sm"
+                    />
+                    {filtered.length > 0 ? (
+                        filtered.map((chat) => (
+                            <div
+                                key={chat.id}
+                                onClick={() => {
+                                    setActiveChat(chat);
+                                    setChatKey((prev) => prev + 1);
+                                }}
+                                className="p-3 bg-white border border-[--neutral-300] rounded-lg cursor-pointer hover:shadow-md transition"
+                            >
+                                <p className="text-sm font-semibold">
+                                    {chat.technician?.user?.name} {chat.technician?.user?.last_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    Último mensaje: {new Date(chat.updated_at).toLocaleString()}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No se encontraron chats.</p>
+                    )}
+                </ScrollArea>
+            )}
 
-                    <div className="p-3 border-b border-[--neutral-300]">
-                        <Input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Buscar por técnico..."
-                            className="text-sm"
-                        />
-                    </div>
-
-                    <ScrollArea className="flex-1 p-3 space-y-2 bg-[--neutral-100] overflow-y-auto">
-                        {filtered.length === 0 ? (
-                            <p className="text-sm text-muted-foreground px-2 py-3">
-                                No se encontraron chats.
-                            </p>
-                        ) : (
-                            <ul className="space-y-2 pt-2">
-                                {filtered.map((chat) => {
-                                    const technicianName = `${chat.technician?.user?.name || "Técnico"} ${chat.technician?.user?.last_name || ""}`;
-                                    const lastMessage = chat.messages?.[0]?.message || "Sin mensajes aún.";
-                                    return (
-                                        <li
-                                            key={chat.id}
-                                            className="rounded-lg px-4 py-3 bg-[--neutral-300] hover:bg-[--neutral-600] cursor-pointer transition text-[--foreground]"
-                                            onClick={() => {
-                                                setActiveChat(null);
-                                                setTimeout(() => {
-                                                    setChatKey(Date.now());
-                                                    setActiveChat({ ...chat });
-                                                }, 0);
-                                            }}
-                                        >
-                                            <div className="font-medium text-sm truncate">{technicianName}</div>
-                                            <div className="text-xs text-neutral-900 truncate">{lastMessage}</div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        )}
-                    </ScrollArea>
-                </>
+            {activeChat && (
+                <ClientChatWindow
+                    key={chatKey}
+                    chat={activeChat}
+                    onClose={() => setActiveChat(null)}
+                />
             )}
         </div>
     );

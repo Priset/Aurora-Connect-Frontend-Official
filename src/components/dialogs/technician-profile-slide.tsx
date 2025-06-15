@@ -12,21 +12,25 @@ import {
 import { TechnicianProfile, TechnicianProfileSlideProps } from "@/interfaces/auroraDb";
 import { useTechnicians } from "@/hooks/useTechnicians";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Star, User as UserIcon } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 
 export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: TechnicianProfileSlideProps) {
     const { getPublicById } = useTechnicians();
     const [technician, setTechnician] = useState<TechnicianProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (!isOpen || !technicianId) return;
 
         (async () => {
+            setIsLoading(true);
             try {
                 const tech = await getPublicById(technicianId);
                 setTechnician(tech);
             } catch (error) {
                 console.error("Error al obtener técnico:", error);
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, [technicianId, isOpen, getPublicById]);
@@ -45,70 +49,103 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                     </SheetDescription>
                 </SheetHeader>
 
-                {technician && technician.user && (
-                    <div className="space-y-5">
-                        {/* Info básica */}
+                {isLoading ? (
+                    <div className="space-y-4 animate-pulse">
+                        {/* Avatar y nombre */}
                         <div className="flex items-center gap-4 border-b border-[--neutral-300] pb-4">
-                            <Avatar className="w-16 h-16">
-                                <AvatarFallback className="bg-[--secondary-default] text-white text-lg">
-                                    <UserIcon className="w-6 h-6" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="text-base font-semibold leading-snug">
-                                    {technician.user.name} {technician.user.last_name}
-                                </p>
-                                <p className="text-sm text-muted-foreground">Técnico registrado</p>
+                            <div className="w-16 h-16 bg-[--neutral-300] rounded-full" />
+                            <div className="flex-1 space-y-2">
+                                <div className="h-4 w-2/3 bg-[--neutral-300] rounded" />
+                                <div className="h-3 w-1/3 bg-[--neutral-300] rounded" />
                             </div>
                         </div>
 
                         {/* Experiencia */}
-                        <div>
-                            <p className="text-sm font-semibold mb-1">Experiencia</p>
-                            <p className="text-sm text-muted-foreground">
-                                {technician.experience || "No proporcionada."}
-                            </p>
+                        <div className="space-y-2">
+                            <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
+                            <div className="h-3 w-full bg-[--neutral-300] rounded" />
                         </div>
 
                         {/* Años de experiencia */}
-                        <div>
-                            <p className="text-sm font-semibold mb-1">Años de experiencia</p>
-                            <p className="text-sm text-muted-foreground">
-                                {technician.years_experience
-                                    ? `${technician.years_experience} años`
-                                    : "No especificado"}
-                            </p>
+                        <div className="space-y-2">
+                            <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
+                            <div className="h-3 w-1/4 bg-[--neutral-300] rounded" />
                         </div>
 
                         {/* Valoraciones */}
-                        <div>
-                            <p className="text-sm font-semibold mb-1">Valoraciones</p>
-                            <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
-                                {technician.service_reviews?.length ? (
-                                    technician.service_reviews.map((review) => (
-                                        <div
-                                            key={review.id}
-                                            className="bg-neutral-100 border border-[--neutral-300] rounded-lg p-3"
-                                        >
-                                            <p className="text-sm italic text-muted-foreground mb-1">
-                                                &quot;{review.comment || "Sin comentario"}&quot;
-                                            </p>
-                                            <div className="flex items-center gap-1">
-                                                {[...Array(review.rating)].map((_, idx) => (
-                                                    <Star
-                                                        key={idx}
-                                                        className="w-4 h-4 text-yellow-500 fill-yellow-500"
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-muted-foreground">Aún no tiene valoraciones.</p>
-                                )}
-                            </div>
+                        <div className="space-y-2">
+                            <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
+                            {[...Array(2)].map((_, idx) => (
+                                <div key={idx} className="h-12 w-full bg-[--neutral-300] rounded" />
+                            ))}
                         </div>
                     </div>
+                ) : (
+                    technician && technician.user && (
+                        <div className="space-y-5">
+                            {/* Info básica */}
+                            <div className="flex items-center gap-4 border-b border-[--neutral-300] pb-4">
+                                <Avatar className="w-16 h-16">
+                                    <AvatarFallback className="bg-[--secondary-default] text-white text-lg">
+                                        <UserIcon className="w-6 h-6" />
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="text-base font-semibold leading-snug">
+                                        {technician.user.name} {technician.user.last_name}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">Técnico registrado</p>
+                                </div>
+                            </div>
+
+                            {/* Experiencia */}
+                            <div>
+                                <p className="text-sm font-semibold mb-1">Experiencia</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {technician.experience || "No proporcionada."}
+                                </p>
+                            </div>
+
+                            {/* Años de experiencia */}
+                            <div>
+                                <p className="text-sm font-semibold mb-1">Años de experiencia</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {technician.years_experience
+                                        ? `${technician.years_experience} años`
+                                        : "No especificado"}
+                                </p>
+                            </div>
+
+                            {/* Valoraciones */}
+                            <div>
+                                <p className="text-sm font-semibold mb-1">Valoraciones</p>
+                                <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                                    {technician.service_reviews?.length ? (
+                                        technician.service_reviews.map((review) => (
+                                            <div
+                                                key={review.id}
+                                                className="bg-neutral-100 border border-[--neutral-300] rounded-lg p-3"
+                                            >
+                                                <p className="text-sm italic text-muted-foreground mb-1">
+                                                    &quot;{review.comment || "Sin comentario"}&quot;
+                                                </p>
+                                                <div className="flex items-center gap-1">
+                                                    {[...Array(review.rating)].map((_, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            className="w-4 h-4 bg-yellow-500 rounded-full"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">Aún no tiene valoraciones.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )
                 )}
             </SheetContent>
         </Sheet>
