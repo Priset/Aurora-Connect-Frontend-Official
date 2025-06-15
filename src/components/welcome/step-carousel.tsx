@@ -10,9 +10,9 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
 import { motion } from "framer-motion";
-import { useRipples } from "@/hooks/useRipples"
-import { Wrench, UserCheck } from "lucide-react"
-import {SectionEffect} from "@/components/ui/section-effect";
+import { useRipples } from "@/hooks/useRipples";
+import { Wrench, UserCheck } from "lucide-react";
+import { SectionEffect } from "@/components/ui/section-effect";
 
 interface Step {
     title: string;
@@ -26,13 +26,13 @@ interface Props {
 }
 
 export function StepCarousel({ title, steps }: Props) {
-    const { sectionRef, ripples, handleMouseMove } = useRipples()
+    const { sectionRef, ripples, handleMouseMove } = useRipples();
 
     const headerIcon = title.includes("Usuario") ? (
         <UserCheck className="inline-block w-6 h-6 text-[--secondary-default] mr-2" />
     ) : (
         <Wrench className="inline-block w-6 h-6 text-[--secondary-default] mr-2" />
-    )
+    );
 
     return (
         <section
@@ -69,21 +69,28 @@ export function StepCarousel({ title, steps }: Props) {
                                 key={index}
                                 className="pl-4 basis-full md:basis-1/2 lg:basis-1/3"
                             >
-                                <Card className="h-full flex flex-col bg-neutral-500 text-primary shadow-md hover:shadow-xl transition-all border border-neutral-300">
-                                    <CardContent className="flex flex-col justify-start items-center text-center p-4 h-full">
-                                        <div className="flex flex-col items-center gap-1 mb-2">
-                                            <div className="text-[--secondary-default] h-8 flex items-center justify-center">
-                                                {step.icon}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 50 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 50 }}
+                                    transition={{ duration: 0.6, ease: "easeOut" }}
+                                >
+                                    <Card className="h-full flex flex-col bg-neutral-500 text-primary shadow-md hover:shadow-xl transition-all border border-neutral-300">
+                                        <CardContent className="flex flex-col justify-start items-center text-center p-4 h-full">
+                                            <div className="flex flex-col items-center gap-1 mb-2">
+                                                <div className="text-[--secondary-default] h-8 flex items-center justify-center">
+                                                    {step.icon}
+                                                </div>
+                                                <h3 className="font-semibold text-lg text-primary leading-tight">
+                                                    {step.title}
+                                                </h3>
                                             </div>
-                                            <h3 className="font-semibold text-lg text-primary leading-tight">
-                                                {step.title}
-                                            </h3>
-                                        </div>
-                                        <p className="text-sm text-neutral-900 leading-snug">
-                                            {step.description}
-                                        </p>
-                                    </CardContent>
-                                </Card>
+                                            <p className="text-sm text-neutral-900 leading-snug">
+                                                {step.description}
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
                             </CarouselItem>
                         ))}
                     </CarouselContent>

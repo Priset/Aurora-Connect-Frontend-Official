@@ -85,8 +85,8 @@ export default function CallbackPage() {
     }, [isAuthenticated, isLoading, user, createUser, createTechnician, router, getAccessTokenSilently])
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[--neutral-200] p-6">
-            <div className="backdrop-blur-lg bg-white/40 border border-[--neutral-300] rounded-2xl shadow-xl p-10 flex flex-col items-center gap-6 w-full max-w-sm animate-pulse">
+        <div className="min-h-screen flex items-center justify-center bg-secondary-dark p-6">
+            <div className="backdrop-blur-lg bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-xl p-10 flex flex-col items-center gap-6 w-full max-w-sm animate-pulse">
                 <Loader2 className="animate-spin text-[--primary-default]" size={60} />
                 <p className="text-lg font-semibold text-center text-[--primary-default]">
                     Procesando autenticación...

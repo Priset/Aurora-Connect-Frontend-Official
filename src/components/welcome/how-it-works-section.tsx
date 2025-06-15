@@ -4,15 +4,15 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import React from "react";
-import { useRipples } from "@/hooks/useRipples"
-import {SectionEffect} from "@/components/ui/section-effect";
+import { useRipples } from "@/hooks/useRipples";
+import { SectionEffect } from "@/components/ui/section-effect";
 
 interface Props {
     onRegisterClick: (role: "client" | "technician") => void;
 }
 
 export const HowItWorksSection = ({ onRegisterClick }: Props) => {
-    const { sectionRef, ripples, handleMouseMove } = useRipples()
+    const { sectionRef, ripples, handleMouseMove } = useRipples();
 
     return (
         <section
@@ -37,7 +37,12 @@ export const HowItWorksSection = ({ onRegisterClick }: Props) => {
             ))}
 
             <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
-                <div>
+                <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 50 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                >
                     <Image
                         src="/assets/carrusel_1.png"
                         alt="Laptop abierta y herramientas"
@@ -45,9 +50,14 @@ export const HowItWorksSection = ({ onRegisterClick }: Props) => {
                         height={400}
                         className="rounded-lg shadow-lg"
                     />
-                </div>
+                </motion.div>
 
-                <div>
+                <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 50 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                >
                     <h2 className="text-3xl sm:text-4xl font-display font-bold mb-4 text-white">
                         Problemas tecnológicos reales, soluciones al instante.
                     </h2>
@@ -74,7 +84,7 @@ export const HowItWorksSection = ({ onRegisterClick }: Props) => {
                             Registrarme como Cliente
                         </Button>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </section>
     );

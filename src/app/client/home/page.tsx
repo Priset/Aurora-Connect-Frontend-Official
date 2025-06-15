@@ -6,15 +6,15 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { Status } from "@/interfaces/auroraDb";
-import {cn} from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ServiceRequest } from "@/interfaces/auroraDb";
-import {Badge} from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { StatusMap } from "@/interfaces/auroraDb";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,105 +93,112 @@ export default function ClientHomePage() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
                 <div className="space-y-6">
-                    <Card className="rounded-2xl p-6 bg-neutral-200 text-[--foreground] border border-[--neutral-300] shadow-lg">
-                        <h2 className="text-2xl font-display font-bold mb-6 text-[--primary-default]">
-                            Crear nueva solicitud
-                        </h2>
-
-                        <Separator />
-
-                        <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)}>
-                            <div className="space-y-2">
-                                <label
-                                    htmlFor="description"
-                                    className="block text-sm font-semibold text-[--primary-default]"
-                                >
-                                    Describe tu problema
-                                </label>
-                                <Textarea
-                                    id="description"
-                                    {...register("description", { required: true })}
-                                    placeholder="Escribe con detalle lo que ocurre..."
-                                    rows={4}
-                                    className={cn(
-                                        "w-full resize-none rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
-                                        "placeholder:text-muted-foreground shadow-sm transition-colors",
-                                        "focus:outline-none focus:ring-1 focus:ring-[--secondary-default]"
-                                    )}
-                                />
-                                {errors.description && (
-                                    <p className="text-sm font-medium text-error">
-                                        * Este campo es obligatorio.
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2 w-1/2">
-                                <label
-                                    htmlFor="offered_price"
-                                    className="block text-sm font-semibold text-[--primary-default]"
-                                >
-                                    Precio ofertado (Bs.)
-                                </label>
-                                <Input
-                                    id="offered_price"
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="Ej: 150"
-                                    {...register("offeredPrice", {
-                                        required: true,
-                                        valueAsNumber: true,
-                                        min: 1,
-                                    })}
-                                    className={cn(
-                                        "w-full rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
-                                        "placeholder:text-muted-foreground shadow-sm transition-colors",
-                                        "focus:outline-none focus:ring-1 focus:ring-[--secondary-default]"
-                                    )}
-                                />
-                                {errors.offeredPrice && (
-                                    <p className="text-sm font-medium text-error">
-                                        * Precio inválido. Ingresa un valor mayor a 0.
-                                    </p>
-                                )}
-                            </div>
+                    {isLoading ? (
+                        <Skeleton className="h-64 w-full rounded-2xl animate-pulse" />
+                    ) : (
+                        <Card className="rounded-2xl p-6 bg-neutral-200 text-[--foreground] border border-[--neutral-300] shadow-lg">
+                            <h2 className="text-2xl font-display font-bold mb-6 text-[--primary-default]">
+                                Crear nueva solicitud
+                            </h2>
 
                             <Separator />
 
-                            <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
-                                <Button
-                                    type="submit"
-                                    disabled={!clientId}
-                                    className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition"
-                                >
-                                    Buscar Técnico
-                                </Button>
-                                <Button
-                                    type="button"
-                                    className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition"
-                                    onClick={() => router.push("/client/requests")}
-                                >
-                                    Ver mis Solicitudes
-                                </Button>
-                            </div>
-                        </form>
-                    </Card>
+                            <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)}>
+                                <div className="space-y-2">
+                                    <label
+                                        htmlFor="description"
+                                        className="block text-sm font-semibold text-[--primary-default]"
+                                    >
+                                        Describe tu problema
+                                    </label>
+                                    <Textarea
+                                        id="description"
+                                        {...register("description", { required: true })}
+                                        placeholder="Escribe con detalle lo que ocurre..."
+                                        rows={4}
+                                        className={cn(
+                                            "w-full resize-none rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
+                                            "placeholder:text-muted-foreground shadow-sm transition-colors",
+                                            "focus:outline-none focus:ring-1 focus:ring-[--secondary-default]"
+                                        )}
+                                    />
+                                    {errors.description && (
+                                        <p className="text-sm font-medium text-error">
+                                            * Este campo es obligatorio.
+                                        </p>
+                                    )}
+                                </div>
 
-                    <Card className="p-6 bg-neutral-200 border border-[--neutral-300] shadow-lg">
-                        <h3 className="text-lg font-semibold mb-4 text-[--primary-default]">
-                            Ranking de los mejores técnicos del momento
-                        </h3>
-                        <p className="text-sm text-muted-foreground">Próximamente...</p>
-                    </Card>
+                                <div className="space-y-2 w-1/2">
+                                    <label
+                                        htmlFor="offered_price"
+                                        className="block text-sm font-semibold text-[--primary-default]"
+                                    >
+                                        Precio ofertado (Bs.)
+                                    </label>
+                                    <Input
+                                        id="offered_price"
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="Ej: 150"
+                                        {...register("offeredPrice", {
+                                            required: true,
+                                            valueAsNumber: true,
+                                            min: 1,
+                                        })}
+                                        className={cn(
+                                            "w-full rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
+                                            "placeholder:text-muted-foreground shadow-sm transition-colors",
+                                            "focus:outline-none focus:ring-1 focus:ring-[--secondary-default]"
+                                        )}
+                                    />
+                                    {errors.offeredPrice && (
+                                        <p className="text-sm font-medium text-error">
+                                            * Precio inválido. Ingresa un valor mayor a 0.
+                                        </p>
+                                    )}
+                                </div>
+
+                                <Separator />
+
+                                <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
+                                    <Button
+                                        type="submit"
+                                        disabled={!clientId}
+                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition"
+                                    >
+                                        Buscar Técnico
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition"
+                                        onClick={() => router.push("/client/requests")}
+                                    >
+                                        Ver mis Solicitudes
+                                    </Button>
+                                </div>
+                            </form>
+                        </Card>
+                    )}
+
+                    {isLoading ? (
+                        <Skeleton className="h-32 w-full rounded-lg animate-pulse" />
+                    ) : (
+                        <Card className="p-6 bg-neutral-200 border border-[--neutral-300] shadow-lg">
+                            <h3 className="text-lg font-semibold mb-4 text-[--primary-default]">
+                                Ranking de los mejores técnicos del momento
+                            </h3>
+                            <p className="text-sm text-muted-foreground">Próximamente...</p>
+                        </Card>
+                    )}
                 </div>
 
                 <div className="space-y-6">
-                    <Card className="bg-neutral-200 border border-[--neutral-300] shadow-lg px-4 py-2">
-                        {isLoading ? (
-                            <Skeleton className="h-8 w-full rounded-md" />
-                        ) : (
+                    {isLoading ? (
+                        <Skeleton className="h-16 w-full rounded-lg animate-pulse" />
+                    ) : (
+                        <Card className="bg-neutral-200 border border-[--neutral-300] shadow-lg px-4 py-2">
                             <div className="flex items-center gap-4">
                                 <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-default] text-[--primary-default]">
                                     Solicitudes Creadas: {createdCount}
@@ -200,21 +207,22 @@ export default function ClientHomePage() {
                                     Solicitudes Finalizadas: {finalizedCount}
                                 </Badge>
                             </div>
-                        )}
-                    </Card>
+                        </Card>
+                    )}
 
-                    <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
-                        <CardHeader>
-                            <CardTitle className="text-base font-semibold text-[--primary-default]">
-                                Últimos Chats
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {isLoading
-                                ? [...Array(2)].map((_, idx) => (
-                                    <Skeleton key={idx} className="h-16 w-full rounded-md" />
-                                ))
-                                : [...Array(2)].map((_, idx) => (
+                    {isLoading ? (
+                        [...Array(2)].map((_, idx) => (
+                            <Skeleton key={idx} className="h-16 w-full rounded-md animate-pulse" />
+                        ))
+                    ) : (
+                        <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-base font-semibold text-[--primary-default]">
+                                    Últimos Chats
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {[...Array(2)].map((_, idx) => (
                                     <Card key={idx} className="p-3 bg-white border border-[--neutral-300] shadow-sm">
                                         <p className="text-sm font-medium text-[--foreground]">
                                             Chat con Juan Mecanico
@@ -222,21 +230,23 @@ export default function ClientHomePage() {
                                         <span className="text-xs text-muted-foreground">03/06/2025</span>
                                     </Card>
                                 ))}
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
 
-                    <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
-                        <CardHeader>
-                            <CardTitle className="text-base font-semibold text-[--primary-default]">
-                                Estado de últimas solicitudes
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {isLoading
-                                ? [...Array(2)].map((_, idx) => (
-                                    <Skeleton key={idx} className="h-16 w-full rounded-md" />
-                                ))
-                                : requests.slice(0, 2).map((req) => (
+                    {isLoading ? (
+                        [...Array(2)].map((_, idx) => (
+                            <Skeleton key={idx} className="h-16 w-full rounded-md animate-pulse" />
+                        ))
+                    ) : (
+                        <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-base font-semibold text-[--primary-default]">
+                                    Estado de últimas solicitudes
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {requests.slice(0, 2).map((req) => (
                                     <Card key={req.id} className="p-3 bg-white border border-[--neutral-300] shadow-sm">
                                         <p className="text-sm font-medium text-[--foreground]">
                                             “{req.description}”
@@ -255,8 +265,9 @@ export default function ClientHomePage() {
                                         </div>
                                     </Card>
                                 ))}
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
         </main>

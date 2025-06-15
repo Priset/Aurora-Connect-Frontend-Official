@@ -34,25 +34,29 @@ export const useAuth = () => {
     } = useAuth0()
 
     const [profile, setProfile] = useState<ExtendedProfile | null>(null)
+    const [authInitialized, setAuthInitialized] = useState(false)
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            if (!isAuthenticated) return
+        const initializeAuth = async () => {
             try {
-                const token = await getAccessTokenSilently()
-                const { data: userProfile } = await axios.get<ExtendedProfile>(`${API_ROUTES.auth}/me`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                })
-                setProfile(userProfile)
+                if (isAuthenticated) {
+                    const token = await getAccessTokenSilently()
+                    const { data } = await axios.get(`${API_ROUTES.auth}/me`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    })
+                    setProfile(data)
+                }
             } catch (err) {
-                console.error("❌ Error al obtener profile:", err)
+                console.error('Error al inicializar la autenticación:', err)
+            } finally {
+                setAuthInitialized(true)
             }
         }
 
-        fetchProfile()
-    }, [isAuthenticated, getAccessTokenSilently])
+        initializeAuth()
+    }, [isAuthenticated, isLoading, getAccessTokenSilently])
 
     const register = async (
         role: 'client' | 'technician',
@@ -109,5 +113,6 @@ export const useAuth = () => {
         profile,
         isAuthenticated,
         isLoading,
+        authInitialized,
     }
 }
