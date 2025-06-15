@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Providers } from './providers'
 import "./globals.css";
-import {Toaster} from "sonner";
+import { Toaster } from "sonner";
+import React from "react";
 
 export const metadata: Metadata = {
     title: "Aurora Connect",
@@ -16,5 +17,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Toaster position="bottom-right" richColors closeButton />
             </body>
         </html>
-    )
+    );
 }

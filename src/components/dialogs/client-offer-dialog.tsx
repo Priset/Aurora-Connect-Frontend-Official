@@ -18,12 +18,12 @@ export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }
         setIsProcessing(true);
         try {
             await updateStatus(request.id, Status.ACEPTADO_POR_CLIENTE);
-            toast.success("✅ Oferta aceptada.");
+            toast.success("Oferta aceptada.");
             onActionComplete?.();
             onClose();
         } catch (err) {
             console.error(err);
-            toast.error("❌ Error al aceptar la oferta.");
+            toast.error("Error al aceptar la oferta.");
         } finally {
             setIsProcessing(false);
         }
@@ -34,12 +34,12 @@ export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }
         setIsProcessing(true);
         try {
             await updateStatus(request.id, Status.RECHAZADO_POR_CLIENTE);
-            toast.success("🛑 Oferta rechazada.");
+            toast.success("Oferta rechazada.");
             onActionComplete?.();
             onClose();
         } catch (err) {
             console.error(err);
-            toast.error("❌ Error al rechazar la oferta.");
+            toast.error("Error al rechazar la oferta.");
         } finally {
             setIsProcessing(false);
         }
@@ -75,28 +75,31 @@ export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4">
-                    <div className="flex justify-between gap-2">
+                    <div className="flex flex-col gap-2">
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={handleAccept}
+                                disabled={isProcessing}
+                                className="flex-1 py-2 bg-[--success-default] hover:bg-[--success-hover] active:bg-[--success-pressed] text-white text-sm font-medium"
+                            >
+                                Aceptar Oferta
+                            </Button>
+                            <Button
+                                onClick={handleReject}
+                                disabled={isProcessing}
+                                className="flex-1 py-2 bg-[--error-default] hover:bg-[--error-hover] active:bg-[--error-pressed] text-white text-sm font-medium"
+                            >
+                                Rechazar Oferta
+                            </Button>
+                        </div>
                         <Button
-                            onClick={handleAccept}
-                            disabled={isProcessing}
-                            className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                            onClick={handleViewProfile}
+                            className="w-full py-2 bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white text-sm font-medium mt-2"
                         >
-                            Aceptar Oferta
-                        </Button>
-                        <Button
-                            onClick={handleReject}
-                            disabled={isProcessing}
-                            className="flex-1 bg-red-500 hover:bg-red-600 text-white"
-                        >
-                            Rechazar Oferta
+                            Ver Perfil del Técnico
                         </Button>
                     </div>
-                    <Button
-                        onClick={handleViewProfile}
-                        className="bg-[--secondary-default] hover:opacity-90 text-white w-full"
-                    >
-                        Ver Perfil del Técnico
-                    </Button>
+
                 </div>
             </DialogContent>
             {offer?.technician_id && (

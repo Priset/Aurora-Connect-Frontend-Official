@@ -158,6 +158,15 @@ export interface Chat {
     status: number;
     created_at: string;
     updated_at: string;
+
+    technician?: {
+        user?: {
+            name: string;
+            last_name: string;
+        }
+    };
+
+    messages?: ChatMessage[];
 }
 
 export interface CreateChatDto {
@@ -182,8 +191,8 @@ export interface ChatMessage {
 }
 
 export interface CreateChatMessageDto {
-    chat_id: number;
-    sender_id: number;
+    chatId: number;
+    senderId: number;
     message: string;
     status?: number;
 }

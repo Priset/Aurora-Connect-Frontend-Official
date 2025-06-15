@@ -22,7 +22,7 @@ export function UserMenu({ userName, userPictureUrl }: UserMenuProps) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Avatar className="w-11 h-11 cursor-pointer">
+                <Avatar className="w-9 h-9 cursor-pointer">
                     {userPictureUrl ? (
                         <AvatarImage src={userPictureUrl} alt="avatar" />
                     ) : (
