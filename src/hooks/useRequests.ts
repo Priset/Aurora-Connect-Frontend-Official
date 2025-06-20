@@ -77,6 +77,13 @@ export const useRequests = () => {
         [getAccessTokenSilently]
     );
 
+    const finalizeRequest = useCallback(
+        async (id: number): Promise<void> => {
+            await axios.patch(`${API_ROUTES.requests}/${id}/finalize`, {}, await authHeaders());
+        },
+        [getAccessTokenSilently]
+    );
+
     const remove = useCallback(async (id: number): Promise<void> => {
         await axios.delete(`${API_ROUTES.requests}/${id}`, await authHeaders());
     }, [getAccessTokenSilently]);
@@ -88,6 +95,7 @@ export const useRequests = () => {
         create,
         update,
         updateStatus,
+        finalizeRequest,
         remove,
     };
 };

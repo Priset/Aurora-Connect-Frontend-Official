@@ -192,7 +192,7 @@ export default function TechnicianHomePage() {
         if (!profile?.technicianProfile?.id) return [];
         return requests.filter(
             (r) =>
-                r.status === Status.FINALIZADO_CON_VALORACION &&
+                r.status === Status.FINALIZADO &&
                 r.serviceOffers?.some((offer) => offer.technician_id === profile.technicianProfile!.id) &&
                 r.description.toLowerCase().includes(search.closed.toLowerCase())
         );

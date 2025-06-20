@@ -4,25 +4,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { useSocket } from "@/hooks/useSocket";
-import { ServiceRequest, Status, StatusMap } from "@/interfaces/auroraDb";
+import {Chat, ServiceRequest, Status} from "@/interfaces/auroraDb";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, MessageCircle, Filter, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import { RequestSection } from "@/components/sections/requestSection";
 import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
 import { ClientOfferDialog } from "@/components/dialogs/client-offer-dialog";
-import { ClientChatDialog } from "@/components/dialogs/client-chat-dialog";
-
-type SectionProps = {
-    title: string;
-    searchKey: keyof typeof initialSearch;
-    searchValue: string;
-    onSearchChange: (val: string) => void;
-    data: ServiceRequest[];
-    onClick: (req: ServiceRequest) => void;
-    type: "view" | "offer";
-};
+import { ReviewDialog } from "@/components/review/review-dialog";
 
 const initialSearch = {
     created: "",
@@ -30,72 +18,6 @@ const initialSearch = {
     progress: "",
     closed: ""
 };
-
-const Section = ({
-                     title,
-                     searchValue,
-                     onSearchChange,
-                     data,
-                     onClick
-                 }: SectionProps) => (
-    <div className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4 overflow-hidden">
-        <h3 className="text-sm font-semibold mb-3">{title}</h3>
-        <div className="flex items-center gap-2 mb-3">
-            <Button size="icon" variant="ghost" type="button">
-                <Filter className="w-4 h-4" />
-            </Button>
-            <Input
-                placeholder="Buscar..."
-                value={searchValue}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="text-sm"
-            />
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Info className="w-4 h-4 text-muted-foreground cursor-pointer" />
-                </TooltipTrigger>
-                <TooltipContent
-                    side="top"
-                    className="z-50 bg-neutral-700 text-white border border-[--neutral-300] rounded-md shadow-sm text-xs px-3 py-1"
-                >
-                    Puedes utilizar el campo de búsqueda<br />para filtrar las solicitudes por descripción.
-                </TooltipContent>
-            </Tooltip>
-        </div>
-        <div className="flex flex-col gap-2 overflow-y-auto pr-1">
-            {data.length > 0 ? (
-                data.map((req) => {
-                    const createdAt = new Date(req.created_at).toLocaleDateString("es-BO", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric"
-                    });
-
-                    return (
-                        <div
-                            key={req.id}
-                            onClick={() => onClick(req)}
-                            className="bg-white border border-[--neutral-300] rounded-lg p-3 cursor-pointer hover:shadow-md transition"
-                        >
-                            <p className="text-sm font-semibold mb-1">{req.description}</p>
-                            <div className="text-xs text-muted-foreground">
-                                Precio: Bs. {req.offered_price.toFixed(2)}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground italic">
-                                Creado: {createdAt}
-                            </div>
-                            <Badge className="text-xs mt-2" style={{ backgroundColor: StatusMap[req.status as keyof typeof StatusMap].color }}>
-                                {StatusMap[req.status as keyof typeof StatusMap].label}
-                            </Badge>
-                        </div>
-                    );
-                })
-            ) : (
-                <p className="text-xs text-muted-foreground">Sin resultados.</p>
-            )}
-        </div>
-    </div>
-);
 
 const SectionSkeleton = () => (
     <div className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4">
@@ -124,10 +46,18 @@ export default function ClientRequestsPage() {
 
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
-    const [dialogType, setDialogType] = useState<"view" | "offer" | null>(null);
-    const [chatOpen, setChatOpen] = useState(false);
+    const [dialogType, setDialogType] = useState<"view" | "offer" | "review" | null>(null);
     const [search, setSearch] = useState(initialSearch);
     const [loading, setLoading] = useState(true);
+
+    const [sorts, setSorts] = useState({
+        created: "",
+        offers: "",
+        progress: "",
+        closed: ""
+    });
+
+    const [progressStatusFilter, setProgressStatusFilter] = useState<number | null>(null);
 
     const openDialog = (type: "view" | "offer", request: ServiceRequest) => {
         setSelectedRequest(request);
@@ -172,31 +102,69 @@ export default function ClientRequestsPage() {
         }
     );
 
-    const created = requests.filter(
-        (r) => r.status === Status.PENDIENTE && r.description.toLowerCase().includes(search.created.toLowerCase())
+    const sortData = (data: ServiceRequest[], key: string) => {
+        switch (key) {
+            case "date_asc":
+                return [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            case "date_desc":
+                return [...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            case "price_asc":
+                return [...data].sort((a, b) => a.offered_price - b.offered_price);
+            case "price_desc":
+                return [...data].sort((a, b) => b.offered_price - a.offered_price);
+            case "az":
+                return [...data].sort((a, b) => a.description.localeCompare(b.description));
+            case "za":
+                return [...data].sort((a, b) => b.description.localeCompare(a.description));
+            default:
+                return data;
+        }
+    };
+
+    const created = sortData(
+        requests.filter(
+            (r) =>
+                r.status === Status.PENDIENTE &&
+                r.description.toLowerCase().includes(search.created.toLowerCase())
+        ),
+        sorts.created
     );
 
-    const offers = requests.filter(
-        (r) =>
-            r.serviceOffers?.some((offer) =>
-                [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO, Status.RECHAZADO_POR_TECNICO].includes(offer.status)
-            ) && r.description.toLowerCase().includes(search.offers.toLowerCase())
+    const offers = sortData(
+        requests.filter(
+            (r) =>
+                r.serviceOffers?.some((offer) =>
+                    [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO, Status.RECHAZADO_POR_TECNICO].includes(offer.status)
+                ) &&
+                r.description.toLowerCase().includes(search.offers.toLowerCase())
+        ),
+        sorts.offers
     );
 
-    const progress = requests.filter(
-        (r) =>
-            [
-                Status.ACEPTADO_POR_TECNICO,
-                Status.CONTRAOFERTA_POR_TECNICO,
-                Status.RECHAZADO_POR_TECNICO,
-                Status.RECHAZADO_POR_CLIENTE,
-                Status.ACEPTADO_POR_CLIENTE,
-                Status.CHAT_ACTIVO
-            ].includes(r.status) && r.description.toLowerCase().includes(search.progress.toLowerCase())
+    const progress = sortData(
+        requests.filter(
+            (r) =>
+                [
+                    Status.ACEPTADO_POR_TECNICO,
+                    Status.CONTRAOFERTA_POR_TECNICO,
+                    Status.RECHAZADO_POR_TECNICO,
+                    Status.RECHAZADO_POR_CLIENTE,
+                    Status.ACEPTADO_POR_CLIENTE,
+                    Status.CHAT_ACTIVO
+                ].includes(r.status) &&
+                (progressStatusFilter === null || r.status === progressStatusFilter) &&
+                r.description.toLowerCase().includes(search.progress.toLowerCase())
+        ),
+        sorts.progress
     );
 
-    const closed = requests.filter(
-        (r) => r.status === Status.FINALIZADO_CON_VALORACION && r.description.toLowerCase().includes(search.closed.toLowerCase())
+    const closed = sortData(
+        requests.filter(
+            (r) =>
+                [Status.FINALIZADO, Status.CALIFICADO].includes(r.status) &&
+                r.description.toLowerCase().includes(search.closed.toLowerCase())
+        ),
+        sorts.closed
     );
 
     return (
@@ -204,7 +172,7 @@ export default function ClientRequestsPage() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-display font-bold text-white">Gestión de Solicitudes</h1>
                 <Button
-                    className="bg-[--secondary-default] text-white hover:bg-[--secondary-hover] px-4 py-2 active:bg-[--secondary-pressed] transition"
+                    className="bg-[--secondary-default] text-white hover:bg-[--secondary-hover] px-4 py-2 active:bg-[--secondary-pressed] transition transform hover:scale-105 active:scale-95"
                     onClick={() => window.location.href = "/client/home"}
                 >
                     <Plus className="w-4 h-4 mr-1" />
@@ -222,7 +190,7 @@ export default function ClientRequestsPage() {
                     </>
                 ) : (
                     <>
-                        <Section
+                        <RequestSection
                             title="Solicitudes Creadas"
                             searchKey="created"
                             searchValue={search.created}
@@ -230,8 +198,11 @@ export default function ClientRequestsPage() {
                             data={created}
                             onClick={(r) => openDialog("view", r)}
                             type="view"
+                            sortKey={sorts.created}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, created: val }))}
+                            showStatusFilter={false}
                         />
-                        <Section
+                        <RequestSection
                             title="Ofertas entrantes"
                             searchKey="offers"
                             searchValue={search.offers}
@@ -239,8 +210,11 @@ export default function ClientRequestsPage() {
                             data={offers}
                             onClick={(r) => openDialog("offer", r)}
                             type="offer"
+                            sortKey={sorts.offers}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
+                            showStatusFilter={false}
                         />
-                        <Section
+                        <RequestSection
                             title="Progreso de la solicitud"
                             searchKey="progress"
                             searchValue={search.progress}
@@ -248,15 +222,30 @@ export default function ClientRequestsPage() {
                             data={progress}
                             onClick={(r) => openDialog("view", r)}
                             type="view"
+                            sortKey={sorts.progress}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, progress: val }))}
+                            showStatusFilter={true}
+                            filterStatus={progressStatusFilter}
+                            onFilterStatusChange={setProgressStatusFilter}
                         />
-                        <Section
+                        <RequestSection
                             title="Solicitudes cerradas"
                             searchKey="closed"
                             searchValue={search.closed}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}
                             data={closed}
-                            onClick={(r) => openDialog("view", r)}
+                            onClick={(r) => {
+                                setSelectedRequest(r);
+                                setDialogType("view");
+                            }}
                             type="view"
+                            onReview={(r) => {
+                                setSelectedRequest(r);
+                                setDialogType("review");
+                            }}
+                            sortKey={sorts.closed}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, closed: val }))}
+                            showStatusFilter={false}
                         />
                     </>
                 )}
@@ -277,16 +266,17 @@ export default function ClientRequestsPage() {
                     onActionComplete={loadRequests}
                 />
             )}
-            <ClientChatDialog isOpen={chatOpen} onClose={() => setChatOpen(false)} />
 
-            {!chatOpen && (
-                <Button
-                    size="icon"
-                    className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-[--primary-default] text-white hover:opacity-90"
-                    onClick={() => setChatOpen(true)}
-                >
-                    <MessageCircle className="w-5 h-5" />
-                </Button>
+            {selectedRequest && dialogType === "review" && (
+                <ReviewDialog
+                    isOpen={true}
+                    chat={{ request_id: selectedRequest.id } as Chat}
+                    onClose={() => {
+                        setSelectedRequest(null);
+                        setDialogType(null);
+                        loadRequests();
+                    }}
+                />
             )}
         </main>
     );

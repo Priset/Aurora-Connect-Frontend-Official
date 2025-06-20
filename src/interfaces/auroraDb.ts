@@ -119,10 +119,10 @@ export interface ServiceReview {
 
 export interface CreateServiceReviewDto {
     request_id: number;
-    reviewer_id: number;
     technician_id: number;
     comment?: string;
     rating: number;
+    status?: number;
 }
 
 export interface UpdateServiceReviewDto {
@@ -284,8 +284,9 @@ export enum Status {
     RECHAZADO_POR_CLIENTE = 6,
     ACEPTADO_POR_CLIENTE = 7,
     CHAT_ACTIVO = 8,
-    FINALIZADO_CON_VALORACION = 9,
-    ELIMINADO = 10,
+    FINALIZADO = 9,
+    CALIFICADO = 10,
+    ELIMINADO = 11,
 }
 
 export const StatusMap: Record<Status, { label: string; color: string }> = {
@@ -298,6 +299,7 @@ export const StatusMap: Record<Status, { label: string; color: string }> = {
     [Status.RECHAZADO_POR_CLIENTE]: { label: "Rechazado por Cliente", color: "#F87171" },
     [Status.ACEPTADO_POR_CLIENTE]: { label: "Aceptado por Cliente", color: "#34D399" },
     [Status.CHAT_ACTIVO]: { label: "Chat Activo", color: "#0EA5E9" },
-    [Status.FINALIZADO_CON_VALORACION]: { label: "Finalizado con Valoración", color: "#8B5CF6" },
+    [Status.FINALIZADO]: { label: "Finalizado", color: "#8B5CF6" },
+    [Status.CALIFICADO]: { label: "Calificado", color: "#5df5e0" },
     [Status.ELIMINADO]: { label: "Eliminado", color: "#6B7280" },
 };

@@ -17,7 +17,6 @@ import { ServiceRequest } from "@/interfaces/auroraDb";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { StatusMap } from "@/interfaces/auroraDb";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface RequestForm {
     description: string;
@@ -41,10 +40,13 @@ export default function ClientHomePage() {
     } = useForm<RequestForm>();
 
     useEffect(() => {
-        if (user && profile?.id) {
-            setClientId(profile.id);
-            loadRequests();
-        }
+        const fetch = async () => {
+            if (user && profile?.id) {
+                setClientId(profile.id);
+                await loadRequests();
+            }
+        };
+        fetch();
     }, [user, profile]);
 
     const loadRequests = async () => {
@@ -52,10 +54,12 @@ export default function ClientHomePage() {
         try {
             const data = await getAll();
             const filtered = data.filter((r) => r.client_id === profile?.id);
-            setRequests(filtered);
+            setTimeout(() => {
+                setRequests(filtered);
+                setIsLoading(false);
+            }, 500);
         } catch (err) {
             console.error("Error al cargar solicitudes:", err);
-        } finally {
             setIsLoading(false);
         }
     };
@@ -83,12 +87,12 @@ export default function ClientHomePage() {
     };
 
     const createdCount = requests.length;
-    const finalizedCount = requests.filter((r) => r.status === Status.FINALIZADO_CON_VALORACION).length;
+    const finalizedCount = requests.filter((r) => r.status === Status.FINALIZADO).length;
 
     return (
         <main className="px-4 sm:px-6 md:px-10 py-8 space-y-10 w-full">
             {isLoading ? (
-                <Skeleton className="h-10 w-1/2 rounded-lg animate-pulse" />
+                <div className="h-10 w-1/2 bg-[--neutral-300] rounded-lg animate-pulse" />
             ) : (
                 user && (
                     <h1 className="text-2xl font-display font-bold text-white">
@@ -100,7 +104,12 @@ export default function ClientHomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-6">
                     {isLoading ? (
-                        <Skeleton className="h-64 w-full rounded-2xl animate-pulse" />
+                        <div className="p-6 bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-lg space-y-4 animate-pulse">
+                            <div className="h-6 w-2/3 bg-[--neutral-300] rounded" />
+                            <div className="h-4 w-full bg-[--neutral-200] rounded" />
+                            <div className="h-28 w-full bg-[--neutral-200] rounded" />
+                            <div className="h-12 w-1/2 bg-[--secondary-default] rounded-full" />
+                        </div>
                     ) : (
                         <Card className="rounded-2xl p-6 bg-neutral-200 text-[--foreground] border border-[--neutral-300] shadow-lg">
                             <h2 className="text-2xl font-display font-bold mb-6 text-[--primary-default]">
@@ -171,13 +180,13 @@ export default function ClientHomePage() {
                                     <Button
                                         type="submit"
                                         disabled={!clientId}
-                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition"
+                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition transform hover:scale-105 active:scale-95"
                                     >
                                         Buscar Técnico
                                     </Button>
                                     <Button
                                         type="button"
-                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition"
+                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition transform hover:scale-105 active:scale-95"
                                         onClick={() => router.push("/client/requests")}
                                     >
                                         Ver mis Solicitudes
@@ -188,7 +197,7 @@ export default function ClientHomePage() {
                     )}
 
                     {isLoading ? (
-                        <Skeleton className="h-32 w-full rounded-lg animate-pulse" />
+                        <div className="h-32 w-full bg-[--neutral-200] rounded-xl animate-pulse" />
                     ) : (
                         <Card className="p-6 bg-neutral-200 border border-[--neutral-300] shadow-lg">
                             <h3 className="text-lg font-semibold mb-4 text-[--primary-default]">
@@ -201,14 +210,14 @@ export default function ClientHomePage() {
 
                 <div className="space-y-6">
                     {isLoading ? (
-                        <Skeleton className="h-16 w-full rounded-lg animate-pulse" />
+                        <div className="h-16 w-full bg-[--neutral-300] rounded-lg animate-pulse" />
                     ) : (
                         <Card className="bg-neutral-200 border border-[--neutral-300] shadow-lg px-4 py-2">
                             <div className="flex items-center gap-4">
-                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-default] text-[--primary-default]">
+                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100">
                                     Solicitudes Creadas: {createdCount}
                                 </Badge>
-                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-default] text-[--primary-default]">
+                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100">
                                     Solicitudes Finalizadas: {finalizedCount}
                                 </Badge>
                             </div>
@@ -217,7 +226,7 @@ export default function ClientHomePage() {
 
                     {isLoading ? (
                         [...Array(2)].map((_, idx) => (
-                            <Skeleton key={idx} className="h-16 w-full rounded-md animate-pulse" />
+                            <div key={idx} className="h-20 w-full bg-[--neutral-300] rounded-lg animate-pulse" />
                         ))
                     ) : (
                         <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
@@ -241,7 +250,7 @@ export default function ClientHomePage() {
 
                     {isLoading ? (
                         [...Array(2)].map((_, idx) => (
-                            <Skeleton key={idx} className="h-16 w-full rounded-md animate-pulse" />
+                            <div key={idx} className="h-20 w-full bg-[--neutral-300] rounded-lg animate-pulse" />
                         ))
                     ) : (
                         <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
