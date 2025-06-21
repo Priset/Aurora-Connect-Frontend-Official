@@ -36,7 +36,6 @@ export interface TechnicianProfile {
     status: number;
     created_at: string;
     updated_at: string;
-
     user: User;
     service_reviews: ServiceReview[];
 }
@@ -44,7 +43,7 @@ export interface TechnicianProfile {
 export interface CreateTechnicianProfileDto {
     user_id: number;
     experience?: string;
-    yearsExperience: number;
+    years_experience: number;
 }
 
 export interface UpdateTechnicianProfileDto {
@@ -164,6 +163,11 @@ export interface Chat {
             name: string;
             last_name: string;
         }
+    };
+
+    client?: {
+        name: string;
+        last_name: string;
     };
 
     messages?: ChatMessage[];

@@ -19,7 +19,7 @@ export function Navbar() {
 
     return (
         <>
-            <nav className="bg-primary-dark text-white shadow-md px-6 py-4">
+            <nav className="fixed top-0 left-0 w-full z-50 bg-primary-dark text-white shadow-md px-6 py-4">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <Image
@@ -44,13 +44,13 @@ export function Navbar() {
 
                     <div className="hidden md:flex gap-4">
                         <Button
-                            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed text-white transition"
+                            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed text-white transition transform hover:scale-105 active:scale-95"
                             onClick={login}
                         >
                             Iniciar Sesión
                         </Button>
                         <Button
-                            className="border border-secondary text-secondary hover:bg-secondary hover:text-white active:bg-secondary-pressed transition"
+                            className="border border-secondary text-secondary hover:bg-secondary hover:text-white active:bg-secondary-pressed transition transform hover:scale-105 active:scale-95"
                             variant="ghost"
                             onClick={() => handleRegisterClick("client")}
                         >
@@ -62,13 +62,13 @@ export function Navbar() {
                 {isMenuOpen && (
                     <div className="flex flex-col gap-2 mt-4 md:hidden">
                         <Button
-                            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed text-white transition"
+                            className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed text-white transition transform hover:scale-105 active:scale-95"
                             onClick={login}
                         >
                             Iniciar Sesión
                         </Button>
                         <Button
-                            className="border border-secondary text-secondary hover:bg-secondary hover:text-white active:bg-secondary-pressed transition"
+                            className="border border-secondary text-secondary hover:bg-secondary hover:text-white active:bg-secondary-pressed transition transform hover:scale-105 active:scale-95"
                             variant="ghost"
                             onClick={() => handleRegisterClick("client")}
                         >

@@ -5,7 +5,7 @@ import { NavbarUser } from "@/components/layout/navbar-user";
 import { SidebarWithTooltips } from "@/components/layout/sidebar-with-tooltips";
 import { AuthGuard } from "@/components/auth/authGuard";
 import { ReactNode, useState } from "react";
-import { ClientChatDialog } from "@/components/dialogs/client-chat-dialog";
+import { ClientChatDialog } from "@/components/chat/client-chat-dialog";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 

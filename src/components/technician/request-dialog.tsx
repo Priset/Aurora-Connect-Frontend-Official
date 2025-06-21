@@ -32,7 +32,7 @@ export function RequestDialog({ isOpen, onClose, request, onActionComplete }: Re
             setOfferReason("");
             setIsProcessing(false);
         }
-        setIsLoading(false); // Simula la carga inicial
+        setIsLoading(false);
     }, [isOpen]);
 
     const handleAccept = async () => {

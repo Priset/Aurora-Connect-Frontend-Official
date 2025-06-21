@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useReviews } from "@/hooks/useReviews";
 import { Chat } from "@/interfaces/auroraDb";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Props {
     isOpen: boolean;
@@ -36,7 +37,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
         if (!profile) return;
 
         if (!chat.request_id || !chat.technician_id || !profile.id || !rating) {
-            console.error("❌ Faltan datos requeridos para enviar la review.");
+            toast.error("Por favor completa todos los campos obligatorios.");
             return;
         }
 
@@ -50,9 +51,11 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
         setSubmitting(true);
         try {
             await create(payload);
+            toast.success("Valoración enviada correctamente.");
             onClose();
         } catch (error) {
             console.error("❌ Error al enviar valoración:", error);
+            toast.error("Hubo un error al enviar la valoración.");
         } finally {
             setSubmitting(false);
         }

@@ -7,9 +7,9 @@ import { useSocket } from "@/hooks/useSocket";
 import {Chat, ServiceRequest, Status} from "@/interfaces/auroraDb";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { RequestSection } from "@/components/sections/requestSection";
+import { RequestSection } from "@/components/sections/request-section";
 import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
-import { ClientOfferDialog } from "@/components/dialogs/client-offer-dialog";
+import { ClientOfferDialog } from "@/components/client/client-offer-dialog";
 import { ReviewDialog } from "@/components/review/review-dialog";
 
 const initialSearch = {

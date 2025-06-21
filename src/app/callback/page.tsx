@@ -52,7 +52,7 @@ export default function CallbackPage() {
                         await createTechnician({
                             user_id: createdUser.id,
                             experience,
-                            yearsExperience,
+                            years_experience: yearsExperience,
                         })
 
                         localStorage.removeItem('technicianExperience')

@@ -98,7 +98,7 @@ export const RequestSection = ({
                                 onFilterStatusChange?.(val === "-1" ? null : parseInt(val))
                             }
                         >
-                            <SelectTrigger className="h-8 px-2 py-1 text-xs border rounded-md w-[120px]">
+                            <SelectTrigger className="h-8 px-2 py-1 text-xs border rounded-md w-[160px] truncate overflow-hidden">
                                 <SelectValue placeholder="Estado" />
                             </SelectTrigger>
                             <SelectContent className="bg-neutral-100 border border-[--neutral-300] text-sm shadow-md z-50">
@@ -112,7 +112,7 @@ export const RequestSection = ({
                                             Status.FINALIZADO,
                                             Status.HABILITADO,
                                             Status.DESHABILITADO,
-                                            Status.PENDIENTE
+                                            Status.PENDIENTE,
                                         ].includes(id);
                                     })
                                     .map(([key, value]) => (
@@ -150,12 +150,12 @@ export const RequestSection = ({
                             >
                                 <div className="flex items-center justify-between mb-1">
                                     <p className="text-sm font-semibold">{req.description}</p>
-                                    {req.status === Status.FINALIZADO && (
+                                    {req.status === Status.FINALIZADO && onReview && (
                                         <Button
                                             className="text-xs bg-[--secondary-default] text-neutral-100 px-3 py-1 rounded-md hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] transition"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                onReview?.(req);
+                                                onReview(req);
                                             }}
                                         >
                                             Calificar
@@ -192,8 +192,8 @@ export const RequestSection = ({
                         Anterior
                     </Button>
                     <span className="text-muted-foreground">
-            Página {page} de {totalPages}
-          </span>
+                        Página {page} de {totalPages}
+                    </span>
                     <Button
                         disabled={page === totalPages}
                         onClick={() => setPage((p) => Math.min(p + 1, totalPages))}

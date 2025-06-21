@@ -12,7 +12,7 @@ import {
 import { TechnicianProfile, TechnicianProfileSlideProps } from "@/interfaces/auroraDb";
 import { useTechnicians } from "@/hooks/useTechnicians";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User as UserIcon } from "lucide-react";
+import {Star, User as UserIcon} from "lucide-react";
 
 export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: TechnicianProfileSlideProps) {
     const { getPublicById } = useTechnicians();
@@ -51,7 +51,6 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
 
                 {isLoading ? (
                     <div className="space-y-4 animate-pulse">
-                        {/* Avatar y nombre */}
                         <div className="flex items-center gap-4 border-b border-[--neutral-300] pb-4">
                             <div className="w-16 h-16 bg-[--neutral-300] rounded-full" />
                             <div className="flex-1 space-y-2">
@@ -60,19 +59,16 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                             </div>
                         </div>
 
-                        {/* Experiencia */}
                         <div className="space-y-2">
                             <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
                             <div className="h-3 w-full bg-[--neutral-300] rounded" />
                         </div>
 
-                        {/* Años de experiencia */}
                         <div className="space-y-2">
                             <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
                             <div className="h-3 w-1/4 bg-[--neutral-300] rounded" />
                         </div>
 
-                        {/* Valoraciones */}
                         <div className="space-y-2">
                             <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
                             {[...Array(2)].map((_, idx) => (
@@ -83,7 +79,6 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                 ) : (
                     technician && technician.user && (
                         <div className="space-y-5">
-                            {/* Info básica */}
                             <div className="flex items-center gap-4 border-b border-[--neutral-300] pb-4">
                                 <Avatar className="w-16 h-16">
                                     <AvatarFallback className="bg-[--secondary-default] text-white text-lg">
@@ -98,7 +93,6 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                 </div>
                             </div>
 
-                            {/* Experiencia */}
                             <div>
                                 <p className="text-sm font-semibold mb-1">Experiencia</p>
                                 <p className="text-sm text-muted-foreground">
@@ -106,7 +100,6 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                 </p>
                             </div>
 
-                            {/* Años de experiencia */}
                             <div>
                                 <p className="text-sm font-semibold mb-1">Años de experiencia</p>
                                 <p className="text-sm text-muted-foreground">
@@ -116,7 +109,6 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                 </p>
                             </div>
 
-                            {/* Valoraciones */}
                             <div>
                                 <p className="text-sm font-semibold mb-1">Valoraciones</p>
                                 <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
@@ -130,10 +122,14 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                                     &quot;{review.comment || "Sin comentario"}&quot;
                                                 </p>
                                                 <div className="flex items-center gap-1">
-                                                    {[...Array(review.rating)].map((_, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className="w-4 h-4 bg-yellow-500 rounded-full"
+                                                    {[1, 2, 3, 4, 5].map((val) => (
+                                                        <Star
+                                                            key={val}
+                                                            className={`w-4 h-4 ${
+                                                                val <= review.rating
+                                                                    ? "text-yellow-400 fill-yellow-400"
+                                                                    : "text-neutral-300"
+                                                            }`}
                                                         />
                                                     ))}
                                                 </div>

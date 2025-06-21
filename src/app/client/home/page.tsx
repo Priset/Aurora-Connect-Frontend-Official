@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +10,18 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
-import { Status } from "@/interfaces/auroraDb";
+import { useChats } from "@/hooks/useChats";
+import {Status, Chat, TechnicianProfile} from "@/interfaces/auroraDb";
 import { cn } from "@/lib/utils";
 import { ServiceRequest } from "@/interfaces/auroraDb";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { StatusMap } from "@/interfaces/auroraDb";
+import {useTechnicians} from "@/hooks/useTechnicians";
+import { TechnicianProfileSlide } from "@/components/technician/technician-profile-slide";
+import {Star} from "lucide-react";
+
+type TechnicianWithRating = TechnicianProfile & { avgRating: number };
 
 interface RequestForm {
     description: string;
@@ -25,12 +30,17 @@ interface RequestForm {
 
 export default function ClientHomePage() {
     const { user } = useAuth0();
-    const router = useRouter();
     const { profile } = useAuth();
     const { create, getAll } = useRequests();
     const [clientId, setClientId] = useState<number | null>(null);
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { getAll: getAllChats } = useChats();
+    const [chats, setChats] = useState<Chat[]>([]);
+    const { getAllPublic } = useTechnicians();
+    const [topTechnicians, setTopTechnicians] = useState<TechnicianWithRating[]>([]);
+    const [selectedTechnicianId, setSelectedTechnicianId] = useState<number | null>(null);
+    const [isTechnicianOpen, setIsTechnicianOpen] = useState(false);
 
     const {
         register,
@@ -40,14 +50,51 @@ export default function ClientHomePage() {
     } = useForm<RequestForm>();
 
     useEffect(() => {
-        const fetch = async () => {
-            if (user && profile?.id) {
-                setClientId(profile.id);
-                await loadRequests();
+        if (user && profile?.id) {
+            setClientId(profile.id);
+        }
+    }, [user, profile]);
+
+    useEffect(() => {
+        if (!clientId) return;
+
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const reqs = await getAll();
+                setRequests(reqs.filter((r) => r.client_id === clientId));
+
+                const allChats = await getAllChats();
+                const recentChats = allChats
+                    .filter((chat) => chat.client_id === clientId)
+                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .slice(0, 5);
+                setChats(recentChats);
+
+                const allTechs = await getAllPublic();
+                const rated = allTechs
+                    .filter(t => t.service_reviews && t.service_reviews.length > 0)
+                    .map(t => {
+                        const ratings = t.service_reviews.map(r => r.rating);
+                        const avg = ratings.reduce((acc, val) => acc + val, 0) / ratings.length;
+                        return { ...t, avgRating: avg };
+                    })
+                    .sort((a, b) => {
+                        if (b.avgRating !== a.avgRating) return b.avgRating - a.avgRating;
+                        return b.service_reviews.length - a.service_reviews.length;
+                    })
+                    .slice(0, 3);
+
+                setTopTechnicians(rated);
+            } catch (err) {
+                console.error("Error al cargar datos del cliente:", err);
+            } finally {
+                setIsLoading(false);
             }
         };
-        fetch();
-    }, [user, profile]);
+
+        fetchData();
+    }, [clientId]);
 
     const loadRequests = async () => {
         setIsLoading(true);
@@ -112,7 +159,7 @@ export default function ClientHomePage() {
                         </div>
                     ) : (
                         <Card className="rounded-2xl p-6 bg-neutral-200 text-[--foreground] border border-[--neutral-300] shadow-lg">
-                            <h2 className="text-2xl font-display font-bold mb-6 text-[--primary-default]">
+                            <h2 className="text-2xl font-display font-bold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
                                 Crear nueva solicitud
                             </h2>
 
@@ -182,14 +229,7 @@ export default function ClientHomePage() {
                                         disabled={!clientId}
                                         className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition transform hover:scale-105 active:scale-95"
                                     >
-                                        Buscar Técnico
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition transform hover:scale-105 active:scale-95"
-                                        onClick={() => router.push("/client/requests")}
-                                    >
-                                        Ver mis Solicitudes
+                                        Enviar Solicitud
                                     </Button>
                                 </div>
                             </form>
@@ -200,10 +240,49 @@ export default function ClientHomePage() {
                         <div className="h-32 w-full bg-[--neutral-200] rounded-xl animate-pulse" />
                     ) : (
                         <Card className="p-6 bg-neutral-200 border border-[--neutral-300] shadow-lg">
-                            <h3 className="text-lg font-semibold mb-4 text-[--primary-default]">
+                            <h3 className="text-lg font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit mb-4">
                                 Ranking de los mejores técnicos del momento
                             </h3>
-                            <p className="text-sm text-muted-foreground">Próximamente...</p>
+                            {topTechnicians.length ? (
+                                <div className="space-y-3">
+                                    {topTechnicians.map((tech, idx) => (
+                                        <Card
+                                            key={tech.id}
+                                            onClick={() => {
+                                                setSelectedTechnicianId(tech.id);
+                                                setIsTechnicianOpen(true);
+                                            }}
+                                            className="p-3 bg-white border border-[--neutral-300] rounded-lg shadow-sm transition-transform hover:scale-95"
+                                        >
+                                            <div className="flex justify-between items-center mb-1">
+                                                <p className="text-sm font-semibold text-[--foreground]">
+                                                    #{idx + 1} {tech.user.name} {tech.user.last_name}
+                                                </p>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {tech.service_reviews.length} valoraciones
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                {[1, 2, 3, 4, 5].map((val) => (
+                                                    <Star
+                                                        key={val}
+                                                        className={`w-4 h-4 ${
+                                                            val <= Math.round(tech.avgRating)
+                                                                ? "text-yellow-400 fill-yellow-400"
+                                                                : "text-neutral-300"
+                                                        }`}
+                                                    />
+                                                ))}
+                                                <span className="ml-2 text-sm text-muted-foreground">
+                                                    {tech.avgRating.toFixed(1)}/5.0
+                                                </span>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">Aún no hay técnicos calificados.</p>
+                            )}
                         </Card>
                     )}
                 </div>
@@ -214,10 +293,10 @@ export default function ClientHomePage() {
                     ) : (
                         <Card className="bg-neutral-200 border border-[--neutral-300] shadow-lg px-4 py-2">
                             <div className="flex items-center gap-4">
-                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100">
+                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100 transition transform hover:scale-105">
                                     Solicitudes Creadas: {createdCount}
                                 </Badge>
-                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100">
+                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100 transition transform hover:scale-105">
                                     Solicitudes Finalizadas: {finalizedCount}
                                 </Badge>
                             </div>
@@ -231,21 +310,37 @@ export default function ClientHomePage() {
                     ) : (
                         <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
                             <CardHeader>
-                                <CardTitle className="text-base font-semibold text-[--primary-default]">
+                                <CardTitle className="text-base font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
                                     Últimos Chats
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                {[...Array(2)].map((_, idx) => (
-                                    <Card key={idx} className="p-3 bg-white border border-[--neutral-300] shadow-sm">
-                                        <p className="text-sm font-medium text-[--foreground]">
-                                            Chat con Juan Mecanico
-                                        </p>
-                                        <span className="text-xs text-muted-foreground">03/06/2025</span>
-                                    </Card>
-                                ))}
+                                {chats.length > 0 ? (
+                                    chats.map((chat) => (
+                                        <Card
+                                            key={chat.id}
+                                            className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95"
+                                        >
+                                            <p className="text-sm font-medium text-[--foreground]">
+                                                Chat con {chat.technician?.user?.name}{" "}{chat.technician?.user?.last_name}
+                                            </p>
+                                            <span className="text-xs text-muted-foreground">
+                                                {new Date(chat.created_at).toLocaleString("es-BO", {
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                })}
+                                              </span>
+                                        </Card>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No hay chats recientes.</p>
+                                )}
                             </CardContent>
                         </Card>
+
                     )}
 
                     {isLoading ? (
@@ -255,35 +350,54 @@ export default function ClientHomePage() {
                     ) : (
                         <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
                             <CardHeader>
-                                <CardTitle className="text-base font-semibold text-[--primary-default]">
+                                <CardTitle className="text-base font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
                                     Estado de últimas solicitudes
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                {requests.slice(0, 2).map((req) => (
-                                    <Card key={req.id} className="p-3 bg-white border border-[--neutral-300] shadow-sm">
-                                        <p className="text-sm font-medium text-[--foreground]">
-                                            “{req.description}”
-                                        </p>
-                                        <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-                                            <span>Creado el {new Date(req.created_at).toLocaleDateString()}</span>
-                                            <Badge
-                                                className="text-white"
-                                                variant="default"
-                                                style={{
-                                                    backgroundColor: StatusMap[req.status as Status].color,
-                                                }}
-                                            >
-                                                {StatusMap[req.status as Status].label}
-                                            </Badge>
-                                        </div>
-                                    </Card>
-                                ))}
+                                {[...requests]
+                                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                                    .slice(0, 5)
+                                    .map((req) => (
+                                        <Card key={req.id} className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95">
+                                            <p className="text-sm font-medium text-[--foreground]">
+                                                “{req.description}”
+                                            </p>
+                                            <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
+                                                <span>
+                                                    Creado el{" "}
+                                                    {new Date(req.created_at).toLocaleDateString("es-BO", {
+                                                        day: "2-digit",
+                                                        month: "2-digit",
+                                                        year: "numeric"
+                                                    })}
+                                                </span>
+                                                <Badge
+                                                    className="text-white"
+                                                    variant="default"
+                                                    style={{
+                                                        backgroundColor: StatusMap[req.status as Status].color,
+                                                    }}
+                                                >
+                                                    {StatusMap[req.status as Status].label}
+                                                </Badge>
+                                            </div>
+                                        </Card>
+                                    ))}
+
                             </CardContent>
                         </Card>
                     )}
                 </div>
             </div>
+
+            {selectedTechnicianId !== null && (
+                <TechnicianProfileSlide
+                    isOpen={isTechnicianOpen}
+                    onClose={() => setIsTechnicianOpen(false)}
+                    technicianId={selectedTechnicianId}
+                />
+            )}
         </main>
     );
 }

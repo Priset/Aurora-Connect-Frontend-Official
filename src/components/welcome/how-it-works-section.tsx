@@ -71,14 +71,14 @@ export const HowItWorksSection = ({ onRegisterClick }: Props) => {
                     <div className="flex flex-col sm:flex-row gap-4">
                         <Button
                             variant="secondary"
-                            className="transition-all hover:bg-secondary-hover active:bg-secondary-pressed"
+                            className="transition-all hover:bg-secondary-hover active:bg-secondary-pressed transform hover:scale-105 active:scale-95"
                             onClick={() => onRegisterClick("technician")}
                         >
                             Registrarme como Técnico
                         </Button>
                         <Button
                             variant="secondary"
-                            className="transition-all hover:bg-secondary-hover active:bg-secondary-pressed"
+                            className="transition-all hover:bg-secondary-hover active:bg-secondary-pressed transform hover:scale-105 active:scale-95"
                             onClick={() => onRegisterClick("client")}
                         >
                             Registrarme como Cliente

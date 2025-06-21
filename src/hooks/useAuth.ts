@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react'
 
 type ProfileBase = {
     id: number;
+    name: string;
+    last_name: string;
     role: 'client' | 'technician';
     technicianProfile?: TechnicianProfile;
 };
@@ -76,6 +78,20 @@ export const useAuth = () => {
         })
     }
 
+    const refreshProfile = async () => {
+        try {
+            const token = await getAccessTokenSilently();
+            const { data } = await axios.get(`${API_ROUTES.auth}/me`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setProfile(data);
+        } catch (err) {
+            console.error("Error al refrescar el perfil:", err);
+        }
+    };
+
     const createUser = async (data: {
         name: string
         last_name: string
@@ -114,5 +130,6 @@ export const useAuth = () => {
         isAuthenticated,
         isLoading,
         authInitialized,
+        refreshProfile,
     }
 }

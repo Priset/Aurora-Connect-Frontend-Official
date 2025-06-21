@@ -94,8 +94,8 @@ export function StepCarousel({ title, steps }: Props) {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="absolute left-[-3rem] top-1/2 -translate-y-1/2 z-50 bg-[--primary-hover] text-white hover:bg-[--secondary-default]" />
-                    <CarouselNext className="absolute right-[-3rem] top-1/2 -translate-y-1/2 z-50 bg-[--primary-hover] text-white hover:bg-[--secondary-default]" />
+                    <CarouselPrevious className="absolute left-[-3rem] top-1/2 -translate-y-1/2 z-50 bg-[--primary-hover] text-white hover:bg-[--secondary-default] transform hover:scale-105 active:scale-95" />
+                    <CarouselNext className="absolute right-[-3rem] top-1/2 -translate-y-1/2 z-50 bg-[--primary-hover] text-white hover:bg-[--secondary-default] transform hover:scale-105 active:scale-95" />
                 </Carousel>
             </div>
         </section>

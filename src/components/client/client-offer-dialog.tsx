@@ -5,7 +5,7 @@ import { RequestDialogProps, Status } from "@/interfaces/auroraDb";
 import { useRequests } from "@/hooks/useRequests";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { TechnicianProfileSlide } from "@/components/dialogs/technician-profile-slide";
+import { TechnicianProfileSlide } from "@/components/technician/technician-profile-slide";
 
 export function ClientOfferDialog({ isOpen, onClose, request, onActionComplete }: RequestDialogProps) {
     const { updateStatus } = useRequests();

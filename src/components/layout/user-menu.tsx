@@ -42,13 +42,6 @@ export function UserMenu({ userName, userPictureUrl }: UserMenuProps) {
                 </DropdownMenuLabel>
 
                 <DropdownMenuItem
-                    className="cursor-pointer hover:bg-[--neutral-200] hover:text-[--secondary-default] transition rounded-md"
-                >
-                    <User className="w-4 h-4 mr-2" />
-                    Ver Perfil
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
                     className="cursor-pointer hover:bg-[--neutral-200] hover:text-[--error-default] transition rounded-md"
                     onClick={logout}
                 >

@@ -26,6 +26,11 @@ export const useTechnicians = () => {
         return res.data;
     }, [getAccessTokenSilently]);
 
+    const getAllPublic = useCallback(async (): Promise<TechnicianProfile[]> => {
+        const res = await axios.get<TechnicianProfile[]>(API_ROUTES.techniciansPublic);
+        return res.data;
+    }, []);
+
     const getPublicById = useCallback(async (id: number): Promise<TechnicianProfile> => {
         const res = await axios.get<TechnicianProfile>(`${API_ROUTES.techniciansPublic}/${id}`, {
             withCredentials: false,
@@ -45,7 +50,7 @@ export const useTechnicians = () => {
 
     const update = useCallback(async (id: number, data: UpdateTechnicianProfileDto): Promise<TechnicianProfile> => {
         const token = await getAccessTokenSilently();
-        const res = await axios.put<TechnicianProfile>(`${API_ROUTES.technicians}/${id}`, data, {
+        const res = await axios.patch<TechnicianProfile>(`${API_ROUTES.technicians}/${id}`, data, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -65,6 +70,7 @@ export const useTechnicians = () => {
     return {
         getAll,
         getById,
+        getAllPublic,
         getPublicById,
         create,
         update,

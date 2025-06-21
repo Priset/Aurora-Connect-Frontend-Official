@@ -1,5 +1,16 @@
 "use client";
 
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChats } from "@/hooks/useChats";
@@ -9,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import {MessageCircle, Trash2, XIcon} from "lucide-react";
 import { ClientChatWindow } from "@/components/chat/client-chat-window";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ReviewDialog } from "@/components/review/review-dialog";
 
@@ -145,22 +157,43 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                                         )}
 
                                         {chat.status === Status.CALIFICADO && (
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute top-3 right-3 text-[--error] hover:bg-[--error-hover] active:bg-error-pressed"
-                                                onClick={async (e) => {
-                                                    e.stopPropagation();
-                                                    try {
-                                                        await remove(chat.id);
-                                                        refreshChats();
-                                                    } catch (err) {
-                                                        console.error("❌ Error al eliminar chat:", err);
-                                                    }
-                                                }}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="absolute top-3 right-3 text-[--error] hover:bg-[--error-hover] active:bg-error-pressed"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="max-w-sm">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>¿Eliminar chat?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Esta acción no se puede deshacer. El chat será eliminado permanentemente del sistema.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await remove(chat.id);
+                                                                    refreshChats();
+                                                                    toast.success("Chat eliminado correctamente.");
+                                                                } catch (err) {
+                                                                    console.error("❌ Error al eliminar chat:", err);
+                                                                    toast.error("Error al eliminar el chat. Inténtalo de nuevo.");
+                                                                }
+                                                            }}
+                                                        >
+                                                            Eliminar
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         )}
                                     </div>
                                 );
