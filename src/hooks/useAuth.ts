@@ -41,24 +41,25 @@ export const useAuth = () => {
     useEffect(() => {
         const initializeAuth = async () => {
             try {
-                if (isAuthenticated) {
-                    const token = await getAccessTokenSilently()
+                if (isAuthenticated && !isLoading) {
+                    const token = await getAccessTokenSilently();
                     const { data } = await axios.get(`${API_ROUTES.auth}/me`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
-                    })
-                    setProfile(data)
+                    });
+                    setProfile(data);
                 }
             } catch (err) {
-                console.error('Error al inicializar la autenticación:', err)
+                console.error("[useAuth] ❌ Error al inicializar autenticación:", err);
             } finally {
-                setAuthInitialized(true)
+                setAuthInitialized(true);
             }
-        }
+        };
 
-        initializeAuth()
-    }, [isAuthenticated, isLoading, getAccessTokenSilently])
+        initializeAuth();
+    }, [isAuthenticated, isLoading, getAccessTokenSilently]);
+
 
     const register = async (
         role: 'client' | 'technician',

@@ -3,6 +3,7 @@
 import { Auth0Provider } from '@auth0/auth0-react'
 import { useRouter } from 'next/navigation'
 import { AuroraIntlProvider } from '@/i18n/intl-provider'
+import React from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -20,6 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 redirect_uri: redirectUri,
                 audience,
             }}
+            cacheLocation="localstorage"
             onRedirectCallback={(appState) => {
                 if (appState?.returnTo) {
                     router.replace(appState.returnTo)

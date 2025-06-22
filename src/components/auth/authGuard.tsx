@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useIntl } from 'react-intl'
 
@@ -12,10 +12,12 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     const { formatMessage } = useIntl()
 
     useEffect(() => {
-        if (authInitialized && !isLoading && !isAuthenticated) {
-            router.push('/')
+        if (!authInitialized || isLoading) return;
+
+        if (!isAuthenticated) {
+            router.push('/');
         }
-    }, [isAuthenticated, isLoading, authInitialized, router])
+    }, [isAuthenticated, isLoading, authInitialized, router]);
 
     if (!authInitialized || isLoading || !isAuthenticated) {
         return (
