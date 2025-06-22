@@ -269,6 +269,9 @@ const es = {
 
     // Sección de héroe
     hero_real_solutions: "Soluciones reales",
+    hero_real_solutions_2 : "para problemas digitales",
+    hero_real_solutions_3 :"en manos de",
+    hero_real_solutions_4: "técnicos verificados",
     hero_connecting_people: "Conectamos a quienes necesitan soporte con quienes saben cómo solucionarlo.",
 
     // Cómo funciona

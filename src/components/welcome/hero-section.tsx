@@ -33,10 +33,10 @@ export const HeroSection = () => {
                         <span className="bg-[--secondary-default] px-4 py-2 rounded-xl inline-block mb-2">
                             {formatMessage({ id: "hero_real_solutions" })}
                         </span>{" "}
-                        para problemas digitales,<br />
-                        en manos de{" "}
+                        {formatMessage({ id: "hero_real_solutions_2"})}<br />
+                        {formatMessage({ id: "hero_real_solutions_3" })}{" "}
                         <span className="bg-[--secondary-default] px-4 py-2 rounded-xl inline-block mt-2">
-                            técnicos verificados
+                            {formatMessage({ id: "hero_real_solutions_4" })}
                         </span>
                     </h1>
                 </motion.div>

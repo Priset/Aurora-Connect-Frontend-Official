@@ -131,7 +131,7 @@ export function ClientOfferDialog({isOpen, onClose, request, onActionComplete}: 
                                     onClick={handleViewProfile}
                                     className="w-full py-2 bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white text-sm font-medium mt-2 transition transform hover:scale-105 active:scale-95"
                                 >
-                                    {formatMessage({id: "client_offer_view_profile "})}
+                                    {formatMessage({id: "client_offer_view_profile"})}
                                 </Button>
                             </div>
                         </div>

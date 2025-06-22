@@ -20,6 +20,7 @@ import {Textarea} from "@/components/ui/textarea";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Pencil, Loader2} from "lucide-react";
 import {useIntl} from "react-intl";
+import { useTheme } from "@/hooks/useTheme";
 import {toast} from "sonner";
 
 export default function SettingsPage() {
@@ -35,7 +36,7 @@ export default function SettingsPage() {
         last_name: "",
         experience: "",
         years_experience: "" as number | "",
-        theme: "light",
+        theme: typeof window !== "undefined" && localStorage.getItem("theme") === "dark" ? "dark" : "light",
         language: "es",
     });
 
@@ -55,16 +56,17 @@ export default function SettingsPage() {
 
     const [loading, setLoading] = useState(false);
 
+    useTheme(form.theme as "light" | "dark");
+
     useEffect(() => {
         if (profile) {
-            setForm({
+            setForm((prev) => ({
+                ...prev,
                 name: profile.name,
                 last_name: profile.last_name,
                 experience: profile.technicianProfile?.experience || "",
                 years_experience: profile.technicianProfile?.years_experience || 0,
-                theme: "light",
-                language: "es",
-            });
+            }));
         }
     }, [profile]);
 
