@@ -151,7 +151,7 @@ export const TechnicianChatWindow = ({ chat, onClose }: Props) => {
                 <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder={formatMessage({id: "client_chat_placeholder" })}
+                    placeholder={formatMessage({id: "client_chat_input_placeholder" })}
                     disabled={isFinalizing}
                     className="flex-1 text-sm bg-[--neutral-200] border border-[--neutral-300] focus:ring-[--secondary-default] rounded-lg disabled:opacity-50"
                     onKeyDown={(e) => {

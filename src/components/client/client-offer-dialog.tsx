@@ -7,6 +7,7 @@ import {toast} from "sonner";
 import {useState, useEffect} from "react";
 import {TechnicianProfileSlide} from "@/components/technician/technician-profile-slide";
 import {useIntl} from "react-intl";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export function ClientOfferDialog({isOpen, onClose, request, onActionComplete}: RequestDialogProps) {
     const {updateStatus} = useRequests();
@@ -15,6 +16,7 @@ export function ClientOfferDialog({isOpen, onClose, request, onActionComplete}: 
     const [isLoading, setIsLoading] = useState(true);
     const offer = request.serviceOffers?.[0];
     const {formatMessage} = useIntl();
+    const { create: createNotification } = useNotifications();
 
     useEffect(() => {
         if (!isOpen) return;
@@ -22,10 +24,17 @@ export function ClientOfferDialog({isOpen, onClose, request, onActionComplete}: 
     }, [isOpen]);
 
     const handleAccept = async () => {
-        if (!offer) return;
+        if (!offer || !offer.technician?.user?.id) {
+            toast.error("No se pudo identificar al técnico para enviar notificación.");
+            return;
+        }
         setIsProcessing(true);
         try {
             await updateStatus(request.id, Status.ACEPTADO_POR_CLIENTE);
+            await createNotification({
+                user_id: offer.technician.user.id,
+                content: `El cliente aceptó tu oferta para la solicitud #${request.id}`,
+            });
             toast.success(formatMessage({id: "client_offer_accept_success"}));
             onActionComplete?.();
             onClose();
@@ -38,10 +47,17 @@ export function ClientOfferDialog({isOpen, onClose, request, onActionComplete}: 
     };
 
     const handleReject = async () => {
-        if (!offer) return;
+        if (!offer || !offer.technician?.user?.id) {
+            toast.error("No se pudo identificar al técnico para enviar notificación.");
+            return;
+        }
         setIsProcessing(true);
         try {
             await updateStatus(request.id, Status.RECHAZADO_POR_CLIENTE);
+            await createNotification({
+                user_id: offer.technician.user.id,
+                content: `El cliente rechazó tu oferta para la solicitud #${request.id}`,
+            });
             toast.success(formatMessage({id: "client_offer_reject_success"}));
             onActionComplete?.();
             onClose();

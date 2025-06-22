@@ -88,6 +88,9 @@ export interface ServiceOffer {
     status: number;
     created_at: string;
     updated_at: string;
+    technician: {
+        user: User;
+    };
 }
 
 export interface CreateServiceOfferDto {
@@ -304,6 +307,6 @@ export const getStatusMap = (intl: IntlShape): Record<Status, { label: string; c
     [Status.ACEPTADO_POR_CLIENTE]: { label: intl.formatMessage({ id: "status_accepted_by_client" }), color: "#34D399" },
     [Status.CHAT_ACTIVO]: { label: intl.formatMessage({ id: "status_chat_active" }), color: "#0EA5E9" },
     [Status.FINALIZADO]: { label: intl.formatMessage({ id: "status_finished" }), color: "#8B5CF6" },
-    [Status.CALIFICADO]: { label: intl.formatMessage({ id: "status_rated" }), color: "#5df5e0" },
+    [Status.CALIFICADO]: { label: intl.formatMessage({ id: "status_rated" }), color: "#948f10" },
     [Status.ELIMINADO]: { label: intl.formatMessage({ id: "status_deleted" }), color: "#6B7280" },
 });

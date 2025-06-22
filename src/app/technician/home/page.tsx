@@ -201,7 +201,7 @@ export default function TechnicianHomePage() {
                             showStatusFilter={false}
                         />
                         <RequestSection
-                            title={formatMessage({ id: "technician_requests_in_progress" }) + " (" + inProgressRequests.length + ")"}
+                            title={formatMessage({ id: "technician_requests_progress" }) + " (" + inProgressRequests.length + ")"}
                             searchKey="progress"
                             searchValue={search.progress}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}

@@ -27,6 +27,11 @@ export const useRequests = () => {
         return res.data;
     }, [getHeaders]);
 
+    const getPublicById = useCallback(async (id: number): Promise<ServiceRequest> => {
+        const res = await axios.get<ServiceRequest>(`${API_ROUTES.publicRequestById}/${id}`);
+        return res.data;
+    }, []);
+
     const getById = useCallback(async (id: number): Promise<ServiceRequest> => {
         const res = await axios.get<ServiceRequest>(
             `${API_ROUTES.requests}/${id}`,
@@ -85,6 +90,7 @@ export const useRequests = () => {
     return {
         getAll,
         getAllForTechnicians,
+        getPublicById,
         getById,
         create,
         update,

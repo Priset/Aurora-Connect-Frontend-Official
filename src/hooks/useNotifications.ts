@@ -29,9 +29,13 @@ export const useNotifications = () => {
         [getHeaders]
     );
 
+    const markAllAsRead = useCallback(async (): Promise<void> => {
+        await axios.patch(`${API_ROUTES.notifications}/mark-all-as-read`, {}, await getHeaders());
+    }, [getHeaders]);
+
     const update = useCallback(
         async (id: number, data: UpdateNotificationDto): Promise<Notification> => {
-            const res = await axios.put<Notification>(
+            const res = await axios.patch<Notification>(
                 `${API_ROUTES.notifications}/${id}`,
                 data,
                 await getHeaders()
@@ -45,11 +49,17 @@ export const useNotifications = () => {
         await axios.delete(`${API_ROUTES.notifications}/${id}`, await getHeaders());
     }, [getHeaders]);
 
+    const clearRead = useCallback(async (): Promise<void> => {
+        await axios.delete(`${API_ROUTES.notifications}/clear-read`, await getHeaders());
+    }, [getHeaders]);
+
     return {
         getAll,
         getById,
         create,
+        markAllAsRead,
         update,
         remove,
+        clearRead,
     };
 };

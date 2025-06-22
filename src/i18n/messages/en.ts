@@ -182,6 +182,9 @@ const en = {
     // Navbar User
     navbar_user_notifications: "Notifications",
     navbar_user_default_name: "User",
+    notifications_mark_all: "Mark all as read",
+    notifications_empty: "No notifications",
+    notifications_clear_read: "Clear",
 
     // Sidebar
     sidebar_app_name: "Aurora Connect",

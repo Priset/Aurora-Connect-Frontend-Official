@@ -11,14 +11,13 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { useChats } from "@/hooks/useChats";
-import {Status, Chat, TechnicianProfile} from "@/interfaces/auroraDb";
+import {Status, Chat, TechnicianProfile, CreateNotificationDto, ServiceRequest, getStatusMap } from "@/interfaces/auroraDb";
 import { cn } from "@/lib/utils";
-import { ServiceRequest } from "@/interfaces/auroraDb";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getStatusMap } from "@/interfaces/auroraDb";
 import {useTechnicians} from "@/hooks/useTechnicians";
 import { TechnicianProfileSlide } from "@/components/technician/technician-profile-slide";
+import { useNotifications } from "@/hooks/useNotifications";
 import {Star} from "lucide-react";
 import { useIntl } from "react-intl"
 
@@ -45,6 +44,7 @@ export default function ClientHomePage() {
     const { formatMessage } = useIntl()
     const intl = useIntl();
     const StatusMap = getStatusMap(intl);
+    const { create: createNotification } = useNotifications();
 
     const {
         register,
@@ -122,17 +122,30 @@ export default function ClientHomePage() {
         }
 
         try {
-            await create({
+            const req = await create({
                 client_id: clientId,
                 description: data.description,
                 offeredPrice: data.offeredPrice,
             });
 
+            const technicians = await getAllPublic();
+
+            if (!technicians.length) {
+                console.warn("⚠️ No hay técnicos disponibles para notificar.");
+            }
+
+            const notifPayloads: CreateNotificationDto[] = technicians.map((tech) => ({
+                user_id: tech.user.id,
+                content: `${formatMessage({ id: "client_requests_new_button"})} #${req.id} "${req.description}"`,
+            }));
+
+            await Promise.all(notifPayloads.map(createNotification));
+
             toast.success(formatMessage({ id: "client_home_request_sent" }));
             reset();
             await loadRequests();
         } catch (err) {
-            console.error("❌ Error:", err);
+            console.error("❌ Error al crear solicitud:", err);
             toast.error(formatMessage({ id: "client_home_error_request_sent" }));
         }
     };

@@ -183,6 +183,9 @@ const es = {
     // Navbar del usuario
     navbar_user_notifications: "Notificaciones",
     navbar_user_default_name: "Usuario",
+    notifications_mark_all: "Marcar todo como leído",
+    notifications_empty: "No tienes notificaciones nuevas",
+    notifications_clear_read: "Vaciar",
 
     // Sidebar
     sidebar_app_name: "Aurora Connect",

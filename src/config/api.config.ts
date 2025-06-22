@@ -13,5 +13,6 @@ export const API_ROUTES = {
     aiSupportMessages: `${API_BASE_URL}/api/ai-support-messages`,
     technicians: `${API_BASE_URL}/api/technician-profiles`,
     techniciansPublic: `${API_BASE_URL}/api/public/technician-profile`,
+    publicRequestById: `${API_BASE_URL}/api/public/request`,
     auth: `${API_BASE_URL}/api/auth`,
 };

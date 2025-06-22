@@ -15,6 +15,7 @@ import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, BadgeCheck } from "lucide-react";
 import { useIntl } from "react-intl";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export function RequestDialog({ isOpen, onClose, request, onActionComplete }: RequestDialogProps) {
     const { profile } = useAuth();
@@ -26,6 +27,7 @@ export function RequestDialog({ isOpen, onClose, request, onActionComplete }: Re
     const [isProcessing, setIsProcessing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const { formatMessage } = useIntl();
+    const { create: createNotification } = useNotifications();
 
     useEffect(() => {
         if (!isOpen) {
@@ -49,6 +51,11 @@ export function RequestDialog({ isOpen, onClose, request, onActionComplete }: Re
             });
             await updateStatus(request.id, Status.ACEPTADO_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.ACEPTADO_POR_TECNICO);
+            await createNotification({
+                user_id: request.client_id,
+                content: `📢 Tu solicitud #${request.id} fue aceptada por el técnico.`,
+                status: Status.DESHABILITADO,
+            });
             onActionComplete?.();
             toast.success(formatMessage({ id: "request_dialog_accepted" }));
             onClose();
@@ -105,6 +112,11 @@ export function RequestDialog({ isOpen, onClose, request, onActionComplete }: Re
             });
             await updateStatus(request.id, Status.CONTRAOFERTA_POR_TECNICO);
             await updateOfferStatus(offer.id, Status.CONTRAOFERTA_POR_TECNICO);
+            await createNotification({
+                user_id: request.client_id,
+                content: `Has recibido una contraoferta en la solicitud #${request.id}.`,
+                status: Status.DESHABILITADO,
+            });
             onActionComplete?.();
             toast.success(formatMessage({ id: "request_dialog_offer_sent" }));
             onClose();
