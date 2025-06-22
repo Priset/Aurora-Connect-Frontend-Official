@@ -15,74 +15,77 @@ import {
 } from "lucide-react";
 import { RegisterDialog } from "@/components/dialogs/register-dialog";
 import { useRegisterDialog } from "@/hooks/useRegisterDialog";
-
-const technicianSteps = [
-    {
-        title: "Recibe solicitudes",
-        description: "Accede a nuevas oportunidades laborales revisando solicitudes publicadas por usuarios.",
-        icon: <FileText className="w-8 h-8" />,
-    },
-    {
-        title: "Envía propuestas",
-        description: "Responde con tu precio, mensaje y disponibilidad para ayudar al cliente.",
-        icon: <Send className="w-8 h-8" />,
-    },
-    {
-        title: "Concreta y resuelve",
-        description: "Cuando el cliente acepte tu propuesta, abre el chat, coordina y resuelve el problema.",
-        icon: <MessageCircle className="w-8 h-8" />,
-    },
-    {
-        title: "Administra tu trabajo",
-        description: "Desde tu panel puedes visualizar tus tickets, solicitudes pendientes y el historial de servicios.",
-        icon: <FileText className="w-8 h-8" />,
-    },
-    {
-        title: "Recibe valoraciones",
-        description: "Los clientes pueden valorar tu trabajo y dejar comentarios visibles para futuros usuarios.",
-        icon: <ThumbsUp className="w-8 h-8" />,
-    },
-    {
-        title: "Mejora tu perfil",
-        description: "Actualiza tu experiencia, habilidades y datos para destacar frente a nuevos clientes.",
-        icon: <UserPlus className="w-8 h-8" />,
-    },
-];
-
-const userSteps = [
-    {
-        title: "Publica tu problema",
-        description: "Describe lo que ocurre con tu equipo. Puedes añadir fotos o detalles relevantes.",
-        icon: <Wrench className="w-8 h-8" />,
-    },
-    {
-        title: "Recibe propuestas",
-        description: "Los técnicos te enviarán propuestas con precio, mensaje y condiciones.",
-        icon: <UserPlus className="w-8 h-8" />,
-    },
-    {
-        title: "Elige y soluciona",
-        description: "Acepta una propuesta, abre el chat, coordina con el técnico y soluciona tu problema.",
-        icon: <ThumbsUp className="w-8 h-8" />,
-    },
-    {
-        title: "Sigue tu ticket",
-        description: "Cada solicitud genera un ticket donde se guarda el historial de mensajes y acciones.",
-        icon: <FileText className="w-8 h-8" />,
-    },
-    {
-        title: "Valora el servicio",
-        description: "Después del trabajo puedes calificar al técnico y dejar un comentario visible.",
-        icon: <MessageCircle className="w-8 h-8" />,
-    },
-    {
-        title: "Confianza asegurada",
-        description: "Todos los técnicos están verificados. Revisa su perfil, experiencia y valoraciones antes de contratar.",
-        icon: <Send className="w-8 h-8" />,
-    },
-];
+import { useIntl } from "react-intl";
 
 export default function WelcomePage() {
+    const { formatMessage } = useIntl();
+
+    const technicianSteps = [
+        {
+            title: formatMessage({ id: "welcome_tech_1_title" }),
+            description: formatMessage({ id: "welcome_tech_1_desc" }),
+            icon: <FileText className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_tech_2_title" }),
+            description: formatMessage({ id: "welcome_tech_2_desc" }),
+            icon: <Send className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_tech_3_title" }),
+            description: formatMessage({ id: "welcome_tech_3_desc" }),
+            icon: <MessageCircle className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_tech_4_title" }),
+            description: formatMessage({ id: "welcome_tech_4_desc" }),
+            icon: <FileText className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_tech_5_title" }),
+            description: formatMessage({ id: "welcome_tech_5_desc" }),
+            icon: <ThumbsUp className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_tech_6_title" }),
+            description: formatMessage({ id: "welcome_tech_6_desc" }),
+            icon: <UserPlus className="w-8 h-8" />,
+        },
+    ];
+
+    const userSteps = [
+        {
+            title: formatMessage({ id: "welcome_user_1_title" }),
+            description: formatMessage({ id: "welcome_user_1_desc" }),
+            icon: <Wrench className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_user_2_title" }),
+            description: formatMessage({ id: "welcome_user_2_desc" }),
+            icon: <UserPlus className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_user_3_title" }),
+            description: formatMessage({ id: "welcome_user_3_desc" }),
+            icon: <ThumbsUp className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_user_4_title" }),
+            description: formatMessage({ id: "welcome_user_4_desc" }),
+            icon: <FileText className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_user_5_title" }),
+            description: formatMessage({ id: "welcome_user_5_desc" }),
+            icon: <MessageCircle className="w-8 h-8" />,
+        },
+        {
+            title: formatMessage({ id: "welcome_user_6_title" }),
+            description: formatMessage({ id: "welcome_user_6_desc" }),
+            icon: <Send className="w-8 h-8" />,
+        },
+    ];
+
     const {
         showDialog,
         dialogRole,
@@ -97,8 +100,14 @@ export default function WelcomePage() {
             <main className="flex-grow">
                 <HeroSection />
                 <HowItWorksSection onRegisterClick={handleRegisterClick} />
-                <StepCarousel title="¿Eres Técnico? Sigue estos pasos:" steps={technicianSteps} />
-                <StepCarousel title="¿Eres Usuario? Así funciona:" steps={userSteps} />
+                <StepCarousel
+                    title={formatMessage({ id: "welcome_steps_technician_title" })}
+                    steps={technicianSteps}
+                />
+                <StepCarousel
+                    title={formatMessage({ id: "welcome_steps_user_title" })}
+                    steps={userSteps}
+                />
             </main>
 
             <Footer />

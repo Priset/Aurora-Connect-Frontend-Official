@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TechnicianChatWindow } from "@/components/chat/technician-chat-window";
+import { useIntl } from "react-intl";
 
 interface Props {
     isOpen: boolean;
@@ -39,6 +40,7 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
     const [chatKey, setChatKey] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(true);
     const { remove } = useChats();
+    const { formatMessage } = useIntl();
 
     const refreshChats = async () => {
         if (!profile?.technicianProfile?.id) return;
@@ -79,7 +81,7 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
             <div className="bg-[--secondary-default] text-white px-4 py-3 rounded-t-xl flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-semibold truncate">
                     <MessageCircle className="w-4 h-4" />
-                    Chats Activos
+                    {formatMessage({ id: "client_chat_title" })}
                 </div>
                 <button
                     onClick={onClose}
@@ -94,7 +96,7 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
                 <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Buscar cliente..."
+                    placeholder={formatMessage({ id: "technician_chat_search_placeholder" })}
                     className="text-sm bg-[--neutral-200] border-[--neutral-300] placeholder:text-[--neutral-600] focus:ring-[--secondary-default] rounded-lg"
                 />
             </div>
@@ -115,7 +117,7 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                 })
-                                : "Sin mensajes";
+                                : formatMessage({ id: "client_chat_no_messages" });
 
                             return (
                                 <div
@@ -137,10 +139,10 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
                                         {lastMessage
                                             ? lastMessage.message.slice(0, 60) +
                                             (lastMessage.message.length > 60 ? "..." : "")
-                                            : "Sin mensajes"}
+                                            : formatMessage({ id: "client_chat_no_messages" })}
                                     </p>
                                     <p className="text-[10px] text-muted-foreground mt-1">
-                                        Último mensaje: {formattedTime}
+                                        {formatMessage({ id: "client_chat_no_messages"})} {formattedTime}
                                     </p>
 
                                     {[Status.FINALIZADO, Status.CALIFICADO].includes(chat.status) && (
@@ -157,27 +159,30 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
                                             </AlertDialogTrigger>
                                             <AlertDialogContent className="max-w-sm">
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>¿Eliminar chat?</AlertDialogTitle>
+                                                    <AlertDialogTitle>
+                                                        {formatMessage({ id: "client_chat_delete_title" })}
+                                                    </AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        Esta acción eliminará el chat de forma permanente. No se puede
-                                                        deshacer.
+                                                        {formatMessage({ id: "client_chat_delete_description" })}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogCancel>
+                                                        {formatMessage({ id: "client_chat_delete_cancel" })}
+                                                    </AlertDialogCancel>
                                                     <AlertDialogAction
                                                         onClick={async () => {
                                                             try {
                                                                 await remove(chat.id);
                                                                 refreshChats();
-                                                                toast.success("Chat eliminado correctamente.");
+                                                                toast.success(formatMessage({ id: "client_chat_deleted_success" }));
                                                             } catch (err) {
                                                                 console.error("❌ Error al eliminar chat:", err);
-                                                                toast.error("Error al eliminar el chat. Intenta de nuevo.");
+                                                                toast.error(formatMessage({ id: "client_chat_deleted_error" }));
                                                             }
                                                         }}
                                                     >
-                                                        Eliminar
+                                                        {formatMessage({ id: "client_chat_delete_confirm" })}
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -188,7 +193,7 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
                         })
                     ) : (
                         <p className="text-sm text-muted-foreground text-center mt-4">
-                            No se encontraron chats.
+                            {formatMessage({ id: "client_chat_empty" })}
                         </p>
                     )}
                 </ScrollArea>

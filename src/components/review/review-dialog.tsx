@@ -10,6 +10,7 @@ import { useReviews } from "@/hooks/useReviews";
 import { Chat } from "@/interfaces/auroraDb";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useIntl } from "react-intl";
 
 interface Props {
     isOpen: boolean;
@@ -24,6 +25,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const { formatMessage } = useIntl();
 
     useEffect(() => {
         if (isOpen) {
@@ -37,7 +39,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
         if (!profile) return;
 
         if (!chat.request_id || !chat.technician_id || !profile.id || !rating) {
-            toast.error("Por favor completa todos los campos obligatorios.");
+            toast.error(formatMessage({ id: "review_error_fields" }));
             return;
         }
 
@@ -51,11 +53,11 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
         setSubmitting(true);
         try {
             await create(payload);
-            toast.success("Valoración enviada correctamente.");
+            toast.success(formatMessage({ id: "review_success" }));
             onClose();
         } catch (error) {
             console.error("❌ Error al enviar valoración:", error);
-            toast.error("Hubo un error al enviar la valoración.");
+            toast.error(formatMessage({ id: "review_error" }));
         } finally {
             setSubmitting(false);
         }
@@ -80,7 +82,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
                                 <BadgeCheck className="w-12 h-12 text-[--secondary-default]" />
                             </div>
                             <DialogTitle className="text-xl font-bold text-center">
-                                Califica al Técnico
+                                {formatMessage({ id: "review_title" })}
                             </DialogTitle>
                         </DialogHeader>
 
@@ -102,7 +104,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
                         <Textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            placeholder="Escribe un comentario (opcional)..."
+                            placeholder={formatMessage({ id: "review_comment_placeholder" })}
                             className="text-sm bg-white border border-[--neutral-300] focus:ring-[--secondary-default] rounded-lg"
                             rows={3}
                         />
@@ -112,7 +114,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
                             disabled={rating === 0 || submitting}
                             className="w-full bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white rounded-lg"
                         >
-                            Enviar Calificación
+                            {formatMessage({ id: "review_submit" })}
                         </Button>
                     </>
                 )}

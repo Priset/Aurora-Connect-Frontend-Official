@@ -11,6 +11,7 @@ import { RequestSection } from "@/components/sections/request-section";
 import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
 import { ClientOfferDialog } from "@/components/client/client-offer-dialog";
 import { ReviewDialog } from "@/components/review/review-dialog";
+import { useIntl } from "react-intl"
 
 const initialSearch = {
     created: "",
@@ -43,7 +44,7 @@ const SectionSkeleton = () => (
 export default function ClientRequestsPage() {
     const { profile } = useAuth();
     const { getAll } = useRequests();
-
+    const { formatMessage } = useIntl();
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
     const [dialogType, setDialogType] = useState<"view" | "offer" | "review" | null>(null);
@@ -170,13 +171,15 @@ export default function ClientRequestsPage() {
     return (
         <main className="px-6 md:px-10 py-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-display font-bold text-white">Gestión de Solicitudes</h1>
+                <h1 className="text-2xl font-display font-bold text-white">
+                    {formatMessage({ id: "client_requests_title" })}
+                </h1>
                 <Button
                     className="bg-[--secondary-default] text-white hover:bg-[--secondary-hover] px-4 py-2 active:bg-[--secondary-pressed] transition transform hover:scale-105 active:scale-95"
                     onClick={() => window.location.href = "/client/home"}
                 >
                     <Plus className="w-4 h-4 mr-1" />
-                    Nueva Solicitud
+                    {formatMessage({ id: "client_requests_new_button" })}
                 </Button>
             </div>
 
@@ -191,7 +194,7 @@ export default function ClientRequestsPage() {
                 ) : (
                     <>
                         <RequestSection
-                            title="Solicitudes Creadas"
+                            title={formatMessage({ id: "client_requests_section_created" }) + " (" + created.length + ")"}
                             searchKey="created"
                             searchValue={search.created}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
@@ -203,7 +206,7 @@ export default function ClientRequestsPage() {
                             showStatusFilter={false}
                         />
                         <RequestSection
-                            title="Ofertas entrantes"
+                            title={formatMessage({ id: "client_requests_section_offers" }) + " (" + offers.length + ")"}
                             searchKey="offers"
                             searchValue={search.offers}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
@@ -215,7 +218,7 @@ export default function ClientRequestsPage() {
                             showStatusFilter={false}
                         />
                         <RequestSection
-                            title="Progreso de la solicitud"
+                            title={formatMessage({ id: "client_requests_section_progress" }) + " (" + progress.length + ")"}
                             searchKey="progress"
                             searchValue={search.progress}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
@@ -229,7 +232,7 @@ export default function ClientRequestsPage() {
                             onFilterStatusChange={setProgressStatusFilter}
                         />
                         <RequestSection
-                            title="Solicitudes cerradas"
+                            title={formatMessage({ id: "client_requests_section_closed" }) + " (" + closed.length + ")"}
                             searchKey="closed"
                             searchValue={search.closed}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}

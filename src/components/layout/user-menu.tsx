@@ -10,6 +10,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
+import { useIntl } from "react-intl";
 
 interface UserMenuProps {
     userName: string;
@@ -18,6 +19,7 @@ interface UserMenuProps {
 
 export function UserMenu({ userName, userPictureUrl }: UserMenuProps) {
     const { logout } = useAuth();
+    const { formatMessage } = useIntl();
 
     return (
         <DropdownMenu>
@@ -46,7 +48,7 @@ export function UserMenu({ userName, userPictureUrl }: UserMenuProps) {
                     onClick={logout}
                 >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Cerrar Sesión
+                    {formatMessage({ id: "user_menu_logout" })}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

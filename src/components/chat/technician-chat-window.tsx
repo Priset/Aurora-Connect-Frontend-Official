@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { AxiosError } from "axios";
 import { useSocketChat } from "@/hooks/useSocketChat";
 import { cn } from "@/lib/utils";
+import {useIntl} from "react-intl";
 
 interface Props {
     chat: Chat;
@@ -25,6 +26,7 @@ export const TechnicianChatWindow = ({ chat, onClose }: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { formatMessage } = useIntl();
 
     useEffect(() => {
         if (!chat?.id || !profile?.id) return;
@@ -97,7 +99,7 @@ export const TechnicianChatWindow = ({ chat, onClose }: Props) => {
                         className="w-4 h-4 cursor-pointer"
                         onClick={onClose}
                     />
-                    Chat con {chat.client?.name} {chat.client?.last_name}
+                    {formatMessage({id: "client_chat_with" })} {chat.client?.name} {chat.client?.last_name}
                 </div>
             </div>
 
@@ -149,7 +151,7 @@ export const TechnicianChatWindow = ({ chat, onClose }: Props) => {
                 <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Escribe un mensaje..."
+                    placeholder={formatMessage({id: "client_chat_placeholder" })}
                     disabled={isFinalizing}
                     className="flex-1 text-sm bg-[--neutral-200] border border-[--neutral-300] focus:ring-[--secondary-default] rounded-lg disabled:opacity-50"
                     onKeyDown={(e) => {

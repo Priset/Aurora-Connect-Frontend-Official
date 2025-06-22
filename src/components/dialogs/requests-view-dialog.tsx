@@ -1,15 +1,19 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RequestDialogProps, StatusMap } from "@/interfaces/auroraDb";
+import { RequestDialogProps, getStatusMap } from "@/interfaces/auroraDb";
 import { BadgeCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { useIntl } from "react-intl";
 
 export function RequestViewDialog({ isOpen, onClose, request }: RequestDialogProps) {
     const [isLoading, setIsLoading] = useState(true);
+    const { formatMessage } = useIntl();
+    const intl = useIntl();
+    const StatusMap = getStatusMap(intl);
 
     useEffect(() => {
         if (!isOpen) return;
-        setIsLoading(false); // Simula la carga inicial
+        setIsLoading(false);
     }, [isOpen]);
 
     const createdAt = new Date(request.created_at).toLocaleDateString("es-BO", {
@@ -52,16 +56,15 @@ export function RequestViewDialog({ isOpen, onClose, request }: RequestDialogPro
                                 <BadgeCheck className="w-12 h-12 text-[--secondary-default]" />
                             </div>
                             <DialogTitle className="text-xl font-bold text-center">
-                                Detalles de la solicitud
+                                {formatMessage({ id: "request_view_title" })}
                             </DialogTitle>
                         </DialogHeader>
 
                         <div className="text-sm space-y-2 text-center">
-                            <p><strong>Cliente:</strong> {request.client?.name} {request.client?.last_name}</p>
-                            <p><strong>Descripción:</strong> {request.description}</p>
-                            <p><strong>Precio ofertado:</strong> Bs. {request.offered_price?.toFixed(2)}</p>
-                            <p>
-                                <strong>Estado:</strong>{" "}
+                            <p><strong>{formatMessage({ id: "request_view_client" })}</strong> {request.client?.name} {request.client?.last_name}</p>
+                            <p><strong>{formatMessage({ id: "request_view_description" })}</strong> {request.description}</p>
+                            <p><strong>{formatMessage({ id: "request_view_price" })}</strong> Bs. {request.offered_price?.toFixed(2)}</p>
+                            <p><strong>{formatMessage({ id: "request_view_status" })}</strong>{" "}
                                 <Badge
                                     className="text-xs"
                                     style={{ backgroundColor: StatusMap[request.status as keyof typeof StatusMap].color }}
@@ -70,10 +73,10 @@ export function RequestViewDialog({ isOpen, onClose, request }: RequestDialogPro
                                 </Badge>
                             </p>
                             <p className="text-xs text-muted-foreground italic">
-                                Creado: {createdAt}
+                                {formatMessage({ id: "request_view_created"})} {createdAt}
                             </p>
                             <p className="text-xs text-muted-foreground italic">
-                                Última actualización: {updatedAt}
+                                {formatMessage({ id: "request_view_updated"})} {updatedAt}
                             </p>
                         </div>
                     </>

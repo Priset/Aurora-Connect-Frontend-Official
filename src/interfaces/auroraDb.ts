@@ -1,4 +1,4 @@
-// src/interfaces/auroraDb.ts
+import { IntlShape } from "react-intl";
 
 export interface User {
     id: number;
@@ -293,17 +293,17 @@ export enum Status {
     ELIMINADO = 11,
 }
 
-export const StatusMap: Record<Status, { label: string; color: string }> = {
-    [Status.DESHABILITADO]: { label: "Deshabilitado", color: "#9CA3AF" },
-    [Status.HABILITADO]: { label: "Habilitado", color: "#10B981" },
-    [Status.PENDIENTE]: { label: "Pendiente", color: "#F59E0B" },
-    [Status.RECHAZADO_POR_TECNICO]: { label: "Rechazado por Técnico", color: "#EF4444" },
-    [Status.CONTRAOFERTA_POR_TECNICO]: { label: "Contraoferta por Técnico", color: "#6366F1" },
-    [Status.ACEPTADO_POR_TECNICO]: { label: "Aceptado por Técnico", color: "#3B82F6" },
-    [Status.RECHAZADO_POR_CLIENTE]: { label: "Rechazado por Cliente", color: "#F87171" },
-    [Status.ACEPTADO_POR_CLIENTE]: { label: "Aceptado por Cliente", color: "#34D399" },
-    [Status.CHAT_ACTIVO]: { label: "Chat Activo", color: "#0EA5E9" },
-    [Status.FINALIZADO]: { label: "Finalizado", color: "#8B5CF6" },
-    [Status.CALIFICADO]: { label: "Calificado", color: "#5df5e0" },
-    [Status.ELIMINADO]: { label: "Eliminado", color: "#6B7280" },
-};
+export const getStatusMap = (intl: IntlShape): Record<Status, { label: string; color: string }> => ({
+    [Status.DESHABILITADO]: { label: intl.formatMessage({ id: "status_disabled" }), color: "#9CA3AF" },
+    [Status.HABILITADO]: { label: intl.formatMessage({ id: "status_enabled" }), color: "#10B981" },
+    [Status.PENDIENTE]: { label: intl.formatMessage({ id: "status_pending" }), color: "#F59E0B" },
+    [Status.RECHAZADO_POR_TECNICO]: { label: intl.formatMessage({ id: "status_rejected_by_technician" }), color: "#EF4444" },
+    [Status.CONTRAOFERTA_POR_TECNICO]: { label: intl.formatMessage({ id: "status_counter_offer_by_technician" }), color: "#6366F1" },
+    [Status.ACEPTADO_POR_TECNICO]: { label: intl.formatMessage({ id: "status_accepted_by_technician" }), color: "#3B82F6" },
+    [Status.RECHAZADO_POR_CLIENTE]: { label: intl.formatMessage({ id: "status_rejected_by_client" }), color: "#F87171" },
+    [Status.ACEPTADO_POR_CLIENTE]: { label: intl.formatMessage({ id: "status_accepted_by_client" }), color: "#34D399" },
+    [Status.CHAT_ACTIVO]: { label: intl.formatMessage({ id: "status_chat_active" }), color: "#0EA5E9" },
+    [Status.FINALIZADO]: { label: intl.formatMessage({ id: "status_finished" }), color: "#8B5CF6" },
+    [Status.CALIFICADO]: { label: intl.formatMessage({ id: "status_rated" }), color: "#5df5e0" },
+    [Status.ELIMINADO]: { label: intl.formatMessage({ id: "status_deleted" }), color: "#6B7280" },
+});

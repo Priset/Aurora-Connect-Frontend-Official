@@ -2,19 +2,33 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageCircle } from "lucide-react";
+import { useIntl } from "react-intl"
 
 export default function LoadingTechnicianHome() {
+    const { formatMessage } = useIntl()
+
+    const sectionTitles = [
+        "technician_requests_new",
+        "technician_requests_sent",
+        "technician_requests_progress",
+        "technician_requests_closed",
+    ]
+
     return (
         <main className="px-6 md:px-10 py-6">
-            <h1 className="text-2xl font-display font-bold text-white mb-6">Gestión de Solicitudes</h1>
+            <h1 className="text-2xl font-display font-bold text-white mb-6">
+                {formatMessage({ id: "technician_requests_title" })}
+            </h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                {["Solicitudes nuevas", "Ofertas enviadas", "Progreso de la solicitud", "Solicitudes cerradas"].map((title, idx) => (
+                {sectionTitles.map((id, idx) => (
                     <div
                         key={idx}
                         className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4 overflow-hidden"
                     >
-                        <h3 className="text-sm font-semibold mb-3">{title}</h3>
+                        <h3 className="text-sm font-semibold mb-3">
+                            {formatMessage({ id })}
+                        </h3>
                         <div className="flex items-center gap-2 mb-3">
                             <Skeleton className="h-9 w-9 rounded-md bg-[--neutral-300]" />
                             <Skeleton className="h-9 flex-1 rounded-md bg-[--neutral-300]" />

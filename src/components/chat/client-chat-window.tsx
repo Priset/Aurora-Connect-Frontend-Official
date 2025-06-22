@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { AxiosError } from "axios";
 import { useSocketChat } from "@/hooks/useSocketChat";
 import {cn} from "@/lib/utils";
+import { useIntl } from "react-intl";
 
 interface Props {
     chat: Chat;
@@ -38,6 +39,7 @@ export const ClientChatWindow = ({ chat, onClose }: Props) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [showDialog, setShowDialog] = useState(false);
     const { finalizeRequest } = useRequests();
+    const { formatMessage } = useIntl();
 
     useEffect(() => {
         if (!chat?.id || !profile?.id) return;
@@ -99,14 +101,13 @@ export const ClientChatWindow = ({ chat, onClose }: Props) => {
 
     return (
         <div className="fixed bottom-6 right-6 w-[360px] h-[400px] bg-white dark:bg-[--neutral-100] shadow-2xl rounded-xl border border-[--primary-default] z-50 flex flex-col">
-
             <div className="bg-[--secondary-default] text-white px-4 py-3 rounded-t-xl flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-semibold truncate">
                     <ArrowLeft
                         className="w-4 h-4 cursor-pointer"
                         onClick={onClose}
                     />
-                    Chat con {chat.technician?.user?.name} {chat.technician?.user?.last_name}
+                    {formatMessage({id: "client_chat_with" })} {chat.technician?.user?.name} {chat.technician?.user?.last_name}
                 </div>
                 <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
                     <AlertDialogTrigger asChild>
@@ -114,21 +115,21 @@ export const ClientChatWindow = ({ chat, onClose }: Props) => {
                             className="text-neutral-950 text-xs font-medium px-3 py-1 rounded-md bg-error hover:bg-error-hover active:bg-error-pressed transition-colors"
                             onClick={() => setShowDialog(true)}
                         >
-                            Finalizar
+                            {formatMessage({id: "client_chat_finalize_button" })}
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="bg-white dark:bg-[--neutral-100]">
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-[--primary-default]">
-                                ¿Deseas finalizar este chat?
+                                {formatMessage({id: "client_chat_finalize_title" })}
                             </AlertDialogTitle>
                         </AlertDialogHeader>
                         <p className="text-sm text-muted-foreground">
-                            Esta acción es irreversible. No podrás enviar más mensajes.
+                            {formatMessage({id: "client_chat_finalize_description" })}
                         </p>
                         <AlertDialogFooter>
                             <AlertDialogCancel className="rounded-md bg-neutral-100 hover:bg-neutral-200 active:bg-neutral-300 transition-colors">
-                                Cancelar
+                                {formatMessage({id: "client_chat_cancel" })}
                             </AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={async () => {
@@ -144,7 +145,7 @@ export const ClientChatWindow = ({ chat, onClose }: Props) => {
                                 }}
                                 className="bg-error text-white hover:bg-error-hover active:bg-error-pressed rounded-md"
                             >
-                                Finalizar
+                                {formatMessage({id: "client_chat_finalize_button" })}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -200,7 +201,7 @@ export const ClientChatWindow = ({ chat, onClose }: Props) => {
                 <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Escribe un mensaje..."
+                    placeholder={formatMessage({id: "client_chat_input_placeholder" })}
                     disabled={isFinalizing}
                     className="flex-1 text-sm bg-[--neutral-200] border border-[--neutral-300] focus:ring-[--secondary-default] rounded-lg disabled:opacity-50"
                     onKeyDown={(e) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ServiceRequest, Status, StatusMap } from "@/interfaces/auroraDb";
+import { ServiceRequest, Status, getStatusMap } from "@/interfaces/auroraDb";
 import {
     Select,
     SelectContent,
@@ -18,6 +18,7 @@ import {
     TooltipTrigger
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { useIntl } from "react-intl";
 
 type SectionProps = {
     title: string;
@@ -48,9 +49,11 @@ export const RequestSection = ({
                                }: SectionProps) => {
     const [page, setPage] = useState(1);
     const itemsPerPage = 10;
-
+    const intl = useIntl();
+    const { formatMessage } = useIntl();
     const totalPages = Math.ceil(data.length / itemsPerPage);
     const paginatedData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    const StatusMap = getStatusMap(intl);
 
     useEffect(() => {
         setPage(1);
@@ -68,9 +71,7 @@ export const RequestSection = ({
                         side="top"
                         className="z-50 bg-neutral-700 text-neutral-950 border border-[--neutral-300] rounded-md shadow-sm text-xs px-3 py-1"
                     >
-                        Puedes utilizar el campo de búsqueda para filtrar<br />
-                        las solicitudes por descripción o el campo de filtro<br />
-                        para ordenar las solicitudes.
+                        {formatMessage({ id: "requests_tooltip" })}
                     </TooltipContent>
                 </Tooltip>
             </div>
@@ -79,16 +80,32 @@ export const RequestSection = ({
                 <div className="flex items-center gap-2">
                     <Select onValueChange={(val) => onSortChange?.(val)}>
                         <SelectTrigger className="h-8 px-2 py-1 text-xs border rounded-md w-[120px]">
-                            <SelectValue placeholder="Ordenar por" />
+                            <SelectValue
+                                placeholder={formatMessage({ id: "requests_sort_by" })}
+                            />
                         </SelectTrigger>
                         <SelectContent className="bg-neutral-100 border border-[--neutral-300] text-sm shadow-md z-50">
-                            <SelectItem value="-1">Ordenar por</SelectItem>
-                            <SelectItem value="date_asc">Fecha ↑</SelectItem>
-                            <SelectItem value="date_desc">Fecha ↓</SelectItem>
-                            <SelectItem value="price_asc">Precio ↑</SelectItem>
-                            <SelectItem value="price_desc">Precio ↓</SelectItem>
-                            <SelectItem value="az">A-Z</SelectItem>
-                            <SelectItem value="za">Z-A</SelectItem>
+                            <SelectItem value="-1">
+                                {formatMessage({ id: "requests_sort_by" })}
+                            </SelectItem>
+                            <SelectItem value="date_asc">
+                                {formatMessage({ id: "requests_sort_date_asc" })}
+                            </SelectItem>
+                            <SelectItem value="date_desc">
+                                {formatMessage({ id: "requests_sort_date_desc" })}
+                            </SelectItem>
+                            <SelectItem value="price_asc">
+                                {formatMessage({ id: "requests_sort_price_asc" })}
+                            </SelectItem>
+                            <SelectItem value="price_desc">
+                                {formatMessage({ id: "requests_sort_price_desc" })}
+                            </SelectItem>
+                            <SelectItem value="az">
+                                {formatMessage({ id: "requests_sort_az" })}
+                            </SelectItem>
+                            <SelectItem value="za">
+                                {formatMessage({ id: "requests_sort_za" })}
+                            </SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -99,10 +116,14 @@ export const RequestSection = ({
                             }
                         >
                             <SelectTrigger className="h-8 px-2 py-1 text-xs border rounded-md w-[160px] truncate overflow-hidden">
-                                <SelectValue placeholder="Estado" />
+                                <SelectValue
+                                    placeholder={formatMessage({ id: "requests_status" })}
+                                />
                             </SelectTrigger>
                             <SelectContent className="bg-neutral-100 border border-[--neutral-300] text-sm shadow-md z-50">
-                                <SelectItem value="-1">Todos</SelectItem>
+                                <SelectItem value="-1">
+                                    {formatMessage({ id: "requests_status_all" })}
+                                </SelectItem>
                                 {Object.entries(StatusMap)
                                     .filter(([key]) => {
                                         const id = Number(key);
@@ -126,7 +147,7 @@ export const RequestSection = ({
                 </div>
 
                 <Input
-                    placeholder="Buscar..."
+                    placeholder={formatMessage({ id: "requests_search_placeholder" })}
                     value={searchValue}
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="text-sm"
@@ -158,15 +179,15 @@ export const RequestSection = ({
                                                 onReview(req);
                                             }}
                                         >
-                                            Calificar
+                                            {formatMessage({ id: "requests_review_button" })}
                                         </Button>
                                     )}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    Precio: Bs. {req.offered_price.toFixed(2)}
+                                    {formatMessage({ id: "requests_price_prefix"})} {req.offered_price.toFixed(2)}
                                 </div>
                                 <div className="text-[10px] text-muted-foreground italic">
-                                    Creado: {createdAt}
+                                    {formatMessage({ id: "requests_created_prefix"})} {createdAt}
                                 </div>
                                 <Badge
                                     className="text-neutral-100 text-xs mt-2"
@@ -178,7 +199,9 @@ export const RequestSection = ({
                         );
                     })
                 ) : (
-                    <p className="text-xs text-muted-foreground">Sin resultados.</p>
+                    <p className="text-xs text-muted-foreground">
+                        {formatMessage({ id: "requests_no_results" })}
+                    </p>
                 )}
             </div>
 
@@ -189,17 +212,17 @@ export const RequestSection = ({
                         onClick={() => setPage((p) => Math.max(p - 1, 1))}
                         className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed h-7 px-2 text-xs text-neutral-100"
                     >
-                        Anterior
+                        {formatMessage({ id: "requests_prev" })}
                     </Button>
                     <span className="text-muted-foreground">
-                        Página {page} de {totalPages}
+                        {formatMessage({ id: "requests_pagination" }, { page, totalPages })}
                     </span>
                     <Button
                         disabled={page === totalPages}
                         onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                         className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed h-7 px-2 text-xs text-neutral-100"
                     >
-                        Siguiente
+                        {formatMessage({ id: "requests_next" })}
                     </Button>
                 </div>
             )}

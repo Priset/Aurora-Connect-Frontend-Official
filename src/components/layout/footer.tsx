@@ -3,12 +3,17 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useIntl } from "react-intl";
 
 export function Footer() {
+    const { formatMessage } = useIntl();
+
     return (
         <footer className="bg-[--primary-dark] text-white text-sm px-6 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-2 text-center sm:text-left">
-                <span className="font-semibold">AURORA CONNECT</span>
+                <span className="font-semibold">
+                    {formatMessage({ id: "footer_brand" })}
+                </span>
 
                 <div className="flex gap-4 justify-center sm:justify-end pr-2 sm:pr-6">
                     {[
@@ -57,7 +62,7 @@ export function Footer() {
             </div>
 
             <p className="text-[--neutral-300] text-center sm:text-left">
-                Todos los derechos reservados – Aurora Connect 2025
+                {formatMessage({ id: "footer_rights_reserved" })}
             </p>
         </footer>
     )

@@ -16,10 +16,11 @@ import { cn } from "@/lib/utils";
 import { ServiceRequest } from "@/interfaces/auroraDb";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { StatusMap } from "@/interfaces/auroraDb";
+import { getStatusMap } from "@/interfaces/auroraDb";
 import {useTechnicians} from "@/hooks/useTechnicians";
 import { TechnicianProfileSlide } from "@/components/technician/technician-profile-slide";
 import {Star} from "lucide-react";
+import { useIntl } from "react-intl"
 
 type TechnicianWithRating = TechnicianProfile & { avgRating: number };
 
@@ -41,6 +42,9 @@ export default function ClientHomePage() {
     const [topTechnicians, setTopTechnicians] = useState<TechnicianWithRating[]>([]);
     const [selectedTechnicianId, setSelectedTechnicianId] = useState<number | null>(null);
     const [isTechnicianOpen, setIsTechnicianOpen] = useState(false);
+    const { formatMessage } = useIntl()
+    const intl = useIntl();
+    const StatusMap = getStatusMap(intl);
 
     const {
         register,
@@ -113,7 +117,7 @@ export default function ClientHomePage() {
 
     const onSubmit = async (data: RequestForm) => {
         if (!clientId) {
-            toast.error("No se encontró el cliente autenticado.");
+            toast.error(formatMessage({ id: "client_home_error_no_client" }));
             return;
         }
 
@@ -124,12 +128,12 @@ export default function ClientHomePage() {
                 offeredPrice: data.offeredPrice,
             });
 
-            toast.success("Solicitud enviada correctamente");
+            toast.success(formatMessage({ id: "client_home_request_sent" }));
             reset();
             loadRequests();
         } catch (err) {
             console.error("❌ Error:", err);
-            toast.error("Error al enviar solicitud");
+            toast.error(formatMessage({ id: "client_home_error_request_sent" }));
         }
     };
 
@@ -143,7 +147,7 @@ export default function ClientHomePage() {
             ) : (
                 user && (
                     <h1 className="text-2xl font-display font-bold text-white">
-                        Bienvenido, {user.name?.split(" ")[0] || "Usuario"}!
+                        {formatMessage({ id: "client_home_welcome" }, { name: user.name?.split(" ")[0] || "User" })}
                     </h1>
                 )
             )}
@@ -160,7 +164,7 @@ export default function ClientHomePage() {
                     ) : (
                         <Card className="rounded-2xl p-6 bg-neutral-200 text-[--foreground] border border-[--neutral-300] shadow-lg">
                             <h2 className="text-2xl font-display font-bold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
-                                Crear nueva solicitud
+                                {formatMessage({ id: "client_home_create_request_title" })}
                             </h2>
 
                             <Separator />
@@ -171,12 +175,12 @@ export default function ClientHomePage() {
                                         htmlFor="description"
                                         className="block text-sm font-semibold text-[--primary-default]"
                                     >
-                                        Describe tu problema
+                                        {formatMessage({ id: "client_home_form_description_label" })}
                                     </label>
                                     <Textarea
                                         id="description"
                                         {...register("description", { required: true })}
-                                        placeholder="Escribe con detalle lo que ocurre..."
+                                        placeholder={formatMessage({ id: "client_home_form_description_placeholder" })}
                                         rows={4}
                                         className={cn(
                                             "w-full resize-none rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
@@ -186,7 +190,7 @@ export default function ClientHomePage() {
                                     />
                                     {errors.description && (
                                         <p className="text-sm font-medium text-error">
-                                            * Este campo es obligatorio.
+                                            {formatMessage({ id: "client_home_form_description_error" })}
                                         </p>
                                     )}
                                 </div>
@@ -196,13 +200,13 @@ export default function ClientHomePage() {
                                         htmlFor="offered_price"
                                         className="block text-sm font-semibold text-[--primary-default]"
                                     >
-                                        Precio ofertado (Bs.)
+                                        {formatMessage({ id: "client_home_form_price_label" })}
                                     </label>
                                     <Input
                                         id="offered_price"
                                         type="number"
                                         step="0.01"
-                                        placeholder="Ej: 150"
+                                        placeholder={formatMessage({ id: "client_home_form_price_placeholder" })}
                                         {...register("offeredPrice", {
                                             required: true,
                                             valueAsNumber: true,
@@ -216,7 +220,7 @@ export default function ClientHomePage() {
                                     />
                                     {errors.offeredPrice && (
                                         <p className="text-sm font-medium text-error">
-                                            * Precio inválido. Ingresa un valor mayor a 0.
+                                            {formatMessage({ id: "client_home_form_price_error" })}
                                         </p>
                                     )}
                                 </div>
@@ -229,7 +233,7 @@ export default function ClientHomePage() {
                                         disabled={!clientId}
                                         className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition transform hover:scale-105 active:scale-95"
                                     >
-                                        Enviar Solicitud
+                                        {formatMessage({ id: "client_home_form_submit_button" })}
                                     </Button>
                                 </div>
                             </form>
@@ -241,7 +245,7 @@ export default function ClientHomePage() {
                     ) : (
                         <Card className="p-6 bg-neutral-200 border border-[--neutral-300] shadow-lg">
                             <h3 className="text-lg font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit mb-4">
-                                Ranking de los mejores técnicos del momento
+                                {formatMessage({ id: "client_home_top_techs_title" })}
                             </h3>
                             {topTechnicians.length ? (
                                 <div className="space-y-3">
@@ -259,7 +263,7 @@ export default function ClientHomePage() {
                                                     #{idx + 1} {tech.user.name} {tech.user.last_name}
                                                 </p>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {tech.service_reviews.length} valoraciones
+                                                    {tech.service_reviews.length} {formatMessage({ id: "client_home_top_techs_reviews" })}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-1">
@@ -281,7 +285,9 @@ export default function ClientHomePage() {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-muted-foreground">Aún no hay técnicos calificados.</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {formatMessage({ id: "client_home_top_techs_empty" })}
+                                </p>
                             )}
                         </Card>
                     )}
@@ -294,10 +300,10 @@ export default function ClientHomePage() {
                         <Card className="bg-neutral-200 border border-[--neutral-300] shadow-lg px-4 py-2">
                             <div className="flex items-center gap-4">
                                 <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100 transition transform hover:scale-105">
-                                    Solicitudes Creadas: {createdCount}
+                                    {formatMessage({id: "client_home_stats_created"})} {createdCount}
                                 </Badge>
                                 <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100 transition transform hover:scale-105">
-                                    Solicitudes Finalizadas: {finalizedCount}
+                                    {formatMessage({ id: "client_home_stats_finalized" })} {finalizedCount}
                                 </Badge>
                             </div>
                         </Card>
@@ -311,7 +317,7 @@ export default function ClientHomePage() {
                         <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
                             <CardHeader>
                                 <CardTitle className="text-base font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
-                                    Últimos Chats
+                                    {formatMessage({ id: "client_home_last_chats_title" })}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
@@ -322,7 +328,7 @@ export default function ClientHomePage() {
                                             className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95"
                                         >
                                             <p className="text-sm font-medium text-[--foreground]">
-                                                Chat con {chat.technician?.user?.name}{" "}{chat.technician?.user?.last_name}
+                                                {formatMessage({id: "client_home_chat_with"})} {chat.technician?.user?.name}{" "}{chat.technician?.user?.last_name}
                                             </p>
                                             <span className="text-xs text-muted-foreground">
                                                 {new Date(chat.created_at).toLocaleString("es-BO", {
@@ -336,7 +342,9 @@ export default function ClientHomePage() {
                                         </Card>
                                     ))
                                 ) : (
-                                    <p className="text-sm text-muted-foreground">No hay chats recientes.</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {formatMessage({ id: "client_home_no_chats" })}
+                                    </p>
                                 )}
                             </CardContent>
                         </Card>
@@ -351,7 +359,7 @@ export default function ClientHomePage() {
                         <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
                             <CardHeader>
                                 <CardTitle className="text-base font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
-                                    Estado de últimas solicitudes
+                                    {formatMessage({ id: "client_home_last_requests_title" })}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
@@ -365,7 +373,7 @@ export default function ClientHomePage() {
                                             </p>
                                             <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
                                                 <span>
-                                                    Creado el{" "}
+                                                    {formatMessage({id: "client_home_request_created_on"})}{" "}
                                                     {new Date(req.created_at).toLocaleDateString("es-BO", {
                                                         day: "2-digit",
                                                         month: "2-digit",

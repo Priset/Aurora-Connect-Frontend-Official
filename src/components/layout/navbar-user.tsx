@@ -5,9 +5,11 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
 import {Bell, Menu} from "lucide-react";
+import { useIntl } from "react-intl";
 
 export function NavbarUser() {
     const { user } = useAuth0();
+    const { formatMessage } = useIntl();
 
     return (
         <header className="bg-primary-dark text-white shadow-md px-6 py-4">
@@ -24,14 +26,14 @@ export function NavbarUser() {
                         size="icon"
                         variant="ghost"
                         className="text-white hover:bg-primary hover:text-secondary-default transition"
-                        aria-label="Notificaciones"
+                        aria-label={formatMessage({ id: "navbar_user_notifications" })}
                     >
                         <Bell className="w-5 h-5" />
                     </Button>
 
                     {user && (
                         <UserMenu
-                            userName={user.name || "Usuario"}
+                            userName={user.name || formatMessage({ id: "navbar_user_default_name" })}
                             userPictureUrl={user.picture || undefined}
                         />
                     )}

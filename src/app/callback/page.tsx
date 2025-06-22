@@ -8,6 +8,7 @@ import { useTechnicians } from '@/hooks/useTechnicians'
 import { Loader2 } from 'lucide-react'
 import axios from 'axios'
 import { API_ROUTES } from '@/config/api.config'
+import { useIntl } from 'react-intl'
 
 type AppState = {
     name: string
@@ -21,6 +22,7 @@ export default function CallbackPage() {
     const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { createUser } = useAuth()
     const { create: createTechnician } = useTechnicians()
+    const { formatMessage } = useIntl()
 
     useEffect(() => {
         const processUser = async () => {
@@ -89,10 +91,10 @@ export default function CallbackPage() {
             <div className="backdrop-blur-lg bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-xl p-10 flex flex-col items-center gap-6 w-full max-w-sm animate-pulse">
                 <Loader2 className="animate-spin text-[--primary-default]" size={60} />
                 <p className="text-lg font-semibold text-center text-[--primary-default]">
-                    Procesando autenticación...
+                    {formatMessage({ id: 'callback_loading_title' })}
                 </p>
                 <p className="text-sm text-muted-foreground text-center">
-                    Esto puede tardar unos segundos. Por favor, no cierres esta ventana.
+                    {formatMessage({ id: 'callback_loading_description' })}
                 </p>
             </div>
         </div>

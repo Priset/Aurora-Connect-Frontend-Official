@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { RegisterDialog } from "@/components/dialogs/register-dialog";
 import { useRegisterDialog } from "@/hooks/useRegisterDialog";
+import { useIntl } from "react-intl";
 
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { login } = useAuth();
+    const { formatMessage } = useIntl();
     const {
         showDialog,
         dialogRole,
@@ -30,7 +32,7 @@ export function Navbar() {
                             className="h-10 object-contain"
                         />
                         <h1 className="text-xl sm:text-2xl font-bold text-neutral-300">
-                            AURORA CONNECT
+                            {formatMessage({ id: "navbar_brand" })}
                         </h1>
                     </div>
 
@@ -47,14 +49,14 @@ export function Navbar() {
                             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed text-white transition transform hover:scale-105 active:scale-95"
                             onClick={login}
                         >
-                            Iniciar Sesión
+                            {formatMessage({ id: "navbar_login" })}
                         </Button>
                         <Button
                             className="border border-secondary text-secondary hover:bg-secondary hover:text-white active:bg-secondary-pressed transition transform hover:scale-105 active:scale-95"
                             variant="ghost"
                             onClick={() => handleRegisterClick("client")}
                         >
-                            Registrarse
+                            {formatMessage({ id: "navbar_register" })}
                         </Button>
                     </div>
                 </div>
@@ -65,14 +67,14 @@ export function Navbar() {
                             className="bg-secondary hover:bg-secondary-hover active:bg-secondary-pressed text-white transition transform hover:scale-105 active:scale-95"
                             onClick={login}
                         >
-                            Iniciar Sesión
+                            {formatMessage({ id: "navbar_login" })}
                         </Button>
                         <Button
                             className="border border-secondary text-secondary hover:bg-secondary hover:text-white active:bg-secondary-pressed transition transform hover:scale-105 active:scale-95"
                             variant="ghost"
                             onClick={() => handleRegisterClick("client")}
                         >
-                            Registrarse
+                            {formatMessage({ id: "navbar_register" })}
                         </Button>
                     </div>
                 )}

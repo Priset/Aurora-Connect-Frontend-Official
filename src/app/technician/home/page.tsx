@@ -8,6 +8,7 @@ import { ServiceRequest, Status } from "@/interfaces/auroraDb";
 import { RequestDialog } from "@/components/technician/request-dialog";
 import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
 import { RequestSection } from "@/components/sections/request-section";
+import { useIntl } from "react-intl";
 
 const initialSearch = {
     created: "",
@@ -40,7 +41,7 @@ const SectionSkeleton = () => (
 export default function TechnicianHomePage() {
     const { profile } = useAuth();
     const { getAllForTechnicians } = useRequests();
-
+    const { formatMessage } = useIntl();
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
     const [search, setSearch] = useState(initialSearch);
@@ -161,7 +162,9 @@ export default function TechnicianHomePage() {
 
     return (
         <main className="px-6 md:px-10 py-6">
-            <h1 className="text-2xl font-display font-bold text-white mb-6">Gestión de Solicitudes</h1>
+            <h1 className="text-2xl font-display font-bold text-white mb-6">
+                {formatMessage({ id: "technician_requests_title" })}
+            </h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 {loading ? (
@@ -174,7 +177,7 @@ export default function TechnicianHomePage() {
                 ) : (
                     <>
                         <RequestSection
-                            title="Solicitudes nuevas"
+                            title={formatMessage({ id: "technician_requests_new" }) + " (" + newRequests.length + ")"}
                             searchKey="created"
                             searchValue={search.created}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
@@ -186,7 +189,7 @@ export default function TechnicianHomePage() {
                             showStatusFilter={false}
                         />
                         <RequestSection
-                            title="Ofertas enviadas"
+                            title={formatMessage({ id: "technician_requests_sent" }) + " (" + offerRequests.length + ")"}
                             searchKey="offers"
                             searchValue={search.offers}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
@@ -198,7 +201,7 @@ export default function TechnicianHomePage() {
                             showStatusFilter={false}
                         />
                         <RequestSection
-                            title="Progreso de la solicitud"
+                            title={formatMessage({ id: "technician_requests_in_progress" }) + " (" + inProgressRequests.length + ")"}
                             searchKey="progress"
                             searchValue={search.progress}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
@@ -212,7 +215,7 @@ export default function TechnicianHomePage() {
                             onFilterStatusChange={setProgressStatusFilter}
                         />
                         <RequestSection
-                            title="Solicitudes cerradas"
+                            title={formatMessage({ id: "technician_requests_closed" }) + " (" + closedRequests.length + ")"}
                             searchKey="closed"
                             searchValue={search.closed}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}

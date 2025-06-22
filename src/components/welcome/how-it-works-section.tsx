@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { useRipples } from "@/hooks/useRipples";
 import { SectionEffect } from "@/components/ui/section-effect";
+import { useIntl } from "react-intl";
 
 interface Props {
     onRegisterClick: (role: "client" | "technician") => void;
@@ -13,6 +14,7 @@ interface Props {
 
 export const HowItWorksSection = ({ onRegisterClick }: Props) => {
     const { sectionRef, ripples, handleMouseMove } = useRipples();
+    const { formatMessage } = useIntl();
 
     return (
         <section
@@ -59,13 +61,10 @@ export const HowItWorksSection = ({ onRegisterClick }: Props) => {
                     transition={{ duration: 0.6, ease: "easeOut" }}
                 >
                     <h2 className="text-3xl sm:text-4xl font-display font-bold mb-4 text-white">
-                        Problemas tecnológicos reales, soluciones al instante.
+                        {formatMessage({ id: "howitworks_title" })}
                     </h2>
                     <p className="text-base leading-relaxed text-neutral-300 mb-6 text-justify">
-                        Conectamos a personas que enfrentan fallas o dudas con sus equipos
-                        digitales con técnicos verificados y listos para ayudar.
-                        Simplificamos la asistencia técnica con rapidez, confianza y
-                        comunicación directa.
+                        {formatMessage({ id: "howitworks_paragraph" })}
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -74,14 +73,14 @@ export const HowItWorksSection = ({ onRegisterClick }: Props) => {
                             className="transition-all hover:bg-secondary-hover active:bg-secondary-pressed transform hover:scale-105 active:scale-95"
                             onClick={() => onRegisterClick("technician")}
                         >
-                            Registrarme como Técnico
+                            {formatMessage({ id: "howitworks_register_technician" })}
                         </Button>
                         <Button
                             variant="secondary"
                             className="transition-all hover:bg-secondary-hover active:bg-secondary-pressed transform hover:scale-105 active:scale-95"
                             onClick={() => onRegisterClick("client")}
                         >
-                            Registrarme como Cliente
+                            {formatMessage({ id: "howitworks_register_client" })}
                         </Button>
                     </div>
                 </motion.div>

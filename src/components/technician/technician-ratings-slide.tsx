@@ -12,6 +12,7 @@ import {
 import { Star } from "lucide-react";
 import { useTechnicians } from "@/hooks/useTechnicians";
 import { useAuth } from "@/hooks/useAuth";
+import { useIntl } from "react-intl";
 
 interface Props {
     isOpen: boolean;
@@ -21,6 +22,7 @@ interface Props {
 export const TechnicianRatingsSlide = ({ isOpen, onClose }: Props) => {
     const { profile } = useAuth();
     const { getById } = useTechnicians();
+    const { formatMessage } = useIntl();
     const [isLoading, setIsLoading] = useState(true);
     const [reviews, setReviews] = useState<
         { id: number; comment?: string; rating: number }[]
@@ -52,9 +54,11 @@ export const TechnicianRatingsSlide = ({ isOpen, onClose }: Props) => {
                 className="w-full max-w-sm bg-white dark:bg-[--neutral-100] text-[--foreground] border-l border-[--neutral-300] shadow-xl z-[60]"
             >
                 <SheetHeader className="mb-4">
-                    <SheetTitle className="text-lg font-bold">Mis Calificaciones</SheetTitle>
+                    <SheetTitle className="text-lg font-bold">
+                        {formatMessage({ id: "technician_ratings_title" })}
+                    </SheetTitle>
                     <SheetDescription className="text-sm text-muted-foreground">
-                        Valoraciones recibidas por los clientes
+                        {formatMessage({ id: "technician_ratings_description" })}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -72,7 +76,7 @@ export const TechnicianRatingsSlide = ({ isOpen, onClose }: Props) => {
                                 className="bg-[--neutral-100] border border-[--neutral-300] rounded-lg p-3"
                             >
                                 <p className="text-sm italic text-muted-foreground mb-1">
-                                    &quot;{review.comment || "Sin comentario"}&quot;
+                                    &quot;{review.comment || formatMessage({ id: "technician_ratings_no_comment"})}&quot;
                                 </p>
                                 <div className="flex items-center gap-1">
                                     {[1, 2, 3, 4, 5].map((val) => (
@@ -91,7 +95,7 @@ export const TechnicianRatingsSlide = ({ isOpen, onClose }: Props) => {
                     </div>
                 ) : (
                     <p className="text-sm text-muted-foreground mt-4">
-                        Aún no tienes valoraciones.
+                        {formatMessage({ id: "technician_ratings_no_reviews" })}
                     </p>
                 )}
             </SheetContent>

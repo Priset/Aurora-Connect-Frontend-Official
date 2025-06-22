@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ReviewDialog } from "@/components/review/review-dialog";
+import { useIntl } from "react-intl";
 
 interface Props {
     isOpen: boolean;
@@ -41,6 +42,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
     const [selectedChatForReview, setSelectedChatForReview] = useState<Chat | null>(null);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const { remove } = useChats();
+    const { formatMessage } = useIntl();
 
     const refreshChats = async () => {
         if (!profile?.id) return;
@@ -81,7 +83,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                 <div className="bg-[--secondary-default] text-white px-4 py-3 rounded-t-xl flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-semibold truncate">
                         <MessageCircle className="w-4 h-4" />
-                        Chats Activos
+                        {formatMessage({ id: "client_chat_title" })}
                     </div>
                     <button
                         onClick={onClose}
@@ -96,7 +98,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Buscar técnico..."
+                        placeholder={formatMessage({ id: "client_chat_search_placeholder" })}
                         className="text-sm bg-[--neutral-200] border-[--neutral-300] placeholder:text-[--neutral-600] focus:ring-[--secondary-default] rounded-lg"
                     />
                 </div>
@@ -117,7 +119,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                     })
-                                    : "Sin mensajes";
+                                    : formatMessage({ id: "client_chat_no_messages" });
 
                                 return (
                                     <div
@@ -137,10 +139,10 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                                             {chat.technician?.user?.last_name}
                                         </p>
                                         <p className="text-xs text-muted-foreground truncate">
-                                            {lastMessage ? lastMessage.message.slice(0, 60) + (lastMessage.message.length > 60 ? "..." : "") : "Sin mensajes"}
+                                            {lastMessage ? lastMessage.message.slice(0, 60) + (lastMessage.message.length > 60 ? "..." : "") : formatMessage({ id: "client_chat_no_messages" })}
                                         </p>
                                         <p className="text-[10px] text-muted-foreground mt-1">
-                                            Último mensaje: {formattedTime}
+                                            {formatMessage({ id: "client_chat_last_message_label" })} {formattedTime}
                                         </p>
 
                                         {chat.status === Status.FINALIZADO && (
@@ -152,7 +154,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                                                     setIsReviewOpen(true);
                                                 }}
                                             >
-                                                Calificar
+                                                {formatMessage({ id: "client_chat_button_review" })}
                                             </Button>
                                         )}
 
@@ -170,26 +172,30 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                                                 </AlertDialogTrigger>
                                                 <AlertDialogContent className="max-w-sm">
                                                     <AlertDialogHeader>
-                                                        <AlertDialogTitle>¿Eliminar chat?</AlertDialogTitle>
+                                                        <AlertDialogTitle>
+                                                            {formatMessage({ id: "client_chat_delete_title" })}
+                                                        </AlertDialogTitle>
                                                         <AlertDialogDescription>
-                                                            Esta acción no se puede deshacer. El chat será eliminado permanentemente del sistema.
+                                                            {formatMessage({ id: "client_chat_delete_description" })}
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                        <AlertDialogCancel>
+                                                            {formatMessage({ id: "client_chat_delete_cancel" })}
+                                                        </AlertDialogCancel>
                                                         <AlertDialogAction
                                                             onClick={async () => {
                                                                 try {
                                                                     await remove(chat.id);
                                                                     refreshChats();
-                                                                    toast.success("Chat eliminado correctamente.");
+                                                                    toast.success(formatMessage({ id: "client_chat_deleted_success" }));
                                                                 } catch (err) {
                                                                     console.error("❌ Error al eliminar chat:", err);
-                                                                    toast.error("Error al eliminar el chat. Inténtalo de nuevo.");
+                                                                    toast.error(formatMessage({ id: "client_chat_deleted_error" }));
                                                                 }
                                                             }}
                                                         >
-                                                            Eliminar
+                                                            {formatMessage({ id: "client_chat_delete_confirm" })}
                                                         </AlertDialogAction>
                                                     </AlertDialogFooter>
                                                 </AlertDialogContent>
@@ -200,7 +206,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                             })
                         ) : (
                             <p className="text-sm text-muted-foreground text-center mt-4">
-                                No se encontraron chats.
+                                {formatMessage({ id: "client_chat_empty" })}
                             </p>
                         )}
                     </ScrollArea>

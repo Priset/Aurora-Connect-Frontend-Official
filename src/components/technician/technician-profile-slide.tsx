@@ -13,11 +13,13 @@ import { TechnicianProfile, TechnicianProfileSlideProps } from "@/interfaces/aur
 import { useTechnicians } from "@/hooks/useTechnicians";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {Star, User as UserIcon} from "lucide-react";
+import { useIntl } from "react-intl";
 
 export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: TechnicianProfileSlideProps) {
     const { getPublicById } = useTechnicians();
     const [technician, setTechnician] = useState<TechnicianProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { formatMessage } = useIntl();
 
     useEffect(() => {
         if (!isOpen || !technicianId) return;
@@ -43,9 +45,11 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                 className="w-full max-w-sm bg-white dark:bg-[--neutral-100] text-[--foreground] border-l border-[--neutral-300] shadow-xl z-[60]"
             >
                 <SheetHeader className="mb-4">
-                    <SheetTitle className="text-lg font-bold">Perfil del Técnico</SheetTitle>
+                    <SheetTitle className="text-lg font-bold">
+                        {formatMessage({ id: "technician_profile_title" })}
+                    </SheetTitle>
                     <SheetDescription className="text-sm text-muted-foreground">
-                        Información general
+                        {formatMessage({ id: "technician_profile_description" })}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -89,28 +93,36 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                     <p className="text-base font-semibold leading-snug">
                                         {technician.user.name} {technician.user.last_name}
                                     </p>
-                                    <p className="text-sm text-muted-foreground">Técnico registrado</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {formatMessage({ id: "technician_profile_registered" })}
+                                    </p>
                                 </div>
                             </div>
 
                             <div>
-                                <p className="text-sm font-semibold mb-1">Experiencia</p>
+                                <p className="text-sm font-semibold mb-1">
+                                    {formatMessage({ id: "technician_profile_experience" })}
+                                </p>
                                 <p className="text-sm text-muted-foreground">
-                                    {technician.experience || "No proporcionada."}
+                                    {technician.experience || formatMessage({ id: "technician_profile_experience_none" })}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="text-sm font-semibold mb-1">Años de experiencia</p>
+                                <p className="text-sm font-semibold mb-1">
+                                    {formatMessage({ id: "technician_profile_years" })}
+                                </p>
                                 <p className="text-sm text-muted-foreground">
                                     {technician.years_experience
-                                        ? `${technician.years_experience} años`
-                                        : "No especificado"}
+                                        ? `${technician.years_experience} ${formatMessage({ id: "technician_profile_years_suffix" })}`
+                                        : formatMessage({ id: "technician_profile_years_none" })}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="text-sm font-semibold mb-1">Valoraciones</p>
+                                <p className="text-sm font-semibold mb-1">
+                                    {formatMessage({ id: "technician_profile_reviews" })}
+                                </p>
                                 <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
                                     {technician.service_reviews?.length ? (
                                         technician.service_reviews.map((review) => (
@@ -119,7 +131,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                                 className="bg-neutral-100 border border-[--neutral-300] rounded-lg p-3"
                                             >
                                                 <p className="text-sm italic text-muted-foreground mb-1">
-                                                    &quot;{review.comment || "Sin comentario"}&quot;
+                                                    &quot;{review.comment || formatMessage({id: "technician_profile_no_comment"})}&quot;
                                                 </p>
                                                 <div className="flex items-center gap-1">
                                                     {[1, 2, 3, 4, 5].map((val) => (
@@ -136,7 +148,9 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-muted-foreground">Aún no tiene valoraciones.</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {formatMessage({ id: "technician_profile_no_reviews" })}
+                                        </p>
                                     )}
                                 </div>
                             </div>
