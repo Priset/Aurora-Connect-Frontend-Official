@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { useSocket } from "@/hooks/useSocket";
@@ -70,7 +70,7 @@ export default function ClientRequestsPage() {
         setDialogType(null);
     };
 
-    const loadRequests = async () => {
+    const loadRequests = useCallback(async () => {
         if (!profile) return;
         setLoading(true);
         try {
@@ -82,11 +82,11 @@ export default function ClientRequestsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [getAll, profile]);
 
     useEffect(() => {
         loadRequests();
-    }, [profile]);
+    }, [loadRequests]);
 
     useSocket(
         (newRequest) => {

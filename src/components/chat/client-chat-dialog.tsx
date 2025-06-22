@@ -11,7 +11,7 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChats } from "@/hooks/useChats";
 import { Chat, Status } from "@/interfaces/auroraDb";
@@ -27,10 +27,10 @@ import { useIntl } from "react-intl";
 
 interface Props {
     isOpen: boolean;
-    onClose: () => void;
+    onCloseAction: () => void;
 }
 
-export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
+export const ClientChatDialog = ({ isOpen, onCloseAction }: Props) => {
     const { getAll } = useChats();
     const { profile } = useAuth();
     const [chats, setChats] = useState<Chat[]>([]);
@@ -44,7 +44,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
     const { remove } = useChats();
     const { formatMessage } = useIntl();
 
-    const refreshChats = async () => {
+    const refreshChats = useCallback(async () => {
         if (!profile?.id) return;
         try {
             const all = await getAll();
@@ -58,13 +58,13 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
         } catch (err) {
             console.error("❌ Error al refrescar chats:", err);
         }
-    };
+    }, [getAll, profile?.id]);
 
     useEffect(() => {
         if (!isOpen || !profile?.id) return;
         setIsLoading(true);
         refreshChats().finally(() => setIsLoading(false));
-    }, [isOpen, profile?.id]);
+    }, [isOpen, profile?.id, refreshChats]);
 
     useEffect(() => {
         const lowerSearch = search.toLowerCase();
@@ -86,7 +86,7 @@ export const ClientChatDialog = ({ isOpen, onClose }: Props) => {
                         {formatMessage({ id: "client_chat_title" })}
                     </div>
                     <button
-                        onClick={onClose}
+                        onClick={onCloseAction}
                         aria-label="Cerrar"
                         className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                     >

@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     </div>
                 </div>
 
-                <TechnicianChatDialog isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+                <TechnicianChatDialog isOpen={chatOpen} onCloseAction={() => setChatOpen(false)} />
 
                 {!chatOpen && (
                     <Button

@@ -32,9 +32,9 @@ export default function SettingsLayout({children}: { children: ReactNode }) {
                 </div>
 
                 {isTechnician ? (
-                    <TechnicianChatDialog isOpen={chatOpen} onClose={() => setChatOpen(false)}/>
+                    <TechnicianChatDialog isOpen={chatOpen} onCloseAction={() => setChatOpen(false)}/>
                 ) : (
-                    <ClientChatDialog isOpen={chatOpen} onClose={() => setChatOpen(false)}/>
+                    <ClientChatDialog isOpen={chatOpen} onCloseAction={() => setChatOpen(false)}/>
                 )}
 
                 {!chatOpen && (

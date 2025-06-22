@@ -98,7 +98,7 @@ export default function ClientHomePage() {
         };
 
         fetchData();
-    }, [clientId]);
+    }, [clientId, getAll, getAllChats, getAllPublic]);
 
     const loadRequests = async () => {
         setIsLoading(true);
@@ -130,7 +130,7 @@ export default function ClientHomePage() {
 
             toast.success(formatMessage({ id: "client_home_request_sent" }));
             reset();
-            loadRequests();
+            await loadRequests();
         } catch (err) {
             console.error("❌ Error:", err);
             toast.error(formatMessage({ id: "client_home_error_request_sent" }));

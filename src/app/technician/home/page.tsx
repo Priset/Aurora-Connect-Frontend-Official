@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { useSocket } from "@/hooks/useSocket";
@@ -139,11 +139,7 @@ export default function TechnicianHomePage() {
         return sortData(filtered, sorts.closed);
     }, [requests, profile, search, sorts.closed]);
 
-    useEffect(() => {
-        loadRequests();
-    }, []);
-
-    const loadRequests = async () => {
+    const loadRequests = useCallback(async () => {
         setLoading(true);
         try {
             const data = await getAllForTechnicians();
@@ -153,7 +149,11 @@ export default function TechnicianHomePage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [getAllForTechnicians]);
+
+    useEffect(() => {
+        loadRequests();
+    }, [loadRequests]);
 
     useSocket(
         (newRequest) => setRequests((prev) => [newRequest, ...prev]),

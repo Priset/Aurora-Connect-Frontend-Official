@@ -14,7 +14,7 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useChats } from "@/hooks/useChats";
 import { Chat, Status } from "@/interfaces/auroraDb";
@@ -27,10 +27,10 @@ import { useIntl } from "react-intl";
 
 interface Props {
     isOpen: boolean;
-    onClose: () => void;
+    onCloseAction: () => void;
 }
 
-export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
+export const TechnicianChatDialog = ({ isOpen, onCloseAction }: Props) => {
     const { getAll } = useChats();
     const { profile } = useAuth();
     const [chats, setChats] = useState<Chat[]>([]);
@@ -42,28 +42,30 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
     const { remove } = useChats();
     const { formatMessage } = useIntl();
 
-    const refreshChats = async () => {
-        if (!profile?.technicianProfile?.id) return;
+    const technicianId = profile?.technicianProfile?.id;
+
+    const refreshChats = useCallback(async () => {
+        if (!technicianId) return;
         try {
             const all = await getAll();
             const myChats = all.filter(
                 (chat) =>
-                    chat.technician_id === profile.technicianProfile!.id &&
+                    chat.technician_id === technicianId &&
                     [Status.CHAT_ACTIVO, Status.FINALIZADO, Status.CALIFICADO].includes(chat.status)
             );
             setChats(myChats);
             setFiltered(myChats);
-
         } catch (err) {
             console.error("❌ Error al refrescar chats:", err);
         }
-    };
+    }, [getAll, technicianId]);
 
     useEffect(() => {
         if (!isOpen || !profile?.technicianProfile?.id) return;
         setIsLoading(true);
         refreshChats().finally(() => setIsLoading(false));
-    }, [isOpen, profile?.technicianProfile?.id]);
+    }, [isOpen, profile?.technicianProfile?.id, refreshChats]);
+
 
     useEffect(() => {
         const lowerSearch = search.toLowerCase();
@@ -84,7 +86,7 @@ export const TechnicianChatDialog = ({ isOpen, onClose }: Props) => {
                     {formatMessage({ id: "client_chat_title" })}
                 </div>
                 <button
-                    onClick={onClose}
+                    onClick={onCloseAction}
                     aria-label="Cerrar"
                     className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                 >
