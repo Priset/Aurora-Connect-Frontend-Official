@@ -10,6 +10,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
+import { useIntl } from "react-intl";
 
 interface UserMenuProps {
     userName: string;
@@ -18,11 +19,12 @@ interface UserMenuProps {
 
 export function UserMenu({ userName, userPictureUrl }: UserMenuProps) {
     const { logout } = useAuth();
+    const { formatMessage } = useIntl();
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Avatar className="w-11 h-11 cursor-pointer">
+                <Avatar className="w-9 h-9 cursor-pointer">
                     {userPictureUrl ? (
                         <AvatarImage src={userPictureUrl} alt="avatar" />
                     ) : (
@@ -42,18 +44,11 @@ export function UserMenu({ userName, userPictureUrl }: UserMenuProps) {
                 </DropdownMenuLabel>
 
                 <DropdownMenuItem
-                    className="cursor-pointer hover:bg-[--neutral-200] hover:text-[--secondary-default] transition rounded-md"
-                >
-                    <User className="w-4 h-4 mr-2" />
-                    Ver Perfil
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
                     className="cursor-pointer hover:bg-[--neutral-200] hover:text-[--error-default] transition rounded-md"
                     onClick={logout}
                 >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Cerrar Sesión
+                    {formatMessage({ id: "user_menu_logout" })}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

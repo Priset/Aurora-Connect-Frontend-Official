@@ -5,6 +5,26 @@ import axios from 'axios'
 import { API_ROUTES } from '@/config/api.config'
 import { useEffect, useState } from 'react'
 
+type ProfileBase = {
+    id: number;
+    name: string;
+    last_name: string;
+    role: 'client' | 'technician';
+    technicianProfile?: TechnicianProfile;
+};
+
+type TechnicianProfile = {
+    id: number;
+    user_id: number;
+    experience?: string;
+    years_experience: number;
+    status: number;
+    created_at: string;
+    updated_at: string;
+};
+
+type ExtendedProfile = ProfileBase;
+
 export const useAuth = () => {
     const {
         loginWithRedirect,
@@ -15,22 +35,31 @@ export const useAuth = () => {
         getAccessTokenSilently,
     } = useAuth0()
 
-    const [profile, setProfile] = useState<{ id: number; role: 'client' | 'technician' } | null>(null)
+    const [profile, setProfile] = useState<ExtendedProfile | null>(null)
+    const [authInitialized, setAuthInitialized] = useState(false)
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            if (!isAuthenticated) return
-            const token = await getAccessTokenSilently()
-            const { data } = await axios.get(`${API_ROUTES.auth}/me`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            setProfile(data)
-        }
+        const initializeAuth = async () => {
+            try {
+                if (isAuthenticated && !isLoading) {
+                    const token = await getAccessTokenSilently();
+                    const { data } = await axios.get(`${API_ROUTES.auth}/me`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    setProfile(data);
+                }
+            } catch (err) {
+                console.error("[useAuth] ❌ Error al inicializar autenticación:", err);
+            } finally {
+                setAuthInitialized(true);
+            }
+        };
 
-        fetchProfile()
-    }, [isAuthenticated, getAccessTokenSilently])
+        initializeAuth();
+    }, [isAuthenticated, isLoading, getAccessTokenSilently]);
+
 
     const register = async (
         role: 'client' | 'technician',
@@ -49,6 +78,20 @@ export const useAuth = () => {
             },
         })
     }
+
+    const refreshProfile = async () => {
+        try {
+            const token = await getAccessTokenSilently();
+            const { data } = await axios.get(`${API_ROUTES.auth}/me`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setProfile(data);
+        } catch (err) {
+            console.error("Error al refrescar el perfil:", err);
+        }
+    };
 
     const createUser = async (data: {
         name: string
@@ -87,5 +130,7 @@ export const useAuth = () => {
         profile,
         isAuthenticated,
         isLoading,
+        authInitialized,
+        refreshProfile,
     }
 }

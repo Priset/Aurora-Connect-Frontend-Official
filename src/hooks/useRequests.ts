@@ -6,51 +6,50 @@ import {
     CreateServiceRequestDto,
     UpdateServiceRequestDto,
 } from '@/interfaces/auroraDb';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuthHeaders } from './useAuthHeaders';
 
 export const useRequests = () => {
-    const { getAccessTokenSilently } = useAuth0();
-
-    const authHeaders = async () => ({
-        headers: {
-            Authorization: `Bearer ${await getAccessTokenSilently()}`,
-        },
-    });
+    const getHeaders = useAuthHeaders();
 
     const getAll = useCallback(async (): Promise<ServiceRequest[]> => {
         const res = await axios.get<ServiceRequest[]>(
             API_ROUTES.requests,
-            await authHeaders()
+            await getHeaders()
         );
         return res.data;
-    }, [getAccessTokenSilently]);
+    }, [getHeaders]);
 
     const getAllForTechnicians = useCallback(async (): Promise<ServiceRequest[]> => {
         const res = await axios.get<ServiceRequest[]>(
             `${API_ROUTES.requests}/all`,
-            await authHeaders()
+            await getHeaders()
         );
         return res.data;
-    }, [getAccessTokenSilently]);
+    }, [getHeaders]);
+
+    const getPublicById = useCallback(async (id: number): Promise<ServiceRequest> => {
+        const res = await axios.get<ServiceRequest>(`${API_ROUTES.publicRequestById}/${id}`);
+        return res.data;
+    }, []);
 
     const getById = useCallback(async (id: number): Promise<ServiceRequest> => {
         const res = await axios.get<ServiceRequest>(
             `${API_ROUTES.requests}/${id}`,
-            await authHeaders()
+            await getHeaders()
         );
         return res.data;
-    }, [getAccessTokenSilently]);
+    }, [getHeaders]);
 
     const create = useCallback(
         async (data: CreateServiceRequestDto): Promise<ServiceRequest> => {
             const res = await axios.post<ServiceRequest>(
                 API_ROUTES.requests,
                 data,
-                await authHeaders()
+                await getHeaders()
             );
             return res.data;
         },
-        [getAccessTokenSilently]
+        [getHeaders]
     );
 
     const update = useCallback(
@@ -58,11 +57,11 @@ export const useRequests = () => {
             const res = await axios.put<ServiceRequest>(
                 `${API_ROUTES.requests}/${id}`,
                 data,
-                await authHeaders()
+                await getHeaders()
             );
             return res.data;
         },
-        [getAccessTokenSilently]
+        [getHeaders]
     );
 
     const updateStatus = useCallback(
@@ -70,24 +69,33 @@ export const useRequests = () => {
             const res = await axios.patch<ServiceRequest>(
                 `${API_ROUTES.requests}/${id}/status`,
                 { status },
-                await authHeaders()
+                await getHeaders()
             );
             return res.data;
         },
-        [getAccessTokenSilently]
+        [getHeaders]
+    );
+
+    const finalizeRequest = useCallback(
+        async (id: number): Promise<void> => {
+            await axios.patch(`${API_ROUTES.requests}/${id}/finalize`, {}, await getHeaders());
+        },
+        [getHeaders]
     );
 
     const remove = useCallback(async (id: number): Promise<void> => {
-        await axios.delete(`${API_ROUTES.requests}/${id}`, await authHeaders());
-    }, [getAccessTokenSilently]);
+        await axios.delete(`${API_ROUTES.requests}/${id}`, await getHeaders());
+    }, [getHeaders]);
 
     return {
         getAll,
         getAllForTechnicians,
+        getPublicById,
         getById,
         create,
         update,
         updateStatus,
+        finalizeRequest,
         remove,
     };
 };

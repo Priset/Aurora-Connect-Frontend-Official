@@ -8,6 +8,7 @@ import { useTechnicians } from '@/hooks/useTechnicians'
 import { Loader2 } from 'lucide-react'
 import axios from 'axios'
 import { API_ROUTES } from '@/config/api.config'
+import { useIntl } from 'react-intl'
 
 type AppState = {
     name: string
@@ -21,6 +22,7 @@ export default function CallbackPage() {
     const { user, isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0()
     const { createUser } = useAuth()
     const { create: createTechnician } = useTechnicians()
+    const { formatMessage } = useIntl()
 
     useEffect(() => {
         const processUser = async () => {
@@ -35,7 +37,6 @@ export default function CallbackPage() {
                 const token = await getAccessTokenSilently()
 
                 if (appState) {
-                    // Registro nuevo
                     const { name, last_name, role } = appState
 
                     const createdUser = await createUser({
@@ -53,7 +54,7 @@ export default function CallbackPage() {
                         await createTechnician({
                             user_id: createdUser.id,
                             experience,
-                            yearsExperience,
+                            years_experience: yearsExperience,
                         })
 
                         localStorage.removeItem('technicianExperience')
@@ -63,7 +64,6 @@ export default function CallbackPage() {
                     localStorage.removeItem('appState')
                     router.replace(role === 'technician' ? '/technician/home' : '/client/home')
                 } else {
-                    // Login normal: obtener perfil desde backend
                     const { data: profile } = await axios.get(`${API_ROUTES.auth}/me`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -87,11 +87,14 @@ export default function CallbackPage() {
     }, [isAuthenticated, isLoading, user, createUser, createTechnician, router, getAccessTokenSilently])
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[--neutral-200] p-6">
-            <div className="backdrop-blur-md bg-white/40 rounded-2xl shadow-xl p-10 flex flex-col items-center gap-6">
+        <div className="min-h-screen flex items-center justify-center bg-secondary-dark p-6">
+            <div className="backdrop-blur-lg bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-xl p-10 flex flex-col items-center gap-6 w-full max-w-sm animate-pulse">
                 <Loader2 className="animate-spin text-[--primary-default]" size={60} />
-                <p className="text-lg text-[--primary-default] font-medium text-center">
-                    Procesando autenticación...
+                <p className="text-lg font-semibold text-center text-[--primary-default]">
+                    {formatMessage({ id: 'callback_loading_title' })}
+                </p>
+                <p className="text-sm text-muted-foreground text-center">
+                    {formatMessage({ id: 'callback_loading_description' })}
                 </p>
             </div>
         </div>

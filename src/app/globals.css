@@ -6,15 +6,18 @@
 @tailwind utilities;
 
 :root {
+  --background: #FAFAFA;
+  --foreground: #1A1A1A;
+  --border: #E5E5E5;
   --primary-default: #1A1A1A;
   --primary-ligth: #403F3F;
-  --primary-dark: #180808;
+  --primary-dark: #120818;
   --primary-hover: #373737;
   --primary-pressed: #261E1E;
   --primary-disabled: #7C7C7C;
   --secondary-default: #6C63FF;
   --secondary-ligth: #AAA5FB;
-  --secondary-dark: #473ED7;
+  --secondary-dark: #2e1b48;
   --secondary-hover: #544BE0;
   --secondary-pressed: #3F38B4;
   --secondary-disabled: #A7A2F4;
@@ -48,7 +51,7 @@
   --neutral-400: #E5E5E5;
   --neutral-500: #D8D8D8;
   --neutral-600: #C9C8C8;
-  --neutral-700: #B4B3B3;
+  --neutral-700: #b3b3b4;
   --neutral-800: #9C9C9C;
   --neutral-900: #6D6D6D;
 }
@@ -56,9 +59,56 @@
 body {
   font-family: 'Work Sans', sans-serif;
   color: var(--primary-default);
-  background-color: var(--neutral-400);
+  background-color: var(--neutral-900);
 }
 
 h1, h2, h3 {
   font-family: 'Space Grotesk', sans-serif;
+}
+
+
+
+@layer base {
+  :root {
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-15deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(5deg); }
+}
+
+.animate-shake {
+  animation: shake 0.6s ease-in-out infinite;
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

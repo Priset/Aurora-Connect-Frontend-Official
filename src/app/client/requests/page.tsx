@@ -1,39 +1,92 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { useSocket } from "@/hooks/useSocket";
-import { ServiceRequest, Status, StatusMap } from "@/interfaces/auroraDb";
-import { UserMenu } from "@/components/layout/user-menu";
+import {Chat, ServiceRequest, Status} from "@/interfaces/auroraDb";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Menu, Wrench } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import { RequestSection } from "@/components/sections/request-section";
 import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
-import { ClientOfferDialog } from "@/components/dialogs/client-offer-dialog";
+import { ClientOfferDialog } from "@/components/client/client-offer-dialog";
+import { ReviewDialog } from "@/components/review/review-dialog";
+import { useIntl } from "react-intl"
+
+const initialSearch = {
+    created: "",
+    offers: "",
+    progress: "",
+    closed: ""
+};
+
+const SectionSkeleton = () => (
+    <div className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4">
+        <div className="h-4 w-2/3 bg-[--neutral-300] rounded mb-4 animate-pulse" />
+        <div className="flex gap-2 mb-3">
+            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse" />
+            <div className="flex-1 h-9 bg-[--neutral-200] rounded animate-pulse" />
+            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse" />
+        </div>
+        <div className="flex flex-col gap-2 overflow-y-auto pr-1">
+            {[...Array(4)].map((_, idx) => (
+                <div key={idx} className="p-4 bg-white rounded-lg border border-[--neutral-300] animate-pulse space-y-2">
+                    <div className="h-4 w-3/4 bg-[--neutral-200] rounded" />
+                    <div className="h-3 w-1/2 bg-[--neutral-200] rounded" />
+                    <div className="h-2 w-1/3 bg-[--neutral-200] rounded" />
+                    <div className="h-4 w-24 bg-[--secondary-default] rounded-full mt-2" />
+                </div>
+            ))}
+        </div>
+    </div>
+);
 
 export default function ClientRequestsPage() {
-    const { user, profile } = useAuth();
+    const { profile } = useAuth();
     const { getAll } = useRequests();
-
+    const { formatMessage } = useIntl();
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
-    const [dialogType, setDialogType] = useState<"view" | "offer" | null>(null);
+    const [dialogType, setDialogType] = useState<"view" | "offer" | "review" | null>(null);
+    const [search, setSearch] = useState(initialSearch);
+    const [loading, setLoading] = useState(true);
 
-    const loadRequests = async () => {
+    const [sorts, setSorts] = useState({
+        created: "",
+        offers: "",
+        progress: "",
+        closed: ""
+    });
+
+    const [progressStatusFilter, setProgressStatusFilter] = useState<number | null>(null);
+
+    const openDialog = (type: "view" | "offer", request: ServiceRequest) => {
+        setSelectedRequest(request);
+        setDialogType(type);
+    };
+
+    const closeDialog = () => {
+        setSelectedRequest(null);
+        setDialogType(null);
+    };
+
+    const loadRequests = useCallback(async () => {
         if (!profile) return;
+        setLoading(true);
         try {
             const data = await getAll();
             const filtered = data.filter((r) => r.client_id === profile.id);
             setRequests(filtered);
         } catch (err) {
             console.error("Error al obtener solicitudes:", err);
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [getAll, profile]);
 
     useEffect(() => {
         loadRequests();
-    }, [profile]);
+    }, [loadRequests]);
 
     useSocket(
         (newRequest) => {
@@ -50,129 +103,154 @@ export default function ClientRequestsPage() {
         }
     );
 
-    const openDialog = (type: "view" | "offer", request: ServiceRequest) => {
-        setSelectedRequest(request);
-        setDialogType(type);
+    const sortData = (data: ServiceRequest[], key: string) => {
+        switch (key) {
+            case "date_asc":
+                return [...data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            case "date_desc":
+                return [...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            case "price_asc":
+                return [...data].sort((a, b) => a.offered_price - b.offered_price);
+            case "price_desc":
+                return [...data].sort((a, b) => b.offered_price - a.offered_price);
+            case "az":
+                return [...data].sort((a, b) => a.description.localeCompare(b.description));
+            case "za":
+                return [...data].sort((a, b) => b.description.localeCompare(a.description));
+            default:
+                return data;
+        }
     };
 
-    const closeDialog = () => {
-        setSelectedRequest(null);
-        setDialogType(null);
-    };
-
-    const createdRequests = requests.filter(r => r.status === Status.PENDIENTE);
-    const offerRequests = requests.filter(r =>
-        r.serviceOffers?.some((offer) =>
-            [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO].includes(offer.status)
-        )
+    const created = sortData(
+        requests.filter(
+            (r) =>
+                r.status === Status.PENDIENTE &&
+                r.description.toLowerCase().includes(search.created.toLowerCase())
+        ),
+        sorts.created
     );
-    const statusRequests = requests.filter(r =>
-        [
-            Status.ACEPTADO_POR_TECNICO,
-            Status.CONTRAOFERTA_POR_TECNICO,
-            Status.RECHAZADO_POR_TECNICO,
-            Status.RECHAZADO_POR_CLIENTE,
-            Status.ACEPTADO_POR_CLIENTE,
-            Status.CHAT_ACTIVO,
-            Status.FINALIZADO_CON_VALORACION
-        ].includes(r.status)
+
+    const offers = sortData(
+        requests.filter(
+            (r) =>
+                r.serviceOffers?.some((offer) =>
+                    [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO, Status.RECHAZADO_POR_TECNICO].includes(offer.status)
+                ) &&
+                r.description.toLowerCase().includes(search.offers.toLowerCase())
+        ),
+        sorts.offers
+    );
+
+    const progress = sortData(
+        requests.filter(
+            (r) =>
+                [
+                    Status.ACEPTADO_POR_TECNICO,
+                    Status.CONTRAOFERTA_POR_TECNICO,
+                    Status.RECHAZADO_POR_TECNICO,
+                    Status.RECHAZADO_POR_CLIENTE,
+                    Status.ACEPTADO_POR_CLIENTE,
+                    Status.CHAT_ACTIVO
+                ].includes(r.status) &&
+                (progressStatusFilter === null || r.status === progressStatusFilter) &&
+                r.description.toLowerCase().includes(search.progress.toLowerCase())
+        ),
+        sorts.progress
+    );
+
+    const closed = sortData(
+        requests.filter(
+            (r) =>
+                [Status.FINALIZADO, Status.CALIFICADO].includes(r.status) &&
+                r.description.toLowerCase().includes(search.closed.toLowerCase())
+        ),
+        sorts.closed
     );
 
     return (
-        <div className="min-h-screen flex flex-col bg-[--neutral-400]">
-            <header className="bg-[--primary-default] text-white px-6 h-20 flex items-center justify-between shadow-xl">
-                <div className="flex items-center gap-3">
-                    <Button variant="ghost" className="text-white p-0 hover:bg-transparent">
-                        <Menu className="h-5 w-5" />
-                    </Button>
-                    <h1 className="text-xl font-display font-bold tracking-wide">
-                        AURORA CONNECT
-                    </h1>
-                </div>
-
-                {user && (
-                    <UserMenu
-                        userName={user.name || "Usuario"}
-                        userPictureUrl={user.picture || undefined}
-                    />
-                )}
-            </header>
-
-            {/* Sección: Solicitudes creadas */}
-            <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
-                Solicitudes creadas
-            </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-4">
-                {createdRequests.map((req) => (
-                    <div
-                        key={req.id}
-                        onClick={() => openDialog("view", req)}
-                        className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
-                    >
-                        <Wrench className="w-5 h-5 text-[--secondary-default] mb-1" />
-                        <div className="text-sm font-semibold mb-1">{req.description}</div>
-                        <div className="text-xs text-muted-foreground">
-                            Bs. {req.offered_price.toFixed(2)}
-                        </div>
-                    </div>
-                ))}
-                {createdRequests.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No hay solicitudes creadas.</p>
-                )}
+        <main className="px-6 md:px-10 py-6">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-display font-bold text-white">
+                    {formatMessage({ id: "client_requests_title" })}
+                </h1>
+                <Button
+                    className="bg-[--secondary-default] text-white hover:bg-[--secondary-hover] px-4 py-2 active:bg-[--secondary-pressed] transition transform hover:scale-105 active:scale-95"
+                    onClick={() => window.location.href = "/client/home"}
+                >
+                    <Plus className="w-4 h-4 mr-1" />
+                    {formatMessage({ id: "client_requests_new_button" })}
+                </Button>
             </div>
 
-            {/* Sección: Ofertas de técnicos */}
-            <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
-                Ofertas de técnicos
-            </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-4">
-                {offerRequests.map((req) => {
-                    const offer = req.serviceOffers?.[0];
-                    return (
-                        <div
-                            key={req.id}
-                            onClick={() => openDialog("offer", req)}
-                            className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
-                        >
-                            <div className="text-sm font-semibold mb-1">{req.description}</div>
-                            <div className="text-xs text-muted-foreground mb-1">
-                                {offer?.message || "Sin mensaje del técnico"}
-                            </div>
-                            <div className="text-xs text-muted-foreground mb-1">
-                                Precio propuesto: <strong>Bs. {offer?.proposed_price?.toFixed(2) || "0.00"}</strong>
-                            </div>
-                        </div>
-                    );
-                })}
-                {offerRequests.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No hay ofertas de técnicos aún.</p>
-                )}
-            </div>
-
-            {/* Sección: Estado de solicitudes */}
-            <div className="text-[--foreground] font-semibold text-lg px-6 pt-6 pb-2">
-                Estado de solicitudes
-            </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 px-6 pb-16">
-                {statusRequests.map((req) => (
-                    <div
-                        key={req.id}
-                        onClick={() => openDialog("view", req)}
-                        className="bg-white rounded-xl shadow p-4 cursor-pointer hover:shadow-lg transition"
-                    >
-                        <div className="flex justify-between items-start mb-1">
-                            <div className="text-sm font-semibold">{req.description}</div>
-                            <Badge color={StatusMap[req.status as Status].color}>
-                                {StatusMap[req.status as Status].label}
-                            </Badge>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                            Precio ofertado: Bs. {req.offered_price.toFixed(2)}
-                        </div>
-                    </div>
-                ))}
-                {statusRequests.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No hay actualizaciones aún.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                {loading ? (
+                    <>
+                        <SectionSkeleton />
+                        <SectionSkeleton />
+                        <SectionSkeleton />
+                        <SectionSkeleton />
+                    </>
+                ) : (
+                    <>
+                        <RequestSection
+                            title={formatMessage({ id: "client_requests_section_created" }) + " (" + created.length + ")"}
+                            searchKey="created"
+                            searchValue={search.created}
+                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
+                            data={created}
+                            onClick={(r) => openDialog("view", r)}
+                            type="view"
+                            sortKey={sorts.created}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, created: val }))}
+                            showStatusFilter={false}
+                        />
+                        <RequestSection
+                            title={formatMessage({ id: "client_requests_section_offers" }) + " (" + offers.length + ")"}
+                            searchKey="offers"
+                            searchValue={search.offers}
+                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
+                            data={offers}
+                            onClick={(r) => openDialog("offer", r)}
+                            type="offer"
+                            sortKey={sorts.offers}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
+                            showStatusFilter={false}
+                        />
+                        <RequestSection
+                            title={formatMessage({ id: "client_requests_section_progress" }) + " (" + progress.length + ")"}
+                            searchKey="progress"
+                            searchValue={search.progress}
+                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
+                            data={progress}
+                            onClick={(r) => openDialog("view", r)}
+                            type="view"
+                            sortKey={sorts.progress}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, progress: val }))}
+                            showStatusFilter={true}
+                            filterStatus={progressStatusFilter}
+                            onFilterStatusChange={setProgressStatusFilter}
+                        />
+                        <RequestSection
+                            title={formatMessage({ id: "client_requests_section_closed" }) + " (" + closed.length + ")"}
+                            searchKey="closed"
+                            searchValue={search.closed}
+                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}
+                            data={closed}
+                            onClick={(r) => {
+                                setSelectedRequest(r);
+                                setDialogType("view");
+                            }}
+                            type="view"
+                            onReview={(r) => {
+                                setSelectedRequest(r);
+                                setDialogType("review");
+                            }}
+                            sortKey={sorts.closed}
+                            onSortChange={(val) => setSorts((prev) => ({ ...prev, closed: val }))}
+                            showStatusFilter={false}
+                        />
+                    </>
                 )}
             </div>
 
@@ -192,12 +270,17 @@ export default function ClientRequestsPage() {
                 />
             )}
 
-            <Button
-                size="icon"
-                className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-[--primary-default] text-white hover:opacity-90"
-            >
-                <MessageCircle className="w-5 h-5" />
-            </Button>
-        </div>
+            {selectedRequest && dialogType === "review" && (
+                <ReviewDialog
+                    isOpen={true}
+                    chat={{ request_id: selectedRequest.id } as Chat}
+                    onClose={() => {
+                        setSelectedRequest(null);
+                        setDialogType(null);
+                        loadRequests();
+                    }}
+                />
+            )}
+        </main>
     );
 }
