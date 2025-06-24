@@ -79,13 +79,13 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                             value="client"
                             className="data-[state=active]:bg-[--secondary-default] data-[state=active]:text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                         >
-                            {formatMessage({ id: "register_client" })}
+                            {formatMessage({ id: "register_tab_client" })}
                         </TabsTrigger>
                         <TabsTrigger
                             value="technician"
                             className="data-[state=active]:bg-[--secondary-default] data-[state=active]:text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                         >
-                            {formatMessage({ id: "register_technician" })}
+                            {formatMessage({ id: "register_tab_technician" })}
                         </TabsTrigger>
                     </TabsList>
 
@@ -97,14 +97,14 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                         <TabsContent value="client">
                             <div className="space-y-4">
                                 <Input
-                                    placeholder={formatMessage({ id: "register_name" })}
+                                    placeholder={formatMessage({ id: "register_input_name" })}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
                                     {...register("name", { required: true })}
                                 />
                                 {errors.name && <p className="text-sm text-[--error-default]">{formatMessage({ id: "register_required" })}</p>}
 
                                 <Input
-                                    placeholder={formatMessage({ id: "register_last_name"})}
+                                    placeholder={formatMessage({ id: "register_input_lastname"})}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
                                     {...register("last_name", { required: true })}
                                 />
@@ -115,7 +115,7 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                         <TabsContent value="technician">
                             <div className="space-y-4">
                                 <Input
-                                    placeholder={formatMessage({ id: "register_name" })}
+                                    placeholder={formatMessage({ id: "register_input_name" })}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
                                     {...register("name", { required: true })}
                                 />
@@ -124,7 +124,7 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                                 </p>}
 
                                 <Input
-                                    placeholder={formatMessage({ id: "register_last_name" })}
+                                    placeholder={formatMessage({ id: "register_input_lastname" })}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
                                     {...register("last_name", { required: true })}
                                 />
@@ -133,12 +133,12 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                                 </p>}
 
                                 <Textarea
-                                    placeholder={formatMessage({ id: "register_experience" })}
+                                    placeholder={formatMessage({ id: "register_input_experience" })}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
                                     {...register("experience")}
                                 />
                                 <Input
-                                    placeholder={formatMessage({ id: "register_years_experience" })}
+                                    placeholder={formatMessage({ id: "register_input_years" })}
                                     type="number"
                                     min={0}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
