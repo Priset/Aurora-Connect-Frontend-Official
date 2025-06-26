@@ -188,9 +188,10 @@ const en = {
 
     // Sidebar
     sidebar_app_name: "Aurora Connect",
-    sidebar_role_client: "Client",
+    sidebar_role_client: "Manage",
     sidebar_group_panel: "Dashboard",
     sidebar_home: "Home",
+    sidebar_users: "Users",
     sidebar_requests_client: "My Requests",
     sidebar_ratings_technician: "My Ratings",
     sidebar_group_settings: "Settings",
@@ -301,6 +302,13 @@ const en = {
     status_finished: "Completed",
     status_rated: "Rated",
     status_deleted: "Deleted",
+
+    // Admin Home
+    admin_requests_title: "Request Management",
+    admin_requests_new: "New Requests",
+    admin_requests_offers: "Sent Offers",
+    admin_requests_progress: "Request Progress",
+    admin_requests_closed: "Closed Requests",
 };
 
 export default en;

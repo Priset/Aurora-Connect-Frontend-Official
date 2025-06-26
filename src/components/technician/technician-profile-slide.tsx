@@ -123,7 +123,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                 <p className="text-sm font-semibold mb-1">
                                     {formatMessage({ id: "technician_profile_reviews" })}
                                 </p>
-                                <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                                <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
                                     {technician.service_reviews?.length ? (
                                         technician.service_reviews.map((review) => (
                                             <div

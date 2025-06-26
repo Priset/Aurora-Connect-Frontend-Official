@@ -66,7 +66,7 @@ export function RequestViewDialog({ isOpen, onClose, request }: RequestDialogPro
                             <p><strong>{formatMessage({ id: "request_view_price" })}</strong> Bs. {request.offered_price?.toFixed(2)}</p>
                             <p><strong>{formatMessage({ id: "request_view_status" })}</strong>{" "}
                                 <Badge
-                                    className="text-xs"
+                                    className="text-xs text-neutral-100"
                                     style={{ backgroundColor: StatusMap[request.status as keyof typeof StatusMap].color }}
                                 >
                                     {StatusMap[request.status as keyof typeof StatusMap].label}

@@ -13,7 +13,7 @@ import { useIntl } from 'react-intl'
 type AppState = {
     name: string
     last_name: string
-    role: 'client' | 'technician'
+    role: 'client' | 'technician' | 'admin'
     returnTo?: string
 }
 
@@ -62,15 +62,22 @@ export default function CallbackPage() {
                     }
 
                     localStorage.removeItem('appState')
-                    router.replace(role === 'technician' ? '/technician/home' : '/client/home')
+                    router.replace(
+                        role === 'technician' ? '/technician/home' :
+                            role === 'admin' ? '/admin/home' :
+                                '/client/home'
+                    )
                 } else {
                     const { data: profile } = await axios.get(`${API_ROUTES.auth}/me`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     })
-
-                    router.replace(profile.role === 'technician' ? '/technician/home' : '/client/home')
+                    router.replace(
+                        profile.role === 'technician' ? '/technician/home' :
+                            profile.role === 'admin' ? '/admin/home' :
+                                '/client/home'
+                    )
                 }
             } catch (err) {
                 console.error('Error en el callback de autenticación', err)

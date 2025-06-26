@@ -189,9 +189,10 @@ const es = {
 
     // Sidebar
     sidebar_app_name: "Aurora Connect",
-    sidebar_role_client: "Cliente",
+    sidebar_role_client: "Administración",
     sidebar_group_panel: "Panel",
     sidebar_home: "Inicio",
+    sidebar_users: "Usuarios",
     sidebar_requests_client: "Mis Solicitudes",
     sidebar_ratings_technician: "Mis Calificaciones",
     sidebar_group_settings: "Configuración",
@@ -306,6 +307,13 @@ const es = {
     status_finished: "Finalizado",
     status_rated: "Calificado",
     status_deleted: "Eliminado",
+
+    // Solicitudes del técnico
+    admin_requests_title: "Visualización de Solicitudes",
+    admin_requests_new: "Solicitudes entrantes",
+    admin_requests_offers: "Ofertas entrantes",
+    admin_requests_progress: "Progreso de las solicitudes",
+    admin_requests_closed: "Solicitudes finalizadas",
 };
 
 export default es;

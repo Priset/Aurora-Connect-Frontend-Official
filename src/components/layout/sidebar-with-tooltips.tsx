@@ -23,7 +23,7 @@ import Image from "next/image";
 import {useAuth} from "@/hooks/useAuth";
 import {useState} from "react";
 import {TechnicianRatingsSlide} from "@/components/technician/technician-ratings-slide";
-import { useIntl } from "react-intl";
+import {useIntl} from "react-intl";
 
 export function SidebarWithTooltips() {
     const {state} = useSidebar();
@@ -32,7 +32,7 @@ export function SidebarWithTooltips() {
     const {profile} = useAuth();
     const isTechnician = profile?.role === "technician";
     const [isRatingsOpen, setIsRatingsOpen] = useState(false);
-    const { formatMessage } = useIntl();
+    const {formatMessage} = useIntl();
 
     return (
         <>
@@ -46,8 +46,10 @@ export function SidebarWithTooltips() {
                             className="flex items-center px-4 py-4 transition-all duration-200 group-data-[state=collapsed]:justify-center">
                             <Image src="/assets/logo.png" alt="Logo" width={28} height={28}/>
                             <div className="ml-3 flex flex-col group-data-[state=collapsed]:hidden">
-                                <span className="font-semibold text-sm text-white">{formatMessage({ id: "sidebar_app_name" })}</span>
-                                <span className="text-xs text-[--neutral-500]">{formatMessage({ id: "sidebar_role_client"})}</span>
+                                <span
+                                    className="font-semibold text-sm text-white">{formatMessage({id: "sidebar_app_name"})}</span>
+                                <span
+                                    className="text-xs text-[--neutral-500]">{formatMessage({id: "sidebar_role_client"})}</span>
                             </div>
                         </div>
 
@@ -55,7 +57,7 @@ export function SidebarWithTooltips() {
 
                         <SidebarGroup>
                             <SidebarGroupLabel className="text-xs text-[--neutral-500] uppercase tracking-wide">
-                                {formatMessage({ id: "sidebar_group_panel" })}
+                                {formatMessage({id: "sidebar_group_panel"})}
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <SidebarMenu>
@@ -64,13 +66,28 @@ export function SidebarWithTooltips() {
                                             <TooltipTrigger asChild>
                                                 <SidebarMenuButton
                                                     isActive={
-                                                        pathname === (isTechnician ? "/technician/home" : "/client/home")
+                                                        pathname === (
+                                                            profile?.role === "technician"
+                                                                ? "/technician/home"
+                                                                : profile?.role === "admin"
+                                                                    ? "/admin/home"
+                                                                    : "/client/home"
+                                                        )
                                                     }
-                                                    onClick={() => router.push(isTechnician ? "/technician/home" : "/client/home")}
+                                                    onClick={() =>
+                                                        router.push(
+                                                            profile?.role === "technician"
+                                                                ? "/technician/home"
+                                                                : profile?.role === "admin"
+                                                                    ? "/admin/home"
+                                                                    : "/client/home"
+                                                        )
+                                                    }
                                                     className="text-white hover:bg-[--secondary-default] hover:text-white data-[active=true]:bg-[--secondary-hover] data-[active=true]:text-white"
                                                 >
                                                     <Home className="w-5 h-5"/>
-                                                    <span className="group-data-[state=collapsed]:hidden">{formatMessage({ id: "sidebar_home" })}</span>
+                                                    <span
+                                                        className="group-data-[state=collapsed]:hidden">{formatMessage({id: "sidebar_home"})}</span>
                                                 </SidebarMenuButton>
                                             </TooltipTrigger>
                                             <TooltipContent
@@ -78,7 +95,7 @@ export function SidebarWithTooltips() {
                                                 align="center"
                                                 className="bg-white text-black px-3 py-1 rounded-md text-xs shadow-md"
                                             >
-                                                {formatMessage({ id: "sidebar_home" })}
+                                                {formatMessage({id: "sidebar_home"})}
                                             </TooltipContent>
                                         </Tooltip>
                                     </SidebarMenuItem>
@@ -87,10 +104,19 @@ export function SidebarWithTooltips() {
                                         <Tooltip open={state === "collapsed" ? undefined : false}>
                                             <TooltipTrigger asChild>
                                                 <SidebarMenuButton
-                                                    isActive={false}
+                                                    isActive={
+                                                        pathname ===
+                                                        (profile?.role === "technician"
+                                                            ? "/technician/home"
+                                                            : profile?.role === "admin"
+                                                                ? "/admin/users"
+                                                                : "/client/requests")
+                                                    }
                                                     onClick={() => {
-                                                        if (isTechnician) {
+                                                        if (profile?.role === "technician") {
                                                             setIsRatingsOpen(true);
+                                                        } else if (profile?.role === "admin") {
+                                                            router.push("/admin/users");
                                                         } else {
                                                             router.push("/client/requests");
                                                         }
@@ -99,7 +125,11 @@ export function SidebarWithTooltips() {
                                                 >
                                                     <ClipboardList className="w-5 h-5"/>
                                                     <span className="group-data-[state=collapsed]:hidden">
-                                                        {isTechnician ? formatMessage({ id: "sidebar_ratings_technician" }) : formatMessage({ id: "sidebar_requests_client" })}
+                                                      {profile?.role === "technician"
+                                                          ? formatMessage({id: "sidebar_ratings_technician"})
+                                                          : profile?.role === "admin"
+                                                              ? formatMessage({id: "sidebar_users"})
+                                                              : formatMessage({id: "sidebar_requests_client"})}
                                                     </span>
                                                 </SidebarMenuButton>
                                             </TooltipTrigger>
@@ -108,7 +138,11 @@ export function SidebarWithTooltips() {
                                                 align="center"
                                                 className="bg-white text-black px-3 py-1 rounded-md text-xs shadow-md"
                                             >
-                                                {isTechnician ? formatMessage({ id: "sidebar_ratings_technician" }) : formatMessage({ id: "sidebar_requests_client" })}
+                                                {profile?.role === "technician"
+                                                    ? formatMessage({id: "sidebar_ratings_technician"})
+                                                    : profile?.role === "admin"
+                                                        ? formatMessage({id: "sidebar_users"})
+                                                        : formatMessage({id: "sidebar_requests_client"})}
                                             </TooltipContent>
                                         </Tooltip>
                                     </SidebarMenuItem>
@@ -120,7 +154,7 @@ export function SidebarWithTooltips() {
 
                         <SidebarGroup>
                             <SidebarGroupLabel className="text-xs text-[--neutral-500] uppercase tracking-wide">
-                                {formatMessage({ id: "sidebar_group_settings" })}
+                                {formatMessage({id: "sidebar_group_settings"})}
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <SidebarMenu>
@@ -132,9 +166,9 @@ export function SidebarWithTooltips() {
                                                     onClick={() => router.push("/settings")}
                                                     className="text-white hover:bg-[--secondary-default] hover:text-white data-[active=true]:bg-[--secondary-hover] data-[active=true]:text-white"
                                                 >
-                                                    <Settings className="w-5 h-5" />
+                                                    <Settings className="w-5 h-5"/>
                                                     <span className="group-data-[state=collapsed]:hidden">
-                                                        {formatMessage({ id: "sidebar_settings" })}
+                                                        {formatMessage({id: "sidebar_settings"})}
                                                     </span>
                                                 </SidebarMenuButton>
                                             </TooltipTrigger>
@@ -143,7 +177,7 @@ export function SidebarWithTooltips() {
                                                 align="center"
                                                 className="bg-white text-black px-3 py-1 rounded-md text-xs shadow-md"
                                             >
-                                                {formatMessage({ id: "sidebar_settings" })}
+                                                {formatMessage({id: "sidebar_settings"})}
                                             </TooltipContent>
                                         </Tooltip>
                                     </SidebarMenuItem>
@@ -155,7 +189,7 @@ export function SidebarWithTooltips() {
                                                     className="text-white hover:bg-[--secondary-default] hover:text-white">
                                                     <HelpCircle className="w-5 h-5"/>
                                                     <span className="group-data-[state=collapsed]:hidden">
-                                                        {formatMessage({ id: "sidebar_support" })}
+                                                        {formatMessage({id: "sidebar_support"})}
                                                     </span>
                                                 </SidebarMenuButton>
                                             </TooltipTrigger>
@@ -164,7 +198,7 @@ export function SidebarWithTooltips() {
                                                 align="center"
                                                 className="bg-white text-black px-3 py-1 rounded-md text-xs shadow-md"
                                             >
-                                                {formatMessage({ id: "sidebar_support" })}
+                                                {formatMessage({id: "sidebar_support"})}
                                             </TooltipContent>
                                         </Tooltip>
                                     </SidebarMenuItem>
@@ -176,7 +210,7 @@ export function SidebarWithTooltips() {
 
                         <SidebarFooter
                             className="mt-auto px-4 py-3 text-xs text-white/60 group-data-[state=collapsed]:hidden">
-                            {formatMessage({ id: "sidebar_footer" })}
+                            {formatMessage({id: "sidebar_footer"})}
                         </SidebarFooter>
                     </SidebarContent>
                 </TooltipProvider>

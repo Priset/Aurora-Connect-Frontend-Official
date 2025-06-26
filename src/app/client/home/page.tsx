@@ -160,7 +160,10 @@ export default function ClientHomePage() {
             ) : (
                 user && (
                     <h1 className="text-2xl font-display font-bold text-white">
-                        {formatMessage({ id: "client_home_welcome" }, { name: user.name?.split(" ")[0] || "User" })}
+                        {formatMessage(
+                            { id: "client_home_welcome" },
+                            { name: profile?.name?.split(" ")[0] || user.name?.split(" ")[0] || "User" }
+                        )}
                     </h1>
                 )
             )}
