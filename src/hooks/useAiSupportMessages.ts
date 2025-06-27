@@ -11,8 +11,8 @@ import { useAuthHeaders } from './useAuthHeaders';
 export const useAiSupportMessages = () => {
     const getHeaders = useAuthHeaders();
 
-    const getAll = useCallback(async (): Promise<AiSupportMessage[]> => {
-        const res = await axios.get<AiSupportMessage[]>(API_ROUTES.aiSupportMessages, await getHeaders());
+    const getByChatId = useCallback(async (chatId: number): Promise<AiSupportMessage[]> => {
+        const res = await axios.get<AiSupportMessage[]>(`${API_ROUTES.aiSupportMessages}?chatId=${chatId}`, await getHeaders());
         return res.data;
     }, [getHeaders]);
 
@@ -35,11 +35,24 @@ export const useAiSupportMessages = () => {
         await axios.delete(`${API_ROUTES.aiSupportMessages}/${id}`, await getHeaders());
     }, [getHeaders]);
 
+    const chatWithAI = useCallback(
+        async (chatId: number, prompt: string): Promise<string> => {
+            const res = await axios.post<string>(
+                `${API_ROUTES.aiSupportMessages}/ai`,
+                { chatId, prompt },
+                await getHeaders(),
+            );
+            return res.data;
+        },
+        [getHeaders],
+    );
+
     return {
-        getAll,
+        getByChatId,
         getById,
         create,
         update,
         remove,
+        chatWithAI,
     };
 };

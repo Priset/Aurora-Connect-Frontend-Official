@@ -229,7 +229,7 @@ export interface UpdateAiSupportChatDto {
 export interface AiSupportMessage {
     id: number;
     chat_id: number;
-    role: 'user' | 'ai';
+    role: 'usuario' | 'asistente';
     content: string;
     status: number;
     sent_at: string;
@@ -238,7 +238,7 @@ export interface AiSupportMessage {
 
 export interface CreateAiSupportMessageDto {
     chat_id: number;
-    role: 'user' | 'ai';
+    role: 'usuario' | 'asistente';
     content: string;
     status?: number;
 }
