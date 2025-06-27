@@ -135,8 +135,13 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                                 <Textarea
                                     placeholder={formatMessage({ id: "register_input_experience" })}
                                     className="bg-[--neutral-200] border border-[--neutral-400] placeholder:text-[--neutral-700] focus:ring-[--secondary-default] rounded-lg"
-                                    {...register("experience")}
+                                    {...register("experience", { required: true })}
                                 />
+                                {errors.experience && (
+                                    <p className="text-sm text-[--error-default]">
+                                        {formatMessage({ id: "register_required" })}
+                                    </p>
+                                )}
                                 <Input
                                     placeholder={formatMessage({ id: "register_input_years" })}
                                     type="number"
@@ -145,8 +150,14 @@ export function RegisterDialog({ role, onClose }: RegisterDialogProps) {
                                     {...register("years_experience", {
                                         valueAsNumber: true,
                                         min: 0,
+                                        required: true,
                                     })}
                                 />
+                                {errors.years_experience && (
+                                    <p className="text-sm text-[--error-default]">
+                                        {formatMessage({ id: "register_required" })}
+                                    </p>
+                                )}
                             </div>
                         </TabsContent>
                     </form>

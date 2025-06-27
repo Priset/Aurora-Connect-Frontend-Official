@@ -8,7 +8,7 @@ import {Chat, ServiceRequest, Status} from "@/interfaces/auroraDb";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { RequestSection } from "@/components/sections/request-section";
-import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
+import { RequestViewDialog } from "@/components/request/requests-view-dialog";
 import { ClientOfferDialog } from "@/components/client/client-offer-dialog";
 import { ReviewDialog } from "@/components/review/review-dialog";
 import { useIntl } from "react-intl"
@@ -135,7 +135,7 @@ export default function ClientRequestsPage() {
         requests.filter(
             (r) =>
                 r.serviceOffers?.some((offer) =>
-                    [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO, Status.RECHAZADO_POR_TECNICO].includes(offer.status)
+                    [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO].includes(offer.status)
                 ) &&
                 r.description.toLowerCase().includes(search.offers.toLowerCase())
         ),
@@ -148,7 +148,6 @@ export default function ClientRequestsPage() {
                 [
                     Status.ACEPTADO_POR_TECNICO,
                     Status.CONTRAOFERTA_POR_TECNICO,
-                    Status.RECHAZADO_POR_TECNICO,
                     Status.RECHAZADO_POR_CLIENTE,
                     Status.ACEPTADO_POR_CLIENTE,
                     Status.CHAT_ACTIVO

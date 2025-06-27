@@ -9,7 +9,7 @@ type ProfileBase = {
     id: number;
     name: string;
     last_name: string;
-    role: 'client' | 'technician';
+    role: 'client' | 'technician' | 'admin';
     technicianProfile?: TechnicianProfile;
 };
 
@@ -62,7 +62,7 @@ export const useAuth = () => {
 
 
     const register = async (
-        role: 'client' | 'technician',
+        role: 'client' | 'technician' | 'admin',
         name: string,
         last_name: string
     ) => {
@@ -97,7 +97,7 @@ export const useAuth = () => {
         name: string
         last_name: string
         email?: string
-        role: 'client' | 'technician'
+        role: 'client' | 'technician' | 'admin'
         auth0_id?: string
     }) => {
         const token = await getAccessTokenSilently()

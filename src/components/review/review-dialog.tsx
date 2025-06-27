@@ -38,7 +38,7 @@ export function ReviewDialog({ isOpen, onClose, chat }: Props) {
     const handleSubmit = async () => {
         if (!profile) return;
 
-        if (!chat.request_id || !chat.technician_id || !profile.id || !rating) {
+        if (!rating || rating < 1) {
             toast.error(formatMessage({ id: "review_error_fields" }));
             return;
         }

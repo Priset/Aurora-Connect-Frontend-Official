@@ -95,7 +95,7 @@ const en = {
     welcome_tech_6_desc: "Update your experience, skills, and information to stand out to new clients.",
 
     welcome_user_1_title: "Post your issue",
-    welcome_user_1_desc: "Describe what's happening with your device. You can add photos or relevant details.",
+    welcome_user_1_desc: "Describe what's happening with your device. You can add relevant details.",
     welcome_user_2_title: "Receive proposals",
     welcome_user_2_desc: "Technicians will send you proposals with price, message, and conditions.",
     welcome_user_3_title: "Choose and resolve",
@@ -105,7 +105,7 @@ const en = {
     welcome_user_5_title: "Rate the service",
     welcome_user_5_desc: "After the job, you can rate the technician and leave a visible comment.",
     welcome_user_6_title: "Trust assured",
-    welcome_user_6_desc: "All technicians are verified. Check their profile, experience, and reviews before hiring.",
+    welcome_user_6_desc: "All technicians are verified. Check their profile before hiring.",
 
     // Auth Guard
     auth_guard_verifying: "Verifying authentication...",
@@ -157,7 +157,7 @@ const en = {
     register_input_lastname: "Last Name",
     register_input_experience: "Experience",
     register_input_years: "Years of experience",
-    register_required: "Required",
+    register_required: "* This field is required.",
     register_cancel: "Cancel",
     register_submit: "Register",
 
@@ -188,9 +188,10 @@ const en = {
 
     // Sidebar
     sidebar_app_name: "Aurora Connect",
-    sidebar_role_client: "Client",
+    sidebar_role_client: "Panel",
     sidebar_group_panel: "Dashboard",
     sidebar_home: "Home",
+    sidebar_users: "Users",
     sidebar_requests_client: "My Requests",
     sidebar_ratings_technician: "My Ratings",
     sidebar_group_settings: "Settings",
@@ -301,6 +302,16 @@ const en = {
     status_finished: "Completed",
     status_rated: "Rated",
     status_deleted: "Deleted",
+
+    // Admin Home
+    admin_requests_title: "Request Management",
+    admin_requests_new: "New Requests",
+    admin_requests_offers: "Sent Offers",
+    admin_requests_progress: "Request Progress",
+    admin_requests_closed: "Closed Requests",
+
+    // Dilog view offer
+    offer_view_title: "Technician Offer",
 };
 
 export default en;

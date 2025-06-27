@@ -11,9 +11,7 @@ import {Notification, ServiceRequest} from "@/interfaces/auroraDb";
 import {useSocketNotifications} from "@/hooks/useSocketNotifications";
 import {useNotifications} from "@/hooks/useNotifications";
 import {useRequests} from "@/hooks/useRequests";
-import {RequestDialog} from "@/components/technician/request-dialog";
-import {ClientOfferDialog} from "@/components/client/client-offer-dialog";
-import {RequestViewDialog} from "@/components/dialogs/requests-view-dialog";
+import {RequestViewDialog} from "@/components/request/requests-view-dialog";
 import {toast} from "sonner";
 import {
     DropdownMenu,
@@ -32,8 +30,6 @@ export function NavbarUser() {
     const {getAll, update, markAllAsRead, clearRead, remove} = useNotifications();
     const {getPublicById} = useRequests();
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
     const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
     const {profile} = useAuth();
     const loadNotifications = useCallback(async () => {
@@ -49,10 +45,24 @@ export function NavbarUser() {
         loadNotifications();
     }, [loadNotifications]);
 
-    useSocketNotifications(user?.sub ? Number(user.sub.split("|")[1]) : null, (newNotif) => {
-        setNotifications((prev) => [newNotif, ...prev]);
-        toast(newNotif.content);
-    });
+    useSocketNotifications(
+        profile?.id ?? null,
+        (newNotif) => {
+            setNotifications((prev) => [newNotif, ...prev]);
+            toast.custom(() => (
+                <div
+                    className="bg-[--neutral-100] text-[--foreground] border border-[--neutral-300] px-4 py-3 rounded-xl shadow-lg w-full max-w-sm flex items-start gap-3"
+                >
+                    <div className="mt-1">
+                        <Bell className="w-5 h-5 text-[--secondary-default]" />
+                    </div>
+                    <div className="text-sm">
+                        {newNotif.content}
+                    </div>
+                </div>
+            ));
+        }
+    );
 
     const handleMarkAllAsRead = async () => {
         try {
@@ -71,17 +81,7 @@ export function NavbarUser() {
             const req = await getPublicById(reqId);
             setSelectedRequest(req);
 
-            if (profile?.role === "technician") {
-                const content = notif.content.toLowerCase();
-
-                if (content.includes("aceptó tu oferta") || content.includes("rechazó tu oferta")) {
-                    setIsViewDialogOpen(true);
-                } else {
-                    setIsDialogOpen(true);
-                }
-            } else if (profile?.role === "client") {
-                setIsClientDialogOpen(true);
-            }
+            setIsViewDialogOpen(true);
 
             if (notif.status === 0) {
                 await update(notif.id, {status: 1});
@@ -112,7 +112,7 @@ export function NavbarUser() {
                                 <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="relative text-white hover:bg-primary hover:text-secondary-default transition"
+                                    className="relative text-white hover:bg-primary hover:text-secondary-default transition transform hover:scale-110 active:scale-95"
                                     aria-label={formatMessage({id: "navbar_user_notifications"})}
                                 >
                                     {notifications.some((n) => n.status === 0) ? (
@@ -181,12 +181,13 @@ export function NavbarUser() {
                                             <DropdownMenuItem
                                                 onClick={() => handleNotificationClick(n)}
                                                 className={`
-                                                    flex-1 text-sm px-3 py-2 rounded-lg border border-[--neutral-300] shadow-sm
+                                                    flex-1 text-sm px-3 py-2 rounded-lg shadow-md transition-transform
+                                                    cursor-pointer border border-[--neutral-300]
                                                     ${n.status === 0
-                                                    ? "bg-[--neutral-200] border-l-4 border-[--secondary-default] animate-pulse"
-                                                    : "hover:bg-[--neutral-200]"}
-                                                    transition-transform hover:scale-[1.01] active:scale-[0.98] cursor-pointer
-                                                `}
+                                                    ? "bg-[--neutral-100] border-l-4 border-[--secondary-default] text-[--foreground] animate-pulse"
+                                                    : "bg-white text-[--foreground] hover:bg-[--neutral-100]"}
+                                                    hover:scale-[1.01] active:scale-[0.98]
+                                                  `}
                                             >
                                                 <span
                                                     className="whitespace-normal break-words leading-snug text-[--foreground]">
@@ -229,33 +230,11 @@ export function NavbarUser() {
                 </div>
             </header>
 
-            {selectedRequest && profile?.role === "technician" && (
-                <RequestDialog
-                    isOpen={isDialogOpen}
-                    onClose={() => {
-                        setIsDialogOpen(false);
-                        setSelectedRequest(null);
-                    }}
-                    request={selectedRequest}
-                />
-            )}
-
-            {selectedRequest && profile?.role === "technician" && (
+            {selectedRequest && (
                 <RequestViewDialog
                     isOpen={isViewDialogOpen}
                     onClose={() => {
                         setIsViewDialogOpen(false);
-                        setSelectedRequest(null);
-                    }}
-                    request={selectedRequest}
-                />
-            )}
-
-            {selectedRequest && profile?.role === "client" && (
-                <ClientOfferDialog
-                    isOpen={isClientDialogOpen}
-                    onClose={() => {
-                        setIsClientDialogOpen(false);
                         setSelectedRequest(null);
                     }}
                     request={selectedRequest}

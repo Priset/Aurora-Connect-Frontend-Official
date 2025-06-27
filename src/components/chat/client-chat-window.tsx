@@ -112,7 +112,7 @@ export const ClientChatWindow = ({ chat, onClose }: Props) => {
                 <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
                     <AlertDialogTrigger asChild>
                         <Button
-                            className="text-neutral-950 text-xs font-medium px-3 py-1 rounded-md bg-error hover:bg-error-hover active:bg-error-pressed transition-colors"
+                            className="text-neutral-100 text-xs font-medium px-3 py-1 rounded-md bg-error hover:bg-error-hover active:bg-error-pressed transition-colors"
                             onClick={() => setShowDialog(true)}
                         >
                             {formatMessage({id: "client_chat_finalize_button" })}

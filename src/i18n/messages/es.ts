@@ -95,7 +95,7 @@ const es = {
     welcome_tech_6_desc: "Actualiza tu experiencia, habilidades y datos para destacar frente a nuevos clientes.",
 
     welcome_user_1_title: "Publica tu problema",
-    welcome_user_1_desc: "Describe lo que ocurre con tu equipo. Puedes añadir fotos o detalles relevantes.",
+    welcome_user_1_desc: "Describe lo que ocurre con tu equipo. Puedes añadir detalles relevantes.",
     welcome_user_2_title: "Recibe propuestas",
     welcome_user_2_desc: "Los técnicos te enviarán propuestas con precio, mensaje y condiciones.",
     welcome_user_3_title: "Elige y soluciona",
@@ -105,7 +105,7 @@ const es = {
     welcome_user_5_title: "Valora el servicio",
     welcome_user_5_desc: "Después del trabajo puedes calificar al técnico y dejar un comentario visible.",
     welcome_user_6_title: "Confianza asegurada",
-    welcome_user_6_desc: "Todos los técnicos están verificados. Revisa su perfil, experiencia y valoraciones antes de contratar.",
+    welcome_user_6_desc: "Todos los técnicos están verificados. Revisa su perfil antes de contratar.",
 
     // Cargando Autenticación
     auth_guard_verifying: "Verificando autenticación...",
@@ -158,7 +158,7 @@ const es = {
     register_input_lastname: "Apellido",
     register_input_experience: "Experiencia",
     register_input_years: "Años de experiencia",
-    register_required: "Requerido",
+    register_required: "* Este campo es obligatorio.",
     register_cancel: "Cancelar",
     register_submit: "Registrarse",
 
@@ -189,9 +189,10 @@ const es = {
 
     // Sidebar
     sidebar_app_name: "Aurora Connect",
-    sidebar_role_client: "Cliente",
+    sidebar_role_client: "Panel",
     sidebar_group_panel: "Panel",
     sidebar_home: "Inicio",
+    sidebar_users: "Usuarios",
     sidebar_requests_client: "Mis Solicitudes",
     sidebar_ratings_technician: "Mis Calificaciones",
     sidebar_group_settings: "Configuración",
@@ -306,6 +307,16 @@ const es = {
     status_finished: "Finalizado",
     status_rated: "Calificado",
     status_deleted: "Eliminado",
+
+    // Solicitudes del técnico
+    admin_requests_title: "Visualización de Solicitudes",
+    admin_requests_new: "Solicitudes entrantes",
+    admin_requests_offers: "Ofertas entrantes",
+    admin_requests_progress: "Progreso de las solicitudes",
+    admin_requests_closed: "Solicitudes finalizadas",
+
+    // Diálogo de vista de oferta
+    offer_view_title: "Detalles de la oferta",
 };
 
 export default es;
