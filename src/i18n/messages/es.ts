@@ -158,7 +158,7 @@ const es = {
     register_input_lastname: "Apellido",
     register_input_experience: "Experiencia",
     register_input_years: "Años de experiencia",
-    register_required: "Requerido",
+    register_required: "* Este campo es obligatorio.",
     register_cancel: "Cancelar",
     register_submit: "Registrarse",
 
@@ -314,6 +314,9 @@ const es = {
     admin_requests_offers: "Ofertas entrantes",
     admin_requests_progress: "Progreso de las solicitudes",
     admin_requests_closed: "Solicitudes finalizadas",
+
+    // Diálogo de vista de oferta
+    offer_view_title: "Detalles de la oferta",
 };
 
 export default es;

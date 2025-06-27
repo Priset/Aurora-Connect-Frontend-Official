@@ -12,6 +12,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="es">
+            <head>
+                <link rel="icon" href="/assets/logo.png" type="image/png" />
+                <title>Aurora Connect</title>
+            </head>
             <body>
                 <Providers>{children}</Providers>
                 <Toaster position="bottom-right" richColors closeButton />

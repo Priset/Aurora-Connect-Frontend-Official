@@ -157,7 +157,7 @@ const en = {
     register_input_lastname: "Last Name",
     register_input_experience: "Experience",
     register_input_years: "Years of experience",
-    register_required: "Required",
+    register_required: "* This field is required.",
     register_cancel: "Cancel",
     register_submit: "Register",
 
@@ -309,6 +309,9 @@ const en = {
     admin_requests_offers: "Sent Offers",
     admin_requests_progress: "Request Progress",
     admin_requests_closed: "Closed Requests",
+
+    // Dilog view offer
+    offer_view_title: "Technician Offer",
 };
 
 export default en;

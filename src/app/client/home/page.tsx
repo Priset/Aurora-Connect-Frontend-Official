@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {useTechnicians} from "@/hooks/useTechnicians";
 import { TechnicianProfileSlide } from "@/components/technician/technician-profile-slide";
+import { RequestViewDialog } from "@/components/request/requests-view-dialog";
 import { useNotifications } from "@/hooks/useNotifications";
 import {Star} from "lucide-react";
 import { useIntl } from "react-intl"
@@ -45,6 +46,8 @@ export default function ClientHomePage() {
     const intl = useIntl();
     const StatusMap = getStatusMap(intl);
     const { create: createNotification } = useNotifications();
+    const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
+    const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
 
     const {
         register,
@@ -221,7 +224,7 @@ export default function ClientHomePage() {
                                     <Input
                                         id="offered_price"
                                         type="number"
-                                        step="0.01"
+                                        step="0.50"
                                         placeholder={formatMessage({ id: "client_home_form_price_placeholder" })}
                                         {...register("offeredPrice", {
                                             required: true,
@@ -343,7 +346,7 @@ export default function ClientHomePage() {
                                             key={chat.id}
                                             className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95"
                                         >
-                                            <p className="text-sm font-medium text-[--foreground]">
+                                            <p className="text-sm font-semibold text-[--foreground]">
                                                 {formatMessage({id: "client_home_chat_with"})} {chat.technician?.user?.name}{" "}{chat.technician?.user?.last_name}
                                             </p>
                                             <span className="text-xs text-muted-foreground">
@@ -383,7 +386,14 @@ export default function ClientHomePage() {
                                     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                                     .slice(0, 5)
                                     .map((req) => (
-                                        <Card key={req.id} className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95">
+                                        <Card
+                                            key={req.id}
+                                            onClick={() => {
+                                                setSelectedRequest(req);
+                                                setIsRequestDialogOpen(true);
+                                            }}
+                                            className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95"
+                                        >
                                             <p className="text-sm font-medium text-[--foreground]">
                                                 “{req.description}”
                                             </p>
@@ -420,6 +430,17 @@ export default function ClientHomePage() {
                     isOpen={isTechnicianOpen}
                     onClose={() => setIsTechnicianOpen(false)}
                     technicianId={selectedTechnicianId}
+                />
+            )}
+
+            {selectedRequest && (
+                <RequestViewDialog
+                    isOpen={isRequestDialogOpen}
+                    onClose={() => {
+                        setIsRequestDialogOpen(false);
+                        setSelectedRequest(null);
+                    }}
+                    request={selectedRequest}
                 />
             )}
         </main>

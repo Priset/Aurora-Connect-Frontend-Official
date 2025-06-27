@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import { RequestDialogProps, getStatusMap } from "@/interfaces/auroraDb";
 import { BadgeCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +58,9 @@ export function RequestViewDialog({ isOpen, onClose, request }: RequestDialogPro
                             <DialogTitle className="text-xl font-bold text-center">
                                 {formatMessage({ id: "request_view_title" })}
                             </DialogTitle>
+                            <DialogDescription className="text-xs text-muted-foreground mt-1 text-center">
+                                Solicitud: #{request.id}
+                            </DialogDescription>
                         </DialogHeader>
 
                         <div className="text-sm space-y-2 text-center">

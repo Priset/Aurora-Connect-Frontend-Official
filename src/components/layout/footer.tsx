@@ -51,9 +51,9 @@ export function Footer() {
                                 <Image
                                     src={icon.src}
                                     alt={icon.alt}
-                                    width={60}
+                                    width={40}
                                     height={40}
-                                    className="h-10 object-contain"
+                                    className="object-contain"
                                 />
                             </Button>
                         </Link>

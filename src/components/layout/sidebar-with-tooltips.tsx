@@ -44,7 +44,13 @@ export function SidebarWithTooltips() {
                     <SidebarContent className="text-white">
                         <div
                             className="flex items-center px-4 py-4 transition-all duration-200 group-data-[state=collapsed]:justify-center">
-                            <Image src="/assets/logo.png" alt="Logo" width={28} height={28}/>
+                            <Image
+                                src="/assets/logo.png"
+                                alt="Logo"
+                                width={28}
+                                height={28}
+                                className="w-10 h-auto"
+                            />
                             <div className="ml-3 flex flex-col group-data-[state=collapsed]:hidden">
                                 <span
                                     className="font-semibold text-sm text-white">{formatMessage({id: "sidebar_app_name"})}</span>
@@ -62,7 +68,7 @@ export function SidebarWithTooltips() {
                             <SidebarGroupContent>
                                 <SidebarMenu>
                                     <SidebarMenuItem>
-                                        <Tooltip open={state === "collapsed" ? undefined : false}>
+                                        <Tooltip open={state === "collapsed"}>
                                             <TooltipTrigger asChild>
                                                 <SidebarMenuButton
                                                     isActive={
@@ -105,12 +111,11 @@ export function SidebarWithTooltips() {
                                             <TooltipTrigger asChild>
                                                 <SidebarMenuButton
                                                     isActive={
-                                                        pathname ===
-                                                        (profile?.role === "technician"
-                                                            ? "/technician/home"
-                                                            : profile?.role === "admin"
-                                                                ? "/admin/users"
-                                                                : "/client/requests")
+                                                        profile?.role === "admin"
+                                                            ? pathname === "/admin/users"
+                                                            : profile?.role === "client"
+                                                                ? pathname === "/client/requests"
+                                                                : false
                                                     }
                                                     onClick={() => {
                                                         if (profile?.role === "technician") {

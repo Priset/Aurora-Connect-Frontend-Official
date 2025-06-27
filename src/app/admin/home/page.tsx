@@ -3,7 +3,7 @@
 import {useEffect, useState, useMemo, useCallback} from "react";
 import {useRequests} from "@/hooks/useRequests";
 import {ServiceRequest, Status} from "@/interfaces/auroraDb";
-import {RequestViewDialog} from "@/components/dialogs/requests-view-dialog";
+import {RequestViewDialog} from "@/components/request/requests-view-dialog";
 import {RequestSection} from "@/components/sections/request-section";
 import {useIntl} from "react-intl";
 

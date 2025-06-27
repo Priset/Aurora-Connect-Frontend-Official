@@ -13,9 +13,8 @@ export const HeroSection = () => {
             <Image
                 src="/assets/fondo-mundo-morado.png"
                 alt="Fondo"
-                layout="fill"
-                objectFit="cover"
-                className="z-0 opacity-80"
+                fill
+                className="z-0 opacity-80 object-cover"
                 priority
             />
 

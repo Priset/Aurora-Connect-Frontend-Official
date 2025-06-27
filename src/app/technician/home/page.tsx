@@ -4,9 +4,11 @@ import {useCallback, useEffect, useMemo, useState} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRequests } from "@/hooks/useRequests";
 import { useSocket } from "@/hooks/useSocket";
-import { ServiceRequest, Status } from "@/interfaces/auroraDb";
+import { ServiceRequest, Status, ServiceOffer  } from "@/interfaces/auroraDb";
 import { RequestDialog } from "@/components/technician/request-dialog";
-import { RequestViewDialog } from "@/components/dialogs/requests-view-dialog";
+import { RequestViewDialog } from "@/components/request/requests-view-dialog";
+import { useOffers } from "@/hooks/useOffers";
+import { OfferViewDialog } from "@/components/offers/offer-view-dialog";
 import { RequestSection } from "@/components/sections/request-section";
 import { useIntl } from "react-intl";
 
@@ -50,6 +52,9 @@ export default function TechnicianHomePage() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<"edit" | "view">("edit");
     const [loading, setLoading] = useState(true);
+    const [selectedOffer, setSelectedOffer] = useState<ServiceOffer | null>(null);
+    const [offerDialogOpen, setOfferDialogOpen] = useState(false);
+    const { getById: getOfferById } = useOffers();
 
     const openDialog = (req: ServiceRequest, mode: "edit" | "view") => {
         setSelectedRequest(req);
@@ -194,8 +199,20 @@ export default function TechnicianHomePage() {
                             searchValue={search.offers}
                             onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
                             data={offerRequests}
-                            onClick={(r) => openDialog(r, "view")}
-                            type="view"
+                            onClick={async (req) => {
+                                const offer = req.serviceOffers?.find(
+                                    (o) => o.technician_id === profile?.technicianProfile?.id
+                                );
+                                if (!offer) return;
+                                try {
+                                    const fullOffer = await getOfferById(offer.id);
+                                    setSelectedOffer(fullOffer);
+                                    setOfferDialogOpen(true);
+                                } catch (err) {
+                                    console.error("❌ Error al abrir oferta:", err);
+                                }
+                            }}
+                            type="offer"
                             sortKey={sorts.offers}
                             onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
                             showStatusFilter={false}
@@ -244,6 +261,17 @@ export default function TechnicianHomePage() {
                     isOpen={dialogOpen}
                     onClose={() => setDialogOpen(false)}
                     request={selectedRequest}
+                />
+            )}
+
+            {selectedOffer && (
+                <OfferViewDialog
+                    isOpen={offerDialogOpen}
+                    onClose={() => {
+                        setOfferDialogOpen(false);
+                        setSelectedOffer(null);
+                    }}
+                    offer={selectedOffer}
                 />
             )}
         </main>

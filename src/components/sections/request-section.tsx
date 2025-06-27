@@ -69,7 +69,7 @@ export const RequestSection = ({
                     </TooltipTrigger>
                     <TooltipContent
                         side="top"
-                        className="z-50 bg-neutral-700 text-neutral-950 border border-[--neutral-300] rounded-md shadow-sm text-xs px-3 py-1"
+                        className="z-50 bg-neutral-700 text-neutral-950 border border-[--neutral-300] rounded-md shadow-sm text-xs px-3 py-1 whitespace-pre-line"
                     >
                         {formatMessage({ id: "requests_tooltip" })}
                     </TooltipContent>
@@ -170,7 +170,9 @@ export const RequestSection = ({
                                 onClick={() => onClick(req)}
                             >
                                 <div className="flex items-center justify-between mb-1">
-                                    <p className="text-sm font-semibold">{req.description}</p>
+                                    <p className="text-sm font-semibold">
+                                        {req.description} <span className="text-xs text-muted-foreground">(#{req.id})</span>
+                                    </p>
                                     {req.status === Status.FINALIZADO && onReview && (
                                         <Button
                                             className="text-xs bg-[--secondary-default] text-neutral-100 px-3 py-1 rounded-md hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] transition"
