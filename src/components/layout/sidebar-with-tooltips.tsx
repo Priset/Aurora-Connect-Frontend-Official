@@ -186,10 +186,13 @@ export function SidebarWithTooltips() {
                                         <Tooltip open={state === "collapsed" ? undefined : false}>
                                             <TooltipTrigger asChild>
                                                 <SidebarMenuButton
-                                                    className="text-white hover:bg-[--secondary-default] hover:text-white">
-                                                    <HelpCircle className="w-5 h-5"/>
+                                                    isActive={pathname === "/support"}
+                                                    onClick={() => router.push("/support")}
+                                                    className="text-white hover:bg-[--secondary-default] hover:text-white data-[active=true]:bg-[--secondary-hover] data-[active=true]:text-white"
+                                                >
+                                                    <HelpCircle className="w-5 h-5" />
                                                     <span className="group-data-[state=collapsed]:hidden">
-                                                        {formatMessage({id: "sidebar_support"})}
+                                                        {formatMessage({ id: "sidebar_support" })}
                                                     </span>
                                                 </SidebarMenuButton>
                                             </TooltipTrigger>
