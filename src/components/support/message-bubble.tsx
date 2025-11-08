@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 export function MessageBubble({ role, content }: { role: string; content: string }) {
     const isUser = role === 'usuario';
@@ -20,13 +21,29 @@ export function MessageBubble({ role, content }: { role: string; content: string
                 )}
                 <div
                     className={cn(
-                        'px-4 py-3 rounded-2xl whitespace-pre-wrap shadow-lg backdrop-blur-sm border',
+                        'px-4 py-3 rounded-2xl shadow-lg backdrop-blur-sm border prose prose-invert max-w-none',
                         isUser
                             ? 'bg-[--secondary-default] text-white rounded-br-md border-[--secondary-default]/30'
                             : 'bg-white/10 text-white rounded-bl-md border-white/20',
                     )}
                 >
-                    {content}
+                    {isUser ? (
+                        <span className="whitespace-pre-wrap">{content}</span>
+                    ) : (
+                        <ReactMarkdown
+                            components={{
+                                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                                em: ({ children }) => <em className="italic">{children}</em>,
+                                ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                                ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                                li: ({ children }) => <li className="mb-1">{children}</li>,
+                                code: ({ children }) => <code className="bg-white/10 px-1 py-0.5 rounded text-sm">{children}</code>,
+                            }}
+                        >
+                            {content}
+                        </ReactMarkdown>
+                    )}
                 </div>
             </div>
             {isUser && (

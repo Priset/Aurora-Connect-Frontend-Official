@@ -42,9 +42,9 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
             <SheetOverlay className="bg-black/60 backdrop-blur-sm z-[50]" />
             <SheetContent
                 side="right"
-                className="w-full max-w-sm bg-white/10 backdrop-blur-xl border-l border-white/20 shadow-2xl z-[60] text-white"
+                className="w-full max-w-sm bg-white/10 backdrop-blur-xl border-l border-white/20 shadow-2xl z-[60] text-white flex flex-col overflow-hidden"
             >
-                <SheetHeader className="mb-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <SheetHeader className="mb-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-lg p-4 border border-white/20 flex-shrink-0">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full">
                             <UserIcon className="w-5 h-5 text-blue-400" />
@@ -58,6 +58,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                     </SheetDescription>
                 </SheetHeader>
 
+                <div className="flex-1 overflow-y-auto pr-2">
                 {isLoading ? (
                     <div className="space-y-4 animate-pulse">
                         <div className="flex items-center gap-4 border-b border-white/20 pb-4">
@@ -87,7 +88,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                     </div>
                 ) : (
                     technician && technician.user && (
-                        <div className="space-y-5">
+                        <div className="space-y-5 pb-4">
                             <div className="flex items-center gap-4 border-b border-white/20 pb-4 bg-white/5 backdrop-blur-sm rounded-lg p-4">
                                 <Avatar className="w-16 h-16 border-2 border-white/30">
                                     <AvatarFallback className="bg-gradient-to-r from-blue-500/80 to-purple-500/80 text-white text-lg">
@@ -131,7 +132,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                     <Star className="w-4 h-4 text-yellow-400" />
                                     {formatMessage({ id: "technician_profile_reviews" })}
                                 </div>
-                                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                                <div className="space-y-3">
                                     {technician.service_reviews?.length ? (
                                         technician.service_reviews.map((review) => (
                                             <div
@@ -168,6 +169,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                         </div>
                     )
                 )}
+                </div>
             </SheetContent>
         </Sheet>
     );
