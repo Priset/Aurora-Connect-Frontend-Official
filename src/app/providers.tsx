@@ -20,13 +20,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
             authorizationParams={{
                 redirect_uri: redirectUri,
                 audience,
+                scope: 'openid profile email offline_access'
             }}
             cacheLocation="localstorage"
+            useRefreshTokens={true}
+            useRefreshTokensFallback={true}
+            skipRedirectCallback={false}
             onRedirectCallback={(appState) => {
                 if (appState?.returnTo) {
                     router.replace(appState.returnTo)
                 } else {
-                    router.replace('/')
+                    router.replace('/callback')
                 }
             }}
         >

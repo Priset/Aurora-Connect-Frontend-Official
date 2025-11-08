@@ -39,98 +39,106 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetOverlay className="bg-black/50 z-[50]" />
+            <SheetOverlay className="bg-black/60 backdrop-blur-sm z-[50]" />
             <SheetContent
                 side="right"
-                className="w-full max-w-sm bg-white dark:bg-[--neutral-100] text-[--foreground] border-l border-[--neutral-300] shadow-xl z-[60]"
+                className="w-full max-w-sm bg-white/10 backdrop-blur-xl border-l border-white/20 shadow-2xl z-[60] text-white"
             >
-                <SheetHeader className="mb-4">
-                    <SheetTitle className="text-lg font-bold">
-                        {formatMessage({ id: "technician_profile_title" })}
-                    </SheetTitle>
-                    <SheetDescription className="text-sm text-muted-foreground">
+                <SheetHeader className="mb-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full">
+                            <UserIcon className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <SheetTitle className="text-lg font-bold text-white">
+                            {formatMessage({ id: "technician_profile_title" })}
+                        </SheetTitle>
+                    </div>
+                    <SheetDescription className="text-sm text-white/70">
                         {formatMessage({ id: "technician_profile_description" })}
                     </SheetDescription>
                 </SheetHeader>
 
                 {isLoading ? (
                     <div className="space-y-4 animate-pulse">
-                        <div className="flex items-center gap-4 border-b border-[--neutral-300] pb-4">
-                            <div className="w-16 h-16 bg-[--neutral-300] rounded-full" />
+                        <div className="flex items-center gap-4 border-b border-white/20 pb-4">
+                            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full" />
                             <div className="flex-1 space-y-2">
-                                <div className="h-4 w-2/3 bg-[--neutral-300] rounded" />
-                                <div className="h-3 w-1/3 bg-[--neutral-300] rounded" />
+                                <div className="h-4 w-2/3 bg-white/20 backdrop-blur-sm rounded" />
+                                <div className="h-3 w-1/3 bg-white/20 backdrop-blur-sm rounded" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
-                            <div className="h-3 w-full bg-[--neutral-300] rounded" />
+                            <div className="h-4 w-1/3 bg-white/20 backdrop-blur-sm rounded" />
+                            <div className="h-3 w-full bg-white/20 backdrop-blur-sm rounded" />
                         </div>
 
                         <div className="space-y-2">
-                            <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
-                            <div className="h-3 w-1/4 bg-[--neutral-300] rounded" />
+                            <div className="h-4 w-1/3 bg-white/20 backdrop-blur-sm rounded" />
+                            <div className="h-3 w-1/4 bg-white/20 backdrop-blur-sm rounded" />
                         </div>
 
                         <div className="space-y-2">
-                            <div className="h-4 w-1/3 bg-[--neutral-300] rounded" />
+                            <div className="h-4 w-1/3 bg-white/20 backdrop-blur-sm rounded" />
                             {[...Array(2)].map((_, idx) => (
-                                <div key={idx} className="h-12 w-full bg-[--neutral-300] rounded" />
+                                <div key={idx} className="h-12 w-full bg-white/20 backdrop-blur-sm rounded" />
                             ))}
                         </div>
                     </div>
                 ) : (
                     technician && technician.user && (
                         <div className="space-y-5">
-                            <div className="flex items-center gap-4 border-b border-[--neutral-300] pb-4">
-                                <Avatar className="w-16 h-16">
-                                    <AvatarFallback className="bg-[--secondary-default] text-white text-lg">
+                            <div className="flex items-center gap-4 border-b border-white/20 pb-4 bg-white/5 backdrop-blur-sm rounded-lg p-4">
+                                <Avatar className="w-16 h-16 border-2 border-white/30">
+                                    <AvatarFallback className="bg-gradient-to-r from-blue-500/80 to-purple-500/80 text-white text-lg">
                                         <UserIcon className="w-6 h-6" />
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="text-base font-semibold leading-snug">
+                                    <p className="text-base font-semibold leading-snug text-white">
                                         {technician.user.name} {technician.user.last_name}
                                     </p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-white/70">
                                         {formatMessage({ id: "technician_profile_registered" })}
                                     </p>
                                 </div>
                             </div>
 
-                            <div>
-                                <p className="text-sm font-semibold mb-1">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                                <div className="text-sm font-semibold mb-2 text-white flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                                     {formatMessage({ id: "technician_profile_experience" })}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
+                                </div>
+                                <p className="text-sm text-white/80 leading-relaxed">
                                     {technician.experience || formatMessage({ id: "technician_profile_experience_none" })}
                                 </p>
                             </div>
 
-                            <div>
-                                <p className="text-sm font-semibold mb-1">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                                <div className="text-sm font-semibold mb-2 text-white flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                                     {formatMessage({ id: "technician_profile_years" })}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
+                                </div>
+                                <p className="text-sm text-white/80">
                                     {technician.years_experience
                                         ? `${technician.years_experience} ${formatMessage({ id: "technician_profile_years_suffix" })}`
                                         : formatMessage({ id: "technician_profile_years_none" })}
                                 </p>
                             </div>
 
-                            <div>
-                                <p className="text-sm font-semibold mb-1">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                                <div className="text-sm font-semibold mb-3 text-white flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-yellow-400" />
                                     {formatMessage({ id: "technician_profile_reviews" })}
-                                </p>
-                                <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                                </div>
+                                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
                                     {technician.service_reviews?.length ? (
                                         technician.service_reviews.map((review) => (
                                             <div
                                                 key={review.id}
-                                                className="bg-neutral-100 border border-[--neutral-300] rounded-lg p-3"
+                                                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all duration-200"
                                             >
-                                                <p className="text-sm italic text-muted-foreground mb-1">
+                                                <p className="text-sm italic text-white/80 mb-2 leading-relaxed">
                                                     &quot;{review.comment || formatMessage({id: "technician_profile_no_comment"})}&quot;
                                                 </p>
                                                 <div className="flex items-center gap-1">
@@ -140,7 +148,7 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                                             className={`w-4 h-4 ${
                                                                 val <= review.rating
                                                                     ? "text-yellow-400 fill-yellow-400"
-                                                                    : "text-neutral-300"
+                                                                    : "text-white/30"
                                                             }`}
                                                         />
                                                     ))}
@@ -148,9 +156,12 @@ export function TechnicianProfileSlide({ isOpen, onClose, technicianId }: Techni
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-muted-foreground">
-                                            {formatMessage({ id: "technician_profile_no_reviews" })}
-                                        </p>
+                                        <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 text-center">
+                                            <Star className="w-8 h-8 text-white/30 mx-auto mb-2" />
+                                            <p className="text-sm text-white/70">
+                                                {formatMessage({ id: "technician_profile_no_reviews" })}
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
                             </div>

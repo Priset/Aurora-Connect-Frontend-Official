@@ -46,25 +46,27 @@ export function OfferViewDialog({ isOpen, onClose, offer }: OfferViewDialogProps
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="w-full max-w-md bg-neutral-100 text-[--foreground] rounded-xl p-6 space-y-4">
+            <DialogContent className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-xl p-6 space-y-4">
                 {isLoading ? (
                     <div className="space-y-4 animate-pulse">
                         <div className="flex justify-center mb-2">
-                            <div className="w-12 h-12 bg-[--neutral-300] rounded-full" />
+                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full" />
                         </div>
-                        <div className="h-6 w-2/3 bg-[--neutral-300] rounded mx-auto" />
-                        <div className="h-4 w-1/2 bg-[--neutral-300] rounded mx-auto" />
+                        <div className="h-6 w-2/3 bg-white/20 backdrop-blur-sm rounded mx-auto" />
+                        <div className="h-4 w-1/2 bg-white/20 backdrop-blur-sm rounded mx-auto" />
                     </div>
                 ) : (
                     <>
                         <DialogHeader className="text-center">
                             <div className="flex justify-center mb-2">
-                                <BadgeCheck className="w-12 h-12 text-[--secondary-default]" />
+                                <div className="p-3 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full backdrop-blur-sm">
+                                    <BadgeCheck className="w-8 h-8 text-blue-400" />
+                                </div>
                             </div>
-                            <DialogTitle className="text-xl font-bold text-center">
+                            <DialogTitle className="text-xl font-bold text-center text-white">
                                 {formatMessage({ id: "offer_view_title" })}
                             </DialogTitle>
-                            <DialogDescription className="text-xs text-muted-foreground mt-1 text-center">
+                            <DialogDescription className="text-xs text-white/70 mt-1 text-center">
                                 Solicitud #{offer.request_id}
                             </DialogDescription>
                         </DialogHeader>

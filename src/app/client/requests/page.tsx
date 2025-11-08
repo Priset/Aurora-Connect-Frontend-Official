@@ -6,7 +6,7 @@ import { useRequests } from "@/hooks/useRequests";
 import { useSocket } from "@/hooks/useSocket";
 import {Chat, ServiceRequest, Status} from "@/interfaces/auroraDb";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, FileText, Sparkles } from "lucide-react";
 import { RequestSection } from "@/components/sections/request-section";
 import { RequestViewDialog } from "@/components/request/requests-view-dialog";
 import { ClientOfferDialog } from "@/components/client/client-offer-dialog";
@@ -19,27 +19,6 @@ const initialSearch = {
     progress: "",
     closed: ""
 };
-
-const SectionSkeleton = () => (
-    <div className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4">
-        <div className="h-4 w-2/3 bg-[--neutral-300] rounded mb-4 animate-pulse" />
-        <div className="flex gap-2 mb-3">
-            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse" />
-            <div className="flex-1 h-9 bg-[--neutral-200] rounded animate-pulse" />
-            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse" />
-        </div>
-        <div className="flex flex-col gap-2 overflow-y-auto pr-1">
-            {[...Array(4)].map((_, idx) => (
-                <div key={idx} className="p-4 bg-white rounded-lg border border-[--neutral-300] animate-pulse space-y-2">
-                    <div className="h-4 w-3/4 bg-[--neutral-200] rounded" />
-                    <div className="h-3 w-1/2 bg-[--neutral-200] rounded" />
-                    <div className="h-2 w-1/3 bg-[--neutral-200] rounded" />
-                    <div className="h-4 w-24 bg-[--secondary-default] rounded-full mt-2" />
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 export default function ClientRequestsPage() {
     const { profile } = useAuth();
@@ -135,7 +114,7 @@ export default function ClientRequestsPage() {
         requests.filter(
             (r) =>
                 r.serviceOffers?.some((offer) =>
-                    [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO].includes(offer.status)
+                    [Status.CONTRAOFERTA_POR_TECNICO, Status.ACEPTADO_POR_TECNICO, Status.RECHAZADO_POR_TECNICO].includes(offer.status)
                 ) &&
                 r.description.toLowerCase().includes(search.offers.toLowerCase())
         ),
@@ -148,6 +127,7 @@ export default function ClientRequestsPage() {
                 [
                     Status.ACEPTADO_POR_TECNICO,
                     Status.CONTRAOFERTA_POR_TECNICO,
+                    Status.RECHAZADO_POR_TECNICO,
                     Status.RECHAZADO_POR_CLIENTE,
                     Status.ACEPTADO_POR_CLIENTE,
                     Status.CHAT_ACTIVO
@@ -170,87 +150,88 @@ export default function ClientRequestsPage() {
     return (
         <main className="px-6 md:px-10 py-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-display font-bold text-white">
-                    {formatMessage({ id: "client_requests_title" })}
-                </h1>
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                        <FileText className="w-8 h-8 text-white" />
+                    </div>
+                    <h1 className="text-2xl font-display font-bold text-white">
+                        {formatMessage({ id: "client_requests_title" })}
+                    </h1>
+                </div>
                 <Button
-                    className="bg-[--secondary-default] text-white hover:bg-[--secondary-hover] px-4 py-2 active:bg-[--secondary-pressed] transition transform hover:scale-105 active:scale-95"
+                    className="bg-[--secondary-default] text-white hover:bg-[--secondary-hover] px-4 py-2 active:bg-[--secondary-pressed] transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-2"
                     onClick={() => window.location.href = "/client/home"}
                 >
-                    <Plus className="w-4 h-4 mr-1" />
+                    <div className="p-1 bg-white/20 rounded">
+                        <Plus className="w-4 h-4" />
+                    </div>
                     {formatMessage({ id: "client_requests_new_button" })}
+                    <Sparkles className="w-4 h-4" />
                 </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                {loading ? (
-                    <>
-                        <SectionSkeleton />
-                        <SectionSkeleton />
-                        <SectionSkeleton />
-                        <SectionSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <RequestSection
-                            title={formatMessage({ id: "client_requests_section_created" }) + " (" + created.length + ")"}
-                            searchKey="created"
-                            searchValue={search.created}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
-                            data={created}
-                            onClick={(r) => openDialog("view", r)}
-                            type="view"
-                            sortKey={sorts.created}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, created: val }))}
-                            showStatusFilter={false}
-                        />
-                        <RequestSection
-                            title={formatMessage({ id: "client_requests_section_offers" }) + " (" + offers.length + ")"}
-                            searchKey="offers"
-                            searchValue={search.offers}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
-                            data={offers}
-                            onClick={(r) => openDialog("offer", r)}
-                            type="offer"
-                            sortKey={sorts.offers}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
-                            showStatusFilter={false}
-                        />
-                        <RequestSection
-                            title={formatMessage({ id: "client_requests_section_progress" }) + " (" + progress.length + ")"}
-                            searchKey="progress"
-                            searchValue={search.progress}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
-                            data={progress}
-                            onClick={(r) => openDialog("view", r)}
-                            type="view"
-                            sortKey={sorts.progress}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, progress: val }))}
-                            showStatusFilter={true}
-                            filterStatus={progressStatusFilter}
-                            onFilterStatusChange={setProgressStatusFilter}
-                        />
-                        <RequestSection
-                            title={formatMessage({ id: "client_requests_section_closed" }) + " (" + closed.length + ")"}
-                            searchKey="closed"
-                            searchValue={search.closed}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}
-                            data={closed}
-                            onClick={(r) => {
-                                setSelectedRequest(r);
-                                setDialogType("view");
-                            }}
-                            type="view"
-                            onReview={(r) => {
-                                setSelectedRequest(r);
-                                setDialogType("review");
-                            }}
-                            sortKey={sorts.closed}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, closed: val }))}
-                            showStatusFilter={false}
-                        />
-                    </>
-                )}
+                <RequestSection
+                    title={formatMessage({ id: "client_requests_section_created" }) + " (" + created.length + ")"}
+                    searchKey="created"
+                    searchValue={search.created}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
+                    data={created}
+                    onClick={(r) => openDialog("view", r)}
+                    type="view"
+                    sortKey={sorts.created}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, created: val }))}
+                    showStatusFilter={false}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({ id: "client_requests_section_offers" }) + " (" + offers.length + ")"}
+                    searchKey="offers"
+                    searchValue={search.offers}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
+                    data={offers}
+                    onClick={(r) => openDialog("offer", r)}
+                    type="offer"
+                    sortKey={sorts.offers}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
+                    showStatusFilter={false}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({ id: "client_requests_section_progress" }) + " (" + progress.length + ")"}
+                    searchKey="progress"
+                    searchValue={search.progress}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
+                    data={progress}
+                    onClick={(r) => openDialog("view", r)}
+                    type="view"
+                    sortKey={sorts.progress}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, progress: val }))}
+                    showStatusFilter={true}
+                    filterStatus={progressStatusFilter}
+                    onFilterStatusChange={setProgressStatusFilter}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({ id: "client_requests_section_closed" }) + " (" + closed.length + ")"}
+                    searchKey="closed"
+                    searchValue={search.closed}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}
+                    data={closed}
+                    onClick={(r) => {
+                        setSelectedRequest(r);
+                        setDialogType("view");
+                    }}
+                    type="view"
+                    onReview={(r) => {
+                        setSelectedRequest(r);
+                        setDialogType("review");
+                    }}
+                    sortKey={sorts.closed}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, closed: val }))}
+                    showStatusFilter={false}
+                    loading={loading}
+                />
             </div>
 
             {selectedRequest && dialogType === "view" && (

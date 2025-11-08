@@ -41,7 +41,6 @@ export interface TechnicianProfile {
 }
 
 export interface CreateTechnicianProfileDto {
-    user_id: number;
     experience?: string;
     years_experience: number;
 }
@@ -95,10 +94,8 @@ export interface ServiceOffer {
 
 export interface CreateServiceOfferDto {
     requestId: number;
-    technician_id: number;
     message?: string;
     proposedPrice?: number;
-    status: Status;
 }
 
 export interface UpdateServiceOfferDto {
@@ -162,18 +159,34 @@ export interface Chat {
     updated_at: string;
 
     technician?: {
-        user?: {
+        id: number;
+        user_id: number;
+        experience?: string;
+        years_experience?: number;
+        status: number;
+        created_at: string;
+        updated_at: string;
+        user: {
+            id: number;
             name: string;
             last_name: string;
         }
     };
 
     client?: {
+        id: number;
         name: string;
         last_name: string;
     };
 
     messages?: ChatMessage[];
+    request?: {
+        id: number;
+        description: string;
+        offered_price: number;
+        status: number;
+        created_at: string;
+    };
 }
 
 export interface CreateChatDto {
@@ -199,7 +212,6 @@ export interface ChatMessage {
 
 export interface CreateChatMessageDto {
     chatId: number;
-    senderId: number;
     message: string;
     status?: number;
 }
@@ -218,7 +230,6 @@ export interface AiSupportChat {
 }
 
 export interface CreateAiSupportChatDto {
-    user_id: number;
     status?: number;
 }
 

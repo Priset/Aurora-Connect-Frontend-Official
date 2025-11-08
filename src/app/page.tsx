@@ -94,23 +94,26 @@ export default function WelcomePage() {
     } = useRegisterDialog();
 
     return (
-        <div className="flex flex-col min-h-screen bg-[--neutral-400]">
-            <Navbar />
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-slate-900/40 to-black/60" />
+            <div className="relative z-10">
+                <Navbar />
 
-            <main className="flex-grow">
-                <HeroSection />
-                <HowItWorksSection onRegisterClick={handleRegisterClick} />
-                <StepCarousel
-                    title={formatMessage({ id: "welcome_steps_technician_title" })}
-                    steps={technicianSteps}
-                />
-                <StepCarousel
-                    title={formatMessage({ id: "welcome_steps_user_title" })}
-                    steps={userSteps}
-                />
-            </main>
+                <main className="flex-grow">
+                    <HeroSection />
+                    <HowItWorksSection onRegisterClick={handleRegisterClick} />
+                    <StepCarousel
+                        title={formatMessage({ id: "welcome_steps_technician_title" })}
+                        steps={technicianSteps}
+                    />
+                    <StepCarousel
+                        title={formatMessage({ id: "welcome_steps_user_title" })}
+                        steps={userSteps}
+                    />
+                </main>
 
-            <Footer />
+                <Footer />
+            </div>
 
             {showDialog && (
                 <RegisterDialog role={dialogRole} onClose={handleDialogClose} />

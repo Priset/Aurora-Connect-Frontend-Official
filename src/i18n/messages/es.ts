@@ -8,7 +8,7 @@ const es = {
     client_home_loading_description: "Por favor espera unos segundos mientras preparamos tus datos.",
 
     // Panel del cliente
-    client_home_welcome: "Bienvenido, {name}!",
+    client_home_welcome: "¡Bienvenido, {name}!",
     client_home_create_request_title: "Crear nueva solicitud",
     client_home_form_description_label: "Describe tu problema",
     client_home_form_description_placeholder: "Escribe con detalle lo que ocurre...",
@@ -161,6 +161,9 @@ const es = {
     register_required: "* Este campo es obligatorio.",
     register_cancel: "Cancelar",
     register_submit: "Registrarse",
+    register_submitting: "Registrando...",
+    register_success: "Registro completado exitosamente",
+    register_error: "Error al completar el registro",
 
     // Vista de solicitud
     request_view_title: "Detalles de la solicitud",
@@ -183,7 +186,7 @@ const es = {
     // Navbar del usuario
     navbar_user_notifications: "Notificaciones",
     navbar_user_default_name: "Usuario",
-    notifications_mark_all: "Marcar todo como leído",
+    notifications_mark_all: "Leer todo",
     notifications_empty: "No tienes notificaciones nuevas",
     notifications_clear_read: "Vaciar",
 

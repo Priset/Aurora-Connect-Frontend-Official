@@ -19,26 +19,7 @@ const initialSearch = {
     closed: "",
 };
 
-const SectionSkeleton = () => (
-    <div className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4">
-        <div className="h-4 w-2/3 bg-[--neutral-300] rounded mb-4 animate-pulse" />
-        <div className="flex gap-2 mb-3">
-            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse" />
-            <div className="flex-1 h-9 bg-[--neutral-200] rounded animate-pulse" />
-            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse" />
-        </div>
-        <div className="flex flex-col gap-2 overflow-y-auto pr-1">
-            {[...Array(4)].map((_, idx) => (
-                <div key={idx} className="p-4 bg-white rounded-lg border border-[--neutral-300] animate-pulse space-y-2">
-                    <div className="h-4 w-3/4 bg-[--neutral-200] rounded" />
-                    <div className="h-3 w-1/2 bg-[--neutral-200] rounded" />
-                    <div className="h-2 w-1/3 bg-[--neutral-200] rounded" />
-                    <div className="h-4 w-24 bg-[--secondary-default] rounded-full mt-2" />
-                </div>
-            ))}
-        </div>
-    </div>
-);
+
 
 export default function TechnicianHomePage() {
     const { profile } = useAuth();
@@ -101,6 +82,7 @@ export default function TechnicianHomePage() {
                             Status.CONTRAOFERTA_POR_TECNICO,
                             Status.ACEPTADO_POR_TECNICO,
                             Status.RECHAZADO_POR_TECNICO,
+                            Status.RECHAZADO_POR_CLIENTE,
                         ].includes(offer.status)
                 ) &&
                 r.description.toLowerCase().includes(search.offers.toLowerCase())
@@ -137,7 +119,7 @@ export default function TechnicianHomePage() {
         if (!profile?.technicianProfile?.id) return [];
         const filtered = requests.filter(
             (r) =>
-                r.status === Status.FINALIZADO &&
+                (r.status === Status.FINALIZADO || r.status === Status.CALIFICADO) &&
                 r.serviceOffers?.some((offer) => offer.technician_id === profile.technicianProfile!.id) &&
                 r.description.toLowerCase().includes(search.closed.toLowerCase())
         );
@@ -157,8 +139,10 @@ export default function TechnicianHomePage() {
     }, [getAllForTechnicians]);
 
     useEffect(() => {
-        loadRequests();
-    }, [loadRequests]);
+        if (profile?.id) {
+            loadRequests();
+        }
+    }, [loadRequests, profile?.id]);
 
     useSocket(
         (newRequest) => setRequests((prev) => [newRequest, ...prev]),
@@ -167,84 +151,85 @@ export default function TechnicianHomePage() {
 
     return (
         <main className="px-6 md:px-10 py-6">
-            <h1 className="text-2xl font-display font-bold text-white mb-6">
-                {formatMessage({ id: "technician_requests_title" })}
-            </h1>
+            <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h1 className="text-2xl font-display font-bold text-white">
+                    {formatMessage({ id: "technician_requests_title" })}
+                </h1>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                {loading ? (
-                    <>
-                        <SectionSkeleton />
-                        <SectionSkeleton />
-                        <SectionSkeleton />
-                        <SectionSkeleton />
-                    </>
-                ) : (
-                    <>
-                        <RequestSection
-                            title={formatMessage({ id: "technician_requests_new" }) + " (" + newRequests.length + ")"}
-                            searchKey="created"
-                            searchValue={search.created}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
-                            data={newRequests}
-                            onClick={(r) => openDialog(r, "edit")}
-                            type="view"
-                            sortKey={sorts.created}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, created: val }))}
-                            showStatusFilter={false}
-                        />
-                        <RequestSection
-                            title={formatMessage({ id: "technician_requests_sent" }) + " (" + offerRequests.length + ")"}
-                            searchKey="offers"
-                            searchValue={search.offers}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
-                            data={offerRequests}
-                            onClick={async (req) => {
-                                const offer = req.serviceOffers?.find(
-                                    (o) => o.technician_id === profile?.technicianProfile?.id
-                                );
-                                if (!offer) return;
-                                try {
-                                    const fullOffer = await getOfferById(offer.id);
-                                    setSelectedOffer(fullOffer);
-                                    setOfferDialogOpen(true);
-                                } catch (err) {
-                                    console.error("❌ Error al abrir oferta:", err);
-                                }
-                            }}
-                            type="offer"
-                            sortKey={sorts.offers}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
-                            showStatusFilter={false}
-                        />
-                        <RequestSection
-                            title={formatMessage({ id: "technician_requests_progress" }) + " (" + inProgressRequests.length + ")"}
-                            searchKey="progress"
-                            searchValue={search.progress}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
-                            data={inProgressRequests}
-                            onClick={(r) => openDialog(r, "view")}
-                            type="view"
-                            sortKey={sorts.progress}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, progress: val }))}
-                            showStatusFilter={true}
-                            filterStatus={progressStatusFilter}
-                            onFilterStatusChange={setProgressStatusFilter}
-                        />
-                        <RequestSection
-                            title={formatMessage({ id: "technician_requests_closed" }) + " (" + closedRequests.length + ")"}
-                            searchKey="closed"
-                            searchValue={search.closed}
-                            onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}
-                            data={closedRequests}
-                            onClick={(r) => openDialog(r, "view")}
-                            type="view"
-                            sortKey={sorts.closed}
-                            onSortChange={(val) => setSorts((prev) => ({ ...prev, closed: val }))}
-                            showStatusFilter={false}
-                        />
-                    </>
-                )}
+                <RequestSection
+                    title={formatMessage({ id: "technician_requests_new" }) + " (" + newRequests.length + ")"}
+                    searchKey="created"
+                    searchValue={search.created}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, created: val }))}
+                    data={newRequests}
+                    onClick={(r) => openDialog(r, "edit")}
+                    type="view"
+                    sortKey={sorts.created}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, created: val }))}
+                    showStatusFilter={false}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({ id: "technician_requests_sent" }) + " (" + offerRequests.length + ")"}
+                    searchKey="offers"
+                    searchValue={search.offers}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, offers: val }))}
+                    data={offerRequests}
+                    onClick={async (req) => {
+                        const offer = req.serviceOffers?.find(
+                            (o) => o.technician_id === profile?.technicianProfile?.id
+                        );
+                        if (!offer) return;
+                        try {
+                            const fullOffer = await getOfferById(offer.id);
+                            setSelectedOffer(fullOffer);
+                            setOfferDialogOpen(true);
+                        } catch (err) {
+                            console.error("❌ Error al abrir oferta:", err);
+                        }
+                    }}
+                    type="offer"
+                    sortKey={sorts.offers}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, offers: val }))}
+                    showStatusFilter={false}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({ id: "technician_requests_progress" }) + " (" + inProgressRequests.length + ")"}
+                    searchKey="progress"
+                    searchValue={search.progress}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, progress: val }))}
+                    data={inProgressRequests}
+                    onClick={(r) => openDialog(r, "view")}
+                    type="view"
+                    sortKey={sorts.progress}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, progress: val }))}
+                    showStatusFilter={true}
+                    filterStatus={progressStatusFilter}
+                    onFilterStatusChange={setProgressStatusFilter}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({ id: "technician_requests_closed" }) + " (" + closedRequests.length + ")"}
+                    searchKey="closed"
+                    searchValue={search.closed}
+                    onSearchChange={(val) => setSearch((prev) => ({ ...prev, closed: val }))}
+                    data={closedRequests}
+                    onClick={(r) => openDialog(r, "view")}
+                    type="view"
+                    sortKey={sorts.closed}
+                    onSortChange={(val) => setSorts((prev) => ({ ...prev, closed: val }))}
+                    showStatusFilter={false}
+                    loading={loading}
+                />
             </div>
 
             {selectedRequest && dialogMode === "edit" && (

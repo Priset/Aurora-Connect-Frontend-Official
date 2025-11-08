@@ -5,7 +5,7 @@ import { useAiSupportChats } from '@/hooks/useAiSupportChats';
 import { useAiSupportMessages } from '@/hooks/useAiSupportMessages';
 import { MessageBubble } from '@/components/support/message-bubble';
 import { MessageInput } from '@/components/support/message-input';
-import { Loader } from '@/components/ui/loader';
+
 import { AiSupportMessage } from '@/interfaces/auroraDb';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -30,7 +30,7 @@ export default function SupportPage() {
                 let activeChat = chats[0];
 
                 if (!activeChat) {
-                    activeChat = await createChat({ user_id: profile.id });
+                    activeChat = await createChat({});
                 }
 
                 setChatId(activeChat.id);
@@ -91,14 +91,33 @@ export default function SupportPage() {
 
     return (
         <div className="w-full flex flex-col gap-8">
-            <h1 className="text-2xl font-display font-bold text-neutral-100">
-                ¡Hola! Soy Aurora, tu asistente de soporte técnico
-            </h1>
+            <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 className="text-2xl font-display font-bold text-white">
+                        ¡Hola! Soy Aurora
+                    </h1>
+                    <p className="text-white/70 text-sm">
+                        Tu asistente de soporte técnico inteligente
+                    </p>
+                </div>
+            </div>
 
-            <div className="bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-lg p-6 w-full flex flex-col gap-4 max-h-[65vh] overflow-y-auto">
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-6 w-full flex flex-col gap-4 max-h-[65vh] overflow-y-auto">
                 {loading ? (
                     <div className="w-full flex justify-center items-center py-10">
-                        <Loader />
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="p-4 bg-[--secondary-default]/10 rounded-full">
+                                <svg className="w-8 h-8 text-[--secondary-default] animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
+                            <p className="text-white/70 text-sm">Iniciando conversación...</p>
+                        </div>
                     </div>
                 ) : (
                     messages.map((msg, idx) => (
@@ -108,13 +127,21 @@ export default function SupportPage() {
                 <div ref={bottomRef} />
 
                 {isTyping && (
-                    <div className="flex items-start gap-2 bg-[--neutral-100] text-[--foreground] w-fit px-4 py-2 rounded-lg animate-pulse">
-                        Aurora está escribiendo...<span className="dot-typing ml-2" />
+                    <div className="flex items-start gap-3 bg-white/10 backdrop-blur-sm text-white w-fit px-4 py-3 rounded-lg border border-white/20">
+                        <div className="p-1 bg-[--secondary-default]/20 rounded-full">
+                            <svg className="w-4 h-4 text-[--secondary-default]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium">Aurora</span>
+                            <span className="text-xs text-white/60">está escribiendo<span className="dot-typing ml-1" /></span>
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="w-full bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-lg p-4">
+            <div className="w-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-4">
                 <MessageInput onSend={handleSend} disabled={!chatId || loading} />
             </div>
         </div>
