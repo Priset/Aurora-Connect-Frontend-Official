@@ -67,7 +67,6 @@ export interface ServiceRequest {
 }
 
 export interface CreateServiceRequestDto {
-    client_id: number;
     description: string;
     offeredPrice: number;
 }
@@ -118,10 +117,8 @@ export interface ServiceReview {
 
 export interface CreateServiceReviewDto {
     request_id: number;
-    technician_id: number;
     comment?: string;
     rating: number;
-    status?: number;
 }
 
 export interface UpdateServiceReviewDto {
