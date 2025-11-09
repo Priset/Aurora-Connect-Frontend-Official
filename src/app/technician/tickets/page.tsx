@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, Search, Filter, Calendar, DollarSign, User, CheckCircle, AlertCircle, PlayCircle, Wrench, Award } from "lucide-react";
 import { Status, getStatusMap } from "@/interfaces/auroraDb";
 import { useIntl } from "react-intl";
+import { Button } from "@/components/ui/button";
 
 export default function TechnicianTicketsPage() {
     const { profile } = useAuth();
@@ -19,8 +20,11 @@ export default function TechnicianTicketsPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [activePage, setActivePage] = useState(1);
+    const [closedPage, setClosedPage] = useState(1);
     const intl = useIntl();
     const StatusMap = getStatusMap(intl);
+    const itemsPerPage = 3;
 
     useEffect(() => {
         if (!profile?.id) return;
@@ -52,6 +56,16 @@ export default function TechnicianTicketsPage() {
 
     const activeTickets = filteredTickets.filter(t => t.status !== Status.FINALIZADO && t.status !== Status.ELIMINADO);
     const closedTickets = filteredTickets.filter(t => t.status === Status.FINALIZADO);
+
+    const totalActivePages = Math.ceil(activeTickets.length / itemsPerPage);
+    const totalClosedPages = Math.ceil(closedTickets.length / itemsPerPage);
+    const paginatedActiveTickets = activeTickets.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+    const paginatedClosedTickets = closedTickets.slice((closedPage - 1) * itemsPerPage, closedPage * itemsPerPage);
+
+    useEffect(() => {
+        setActivePage(1);
+        setClosedPage(1);
+    }, [searchTerm, statusFilter]);
 
     const getStatusColor = (status: number) => {
         const statusInfo = StatusMap[status as Status];
@@ -201,8 +215,9 @@ export default function TechnicianTicketsPage() {
                             </p>
                         </Card>
                     ) : (
+                        <>
                         <div className="grid gap-4">
-                            {activeTickets.map((ticket) => (
+                            {paginatedActiveTickets.map((ticket) => (
                                 <Card key={ticket.id} className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl hover:from-white/15 hover:to-white/10 transition-all duration-300 hover:scale-[1.02]">
                                     <CardHeader className="pb-3">
                                         <div className="flex items-start justify-between">
@@ -265,6 +280,28 @@ export default function TechnicianTicketsPage() {
                                 </Card>
                             ))}
                         </div>
+                        {totalActivePages > 1 && (
+                            <div className="flex justify-between items-center mt-4 bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                                <Button
+                                    disabled={activePage === 1}
+                                    onClick={() => setActivePage(p => Math.max(p - 1, 1))}
+                                    className="bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/80 hover:to-purple-600/80 backdrop-blur-sm text-white disabled:opacity-50 transition-all duration-200 hover:scale-105 border border-white/20"
+                                >
+                                    Anterior
+                                </Button>
+                                <span className="text-white/70 font-medium text-sm">
+                                    Página {activePage} de {totalActivePages}
+                                </span>
+                                <Button
+                                    disabled={activePage === totalActivePages}
+                                    onClick={() => setActivePage(p => Math.min(p + 1, totalActivePages))}
+                                    className="bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/80 hover:to-purple-600/80 backdrop-blur-sm text-white disabled:opacity-50 transition-all duration-200 hover:scale-105 border border-white/20"
+                                >
+                                    Siguiente
+                                </Button>
+                            </div>
+                        )}
+                        </>
                     )}
                 </TabsContent>
 
@@ -282,8 +319,9 @@ export default function TechnicianTicketsPage() {
                             </p>
                         </Card>
                     ) : (
+                        <>
                         <div className="grid gap-4">
-                            {closedTickets.map((ticket) => (
+                            {paginatedClosedTickets.map((ticket) => (
                                 <Card key={ticket.id} className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/20 shadow-lg opacity-80 hover:opacity-100 transition-all duration-300">
                                     <CardHeader className="pb-3">
                                         <div className="flex items-start justify-between">
@@ -351,6 +389,28 @@ export default function TechnicianTicketsPage() {
                                 </Card>
                             ))}
                         </div>
+                        {totalClosedPages > 1 && (
+                            <div className="flex justify-between items-center mt-4 bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                                <Button
+                                    disabled={closedPage === 1}
+                                    onClick={() => setClosedPage(p => Math.max(p - 1, 1))}
+                                    className="bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/80 hover:to-purple-600/80 backdrop-blur-sm text-white disabled:opacity-50 transition-all duration-200 hover:scale-105 border border-white/20"
+                                >
+                                    Anterior
+                                </Button>
+                                <span className="text-white/70 font-medium text-sm">
+                                    Página {closedPage} de {totalClosedPages}
+                                </span>
+                                <Button
+                                    disabled={closedPage === totalClosedPages}
+                                    onClick={() => setClosedPage(p => Math.min(p + 1, totalClosedPages))}
+                                    className="bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/80 hover:to-purple-600/80 backdrop-blur-sm text-white disabled:opacity-50 transition-all duration-200 hover:scale-105 border border-white/20"
+                                >
+                                    Siguiente
+                                </Button>
+                            </div>
+                        )}
+                        </>
                     )}
                 </TabsContent>
             </Tabs>

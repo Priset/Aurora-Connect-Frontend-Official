@@ -28,31 +28,15 @@ export default function SupportPage() {
             try {
                 const chats = await getChats();
                 let activeChat = chats[0];
-                let isNewChat = false;
 
                 if (!activeChat) {
                     activeChat = await createChat({});
-                    isNewChat = true;
                 }
 
                 setChatId(activeChat.id);
 
                 const loadedMessages = await getByChatId(activeChat.id);
-                
-                if (isNewChat && loadedMessages.length === 0) {
-                    const welcomeMessage: AiSupportMessage = {
-                        id: -999,
-                        chat_id: activeChat.id,
-                        content: '¡Hola! 👋 Soy **Aurora**, tu asistente virtual de soporte para Aurora Connect.\n\nEstoy aquí para ayudarte con:\n- Dudas sobre cómo usar la plataforma\n- Sugerencias de precios para servicios técnicos\n- Información sobre funcionalidades\n\n¿En qué puedo ayudarte hoy?',
-                        role: 'asistente',
-                        status: 1,
-                        sent_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString(),
-                    };
-                    setMessages([welcomeMessage]);
-                } else {
-                    setMessages(loadedMessages);
-                }
+                setMessages(loadedMessages);
             } catch (err) {
                 console.error('Error al cargar el chat de soporte:', err);
             } finally {

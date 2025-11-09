@@ -17,7 +17,7 @@ import { useRequests } from "@/hooks/useRequests";
 import { ArrowLeft, BadgeCheck } from "lucide-react";
 import { useIntl } from "react-intl";
 import { useNotifications } from "@/hooks/useNotifications";
-import { serviceOfferSchema, ServiceOfferData } from "@/lib/validations";
+import { createServiceOfferSchema, ServiceOfferData } from "@/lib/validations";
 import { useFormValidation } from "@/hooks/useFormValidation";
 
 export function RequestDialog({ isOpen, onClose, request, onActionComplete }: RequestDialogProps) {
@@ -35,12 +35,13 @@ export function RequestDialog({ isOpen, onClose, request, onActionComplete }: Re
         handleSubmit,
         formState: { errors },
         reset,
+        setValue,
     } = useForm<ServiceOfferData>({
-        resolver: zodResolver(serviceOfferSchema),
+        resolver: zodResolver(createServiceOfferSchema(request.offered_price)),
         mode: "onChange",
         defaultValues: {
             message: "",
-            proposedPrice: 0,
+            proposedPrice: request.offered_price + 1,
         },
     });
 
@@ -49,9 +50,11 @@ export function RequestDialog({ isOpen, onClose, request, onActionComplete }: Re
             setShowOfferInput(false);
             setIsProcessing(false);
             reset();
+        } else {
+            setValue("proposedPrice", request.offered_price + 1);
         }
         setIsLoading(false);
-    }, [isOpen, reset]);
+    }, [isOpen, reset, setValue, request.offered_price]);
 
     const handleAccept = async () => {
         setIsProcessing(true);

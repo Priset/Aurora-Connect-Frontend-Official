@@ -279,15 +279,18 @@ h1, h2, h3 {
   border-radius: 1rem !important;
 }
 
-[role="alertdialog"] [data-radix-alert-dialog-title] {
+[role="alertdialog"] * {
   color: white !important;
+}
+
+[role="alertdialog"] [data-radix-alert-dialog-title] {
   font-family: 'Space Grotesk', sans-serif !important;
   font-weight: 700 !important;
   font-size: 1.25rem !important;
 }
 
 [role="alertdialog"] [data-radix-alert-dialog-description] {
-  color: rgba(255, 255, 255, 0.8) !important;
+  opacity: 0.9 !important;
   font-size: 0.875rem !important;
   line-height: 1.5 !important;
 }

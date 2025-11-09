@@ -76,7 +76,7 @@ export const RequestSection = ({
                                    loading = false
                                }: SectionProps) => {
     const [page, setPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 5;
     const intl = useIntl();
     const { formatMessage } = useIntl();
     const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -206,10 +206,22 @@ export const RequestSection = ({
                                 className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-3 cursor-pointer transform transition-all duration-200 hover:scale-[1.02] hover:bg-white/15 hover:shadow-lg"
                                 onClick={() => onClick(req)}
                             >
-                                <div className="flex items-center justify-between mb-2">
-                                    <p className="text-sm font-semibold text-white">
-                                        {req.description} <span className="text-xs text-white/60">(#{req.id})</span>
-                                    </p>
+                                <p className="text-sm font-semibold text-white mb-2">
+                                    {req.description} <span className="text-xs text-white/60">(#{req.id})</span>
+                                </p>
+                                <div className="text-xs text-green-400 font-medium mb-1">
+                                    {formatMessage({ id: "requests_price_prefix"})} {req.offered_price.toFixed(2)}
+                                </div>
+                                <div className="text-[10px] text-white/60 italic mb-2">
+                                    {formatMessage({ id: "requests_created_prefix"})} {createdAt}
+                                </div>
+                                <div className="flex items-center justify-between mt-2">
+                                    <Badge
+                                        className="text-neutral-100 text-xs"
+                                        style={{ backgroundColor: StatusMap[req.status as keyof typeof StatusMap].color }}
+                                    >
+                                        {StatusMap[req.status as keyof typeof StatusMap].label}
+                                    </Badge>
                                     {req.status === Status.FINALIZADO && onReview && (
                                         <Button
                                             className="text-xs bg-gradient-to-r from-green-500/80 to-emerald-500/80 hover:from-green-600/80 hover:to-emerald-600/80 backdrop-blur-sm text-white px-3 py-1 rounded-md transition-all duration-200 hover:scale-105 border border-white/20"
@@ -222,18 +234,6 @@ export const RequestSection = ({
                                         </Button>
                                     )}
                                 </div>
-                                <div className="text-xs text-green-400 font-medium mb-1">
-                                    {formatMessage({ id: "requests_price_prefix"})} {req.offered_price.toFixed(2)}
-                                </div>
-                                <div className="text-[10px] text-white/60 italic mb-2">
-                                    {formatMessage({ id: "requests_created_prefix"})} {createdAt}
-                                </div>
-                                <Badge
-                                    className="text-neutral-100 text-xs mt-2"
-                                    style={{ backgroundColor: StatusMap[req.status as keyof typeof StatusMap].color }}
-                                >
-                                    {StatusMap[req.status as keyof typeof StatusMap].label}
-                                </Badge>
                             </div>
                         );
                     })

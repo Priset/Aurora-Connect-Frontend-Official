@@ -61,8 +61,20 @@ export const serviceOfferSchema = z.object({
     .max(500, "El mensaje no puede exceder 500 caracteres"),
   
   proposedPrice: z
-    .number()
+    .number({ invalid_type_error: "El precio debe ser un número válido" })
     .min(1, "El precio debe ser mayor a 0")
+    .max(10000, "El precio no puede exceder 10,000 Bs")
+});
+
+export const createServiceOfferSchema = (minPrice: number) => z.object({
+  message: z
+    .string()
+    .min(5, "El mensaje debe tener al menos 5 caracteres")
+    .max(500, "El mensaje no puede exceder 500 caracteres"),
+  
+  proposedPrice: z
+    .number({ invalid_type_error: "El precio debe ser un número válido" })
+    .min(minPrice + 1, `El precio debe ser mayor a Bs. ${minPrice.toFixed(2)}`)
     .max(10000, "El precio no puede exceder 10,000 Bs")
 });
 
