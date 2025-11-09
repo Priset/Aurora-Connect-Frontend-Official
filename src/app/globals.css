@@ -265,6 +265,67 @@ h1, h2, h3 {
   background: rgba(255, 255, 255, 0.3) !important;
 }
 
+/* Estilos para AlertDialog */
+[data-radix-dialog-overlay] {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+[role="alertdialog"] {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(108, 99, 255, 0.1) !important;
+  border-radius: 1rem !important;
+}
+
+[role="alertdialog"] [data-radix-alert-dialog-title] {
+  color: white !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+}
+
+[role="alertdialog"] [data-radix-alert-dialog-description] {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+
+[role="alertdialog"] button {
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+[role="alertdialog"] button[data-variant="destructive"],
+[role="alertdialog"] button:has(svg):not([data-variant]) {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(239, 68, 68, 0.2)) !important;
+  color: rgb(248, 113, 113) !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+[role="alertdialog"] button[data-variant="destructive"]:hover,
+[role="alertdialog"] button:has(svg):not([data-variant]):hover {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.3), rgba(239, 68, 68, 0.3)) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3) !important;
+}
+
+[role="alertdialog"] button[data-variant="outline"],
+[role="alertdialog"] button:not([data-variant]):not(:has(svg)) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[role="alertdialog"] button[data-variant="outline"]:hover,
+[role="alertdialog"] button:not([data-variant]):not(:has(svg)):hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: scale(1.05) !important;
+}
+
 @layer base {
   * {
     @apply border-border;
