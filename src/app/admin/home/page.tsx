@@ -6,6 +6,7 @@ import {ServiceRequest, Status} from "@/interfaces/auroraDb";
 import {RequestViewDialog} from "@/components/request/requests-view-dialog";
 import {RequestSection} from "@/components/sections/request-section";
 import {useIntl} from "react-intl";
+import {useAuth} from "@/hooks/useAuth";
 
 const initialSearch = {
     created: "",
@@ -14,31 +15,11 @@ const initialSearch = {
     closed: "",
 };
 
-const SectionSkeleton = () => (
-    <div
-        className="flex flex-col w-full max-w-sm h-[calc(100vh-220px)] bg-neutral-100 rounded-xl border border-[--neutral-300] p-4">
-        <div className="h-4 w-2/3 bg-[--neutral-300] rounded mb-4 animate-pulse"/>
-        <div className="flex gap-2 mb-3">
-            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse"/>
-            <div className="flex-1 h-9 bg-[--neutral-200] rounded animate-pulse"/>
-            <div className="h-9 w-9 bg-[--neutral-200] rounded animate-pulse"/>
-        </div>
-        <div className="flex flex-col gap-2 overflow-y-auto pr-1">
-            {[...Array(4)].map((_, idx) => (
-                <div key={idx}
-                     className="p-4 bg-white rounded-lg border border-[--neutral-300] animate-pulse space-y-2">
-                    <div className="h-4 w-3/4 bg-[--neutral-200] rounded"/>
-                    <div className="h-3 w-1/2 bg-[--neutral-200] rounded"/>
-                    <div className="h-2 w-1/3 bg-[--neutral-200] rounded"/>
-                    <div className="h-4 w-24 bg-[--secondary-default] rounded-full mt-2"/>
-                </div>
-            ))}
-        </div>
-    </div>
-);
+
 
 export default function AdminHomePage() {
     const {formatMessage} = useIntl();
+    const {profile} = useAuth();
     const {getAllForTechnicians} = useRequests();
     const [requests, setRequests] = useState<ServiceRequest[]>([]);
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
@@ -128,74 +109,82 @@ export default function AdminHomePage() {
     }, [getAllForTechnicians]);
 
     useEffect(() => {
-        loadRequests();
-    }, [loadRequests]);
+        if (profile?.id) {
+            loadRequests();
+        }
+    }, [loadRequests, profile?.id]);
 
     return (
         <main className="px-6 md:px-10 py-6">
-            <h1 className="text-2xl font-display font-bold text-white mb-6">
-                {formatMessage({id: "admin_requests_title"})}
-            </h1>
+            <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 mb-6 shadow-2xl">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full">
+                        <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h1 className="text-2xl font-display font-bold text-white">
+                        {formatMessage({id: "admin_requests_title"})}
+                    </h1>
+                    <div className="ml-auto flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-white/70">Panel Administrativo</span>
+                    </div>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                {loading ? (
-                    <>
-                        <SectionSkeleton/>
-                        <SectionSkeleton/>
-                        <SectionSkeleton/>
-                        <SectionSkeleton/>
-                    </>
-                ) : (
-                    <>
-                        <RequestSection
-                            title={formatMessage({id: "admin_requests_new"}) + ` (${newRequests.length})`}
-                            searchKey="created"
-                            searchValue={search.created}
-                            onSearchChange={(val) => setSearch((p) => ({...p, created: val}))}
-                            data={newRequests}
-                            onClick={openDialog}
-                            type="view"
-                            sortKey={sorts.created}
-                            onSortChange={(val) => setSorts((p) => ({...p, created: val}))}
-                        />
-                        <RequestSection
-                            title={formatMessage({id: "admin_requests_offers"}) + ` (${offerRequests.length})`}
-                            searchKey="offers"
-                            searchValue={search.offers}
-                            onSearchChange={(val) => setSearch((p) => ({...p, offers: val}))}
-                            data={offerRequests}
-                            onClick={openDialog}
-                            type="view"
-                            sortKey={sorts.offers}
-                            onSortChange={(val) => setSorts((p) => ({...p, offers: val}))}
-                        />
-                        <RequestSection
-                            title={formatMessage({id: "admin_requests_progress"}) + ` (${inProgressRequests.length})`}
-                            searchKey="progress"
-                            searchValue={search.progress}
-                            onSearchChange={(val) => setSearch((p) => ({...p, progress: val}))}
-                            data={inProgressRequests}
-                            onClick={openDialog}
-                            type="view"
-                            sortKey={sorts.progress}
-                            onSortChange={(val) => setSorts((p) => ({...p, progress: val}))}
-                            showStatusFilter
-                            filterStatus={progressStatusFilter}
-                            onFilterStatusChange={setProgressStatusFilter}
-                        />
-                        <RequestSection
-                            title={formatMessage({id: "admin_requests_closed"}) + ` (${closedRequests.length})`}
-                            searchKey="closed"
-                            searchValue={search.closed}
-                            onSearchChange={(val) => setSearch((p) => ({...p, closed: val}))}
-                            data={closedRequests}
-                            onClick={openDialog}
-                            type="view"
-                            sortKey={sorts.closed}
-                            onSortChange={(val) => setSorts((p) => ({...p, closed: val}))}
-                        />
-                    </>
-                )}
+                <RequestSection
+                    title={formatMessage({id: "admin_requests_new"}) + ` (${newRequests.length})`}
+                    searchKey="created"
+                    searchValue={search.created}
+                    onSearchChange={(val) => setSearch((p) => ({...p, created: val}))}
+                    data={newRequests}
+                    onClick={openDialog}
+                    type="view"
+                    sortKey={sorts.created}
+                    onSortChange={(val) => setSorts((p) => ({...p, created: val}))}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({id: "admin_requests_offers"}) + ` (${offerRequests.length})`}
+                    searchKey="offers"
+                    searchValue={search.offers}
+                    onSearchChange={(val) => setSearch((p) => ({...p, offers: val}))}
+                    data={offerRequests}
+                    onClick={openDialog}
+                    type="view"
+                    sortKey={sorts.offers}
+                    onSortChange={(val) => setSorts((p) => ({...p, offers: val}))}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({id: "admin_requests_progress"}) + ` (${inProgressRequests.length})`}
+                    searchKey="progress"
+                    searchValue={search.progress}
+                    onSearchChange={(val) => setSearch((p) => ({...p, progress: val}))}
+                    data={inProgressRequests}
+                    onClick={openDialog}
+                    type="view"
+                    sortKey={sorts.progress}
+                    onSortChange={(val) => setSorts((p) => ({...p, progress: val}))}
+                    showStatusFilter
+                    filterStatus={progressStatusFilter}
+                    onFilterStatusChange={setProgressStatusFilter}
+                    loading={loading}
+                />
+                <RequestSection
+                    title={formatMessage({id: "admin_requests_closed"}) + ` (${closedRequests.length})`}
+                    searchKey="closed"
+                    searchValue={search.closed}
+                    onSearchChange={(val) => setSearch((p) => ({...p, closed: val}))}
+                    data={closedRequests}
+                    onClick={openDialog}
+                    type="view"
+                    sortKey={sorts.closed}
+                    onSortChange={(val) => setSorts((p) => ({...p, closed: val}))}
+                    loading={loading}
+                />
             </div>
 
             {selectedRequest && (

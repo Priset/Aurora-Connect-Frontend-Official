@@ -48,16 +48,21 @@ export const TechnicianRatingsSlide = ({ isOpen, onClose }: Props) => {
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetOverlay className="bg-black/50 z-[50]" />
+            <SheetOverlay className="bg-black/60 backdrop-blur-sm z-[50]" />
             <SheetContent
                 side="right"
-                className="w-full max-w-sm bg-white dark:bg-[--neutral-100] text-[--foreground] border-l border-[--neutral-300] shadow-xl z-[60]"
+                className="w-full max-w-sm bg-white/10 backdrop-blur-xl border-l border-white/20 shadow-2xl z-[60] text-white"
             >
-                <SheetHeader className="mb-4">
-                    <SheetTitle className="text-lg font-bold">
-                        {formatMessage({ id: "technician_ratings_title" })}
-                    </SheetTitle>
-                    <SheetDescription className="text-sm text-muted-foreground">
+                <SheetHeader className="mb-4 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 bg-gradient-to-r from-yellow-500/30 to-orange-500/30 rounded-full">
+                            <Star className="w-5 h-5 text-yellow-400" />
+                        </div>
+                        <SheetTitle className="text-lg font-bold text-white">
+                            {formatMessage({ id: "technician_ratings_title" })}
+                        </SheetTitle>
+                    </div>
+                    <SheetDescription className="text-sm text-white/70">
                         {formatMessage({ id: "technician_ratings_description" })}
                     </SheetDescription>
                 </SheetHeader>
@@ -65,38 +70,50 @@ export const TechnicianRatingsSlide = ({ isOpen, onClose }: Props) => {
                 {isLoading ? (
                     <div className="space-y-3 animate-pulse">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="h-14 bg-[--neutral-300] rounded-md" />
+                            <div key={i} className="h-14 bg-white/20 backdrop-blur-sm rounded-lg" />
                         ))}
                     </div>
                 ) : reviews.length > 0 ? (
-                    <div className="space-y-3 max-h-[calc(100vh-180px)] overflow-y-auto pr-1">
-                        {reviews.map((review) => (
+                    <div className="space-y-3 max-h-[calc(100vh-180px)] overflow-y-auto pr-1 custom-scrollbar">
+                        {reviews.map((review, index) => (
                             <div
                                 key={review.id}
-                                className="bg-[--neutral-100] border border-[--neutral-300] rounded-lg p-3"
+                                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 hover:bg-white/15 transition-all duration-200 hover:scale-[1.02]"
                             >
-                                <p className="text-sm italic text-muted-foreground mb-1">
+                                <div className="flex items-start justify-between mb-2">
+                                    <div className="flex items-center gap-1">
+                                        {[1, 2, 3, 4, 5].map((val) => (
+                                            <Star
+                                                key={val}
+                                                className={`w-4 h-4 ${
+                                                    val <= review.rating
+                                                        ? "text-yellow-400 fill-yellow-400"
+                                                        : "text-white/30"
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="text-xs text-white/50 bg-white/10 px-2 py-1 rounded-full">
+                                        #{index + 1}
+                                    </div>
+                                </div>
+                                <p className="text-sm italic text-white/80 leading-relaxed">
                                     &quot;{review.comment || formatMessage({ id: "technician_ratings_no_comment"})}&quot;
                                 </p>
-                                <div className="flex items-center gap-1">
-                                    {[1, 2, 3, 4, 5].map((val) => (
-                                        <Star
-                                            key={val}
-                                            className={`w-4 h-4 ${
-                                                val <= review.rating
-                                                    ? "text-yellow-400 fill-yellow-400"
-                                                    : "text-neutral-300"
-                                            }`}
-                                        />
-                                    ))}
-                                </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-sm text-muted-foreground mt-4">
-                        {formatMessage({ id: "technician_ratings_no_reviews" })}
-                    </p>
+                    <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 text-center mt-4">
+                        <div className="flex justify-center mb-3">
+                            {[1, 2, 3, 4, 5].map((val) => (
+                                <Star key={val} className="w-6 h-6 text-white/20" />
+                            ))}
+                        </div>
+                        <p className="text-sm text-white/70">
+                            {formatMessage({ id: "technician_ratings_no_reviews" })}
+                        </p>
+                    </div>
                 )}
             </SheetContent>
         </Sheet>

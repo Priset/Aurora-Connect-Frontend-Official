@@ -4,7 +4,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {SidebarTrigger} from "@/components/ui/sidebar";
 import {UserMenu} from "@/components/layout/user-menu";
 import {Button} from "@/components/ui/button";
-import {Bell, Menu, Dot, BellRing, X} from "lucide-react";
+import {Bell, Menu, BellRing, X, Sparkles, Zap} from "lucide-react";
 import {useIntl} from "react-intl";
 import {useCallback, useEffect, useState} from "react";
 import {Notification, ServiceRequest} from "@/interfaces/auroraDb";
@@ -42,21 +42,23 @@ export function NavbarUser() {
     }, [getAll]);
 
     useEffect(() => {
-        loadNotifications();
-    }, [loadNotifications]);
+        if (profile?.id) {
+            loadNotifications();
+        }
+    }, [loadNotifications, profile?.id]);
 
     useSocketNotifications(
         profile?.id ?? null,
         (newNotif) => {
             setNotifications((prev) => [newNotif, ...prev]);
             toast.custom(() => (
-                <div
-                    className="bg-[--neutral-100] text-[--foreground] border border-[--neutral-300] px-4 py-3 rounded-xl shadow-lg w-full max-w-sm flex items-start gap-3"
-                >
-                    <div className="mt-1">
-                        <Bell className="w-5 h-5 text-[--secondary-default]" />
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-3 rounded-xl shadow-2xl w-full max-w-sm flex items-start gap-3 text-white">
+                    <div className="flex-shrink-0 mt-1">
+                        <div className="p-1 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full">
+                            <BellRing className="w-4 h-4 text-blue-400 animate-pulse" />
+                        </div>
                     </div>
-                    <div className="text-sm">
+                    <div className="text-sm leading-snug">
                         {newNotif.content}
                     </div>
                 </div>
@@ -97,13 +99,18 @@ export function NavbarUser() {
 
     return (
         <>
-            <header className="bg-primary-dark text-white shadow-md px-6 py-4">
-                <div className="flex justify-between items-center">
+            <header className="bg-gradient-to-r from-black/20 via-black/10 to-black/20 backdrop-blur-md text-white shadow-2xl border-b border-white/10 px-6 py-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[--secondary-default]/5 to-[--tertiary-default]/5" />
+                <div className="flex justify-between items-center relative z-10">
 
                     <div className="flex items-center gap-3">
-                        <SidebarTrigger className="text-white hover:bg-primary hover:text-white transition">
+                        <SidebarTrigger className="text-white hover:bg-white/10 hover:text-white transition-all duration-200 rounded-lg p-2 backdrop-blur-sm border border-white/20">
                             <Menu className="w-5 h-5"/>
                         </SidebarTrigger>
+                        <div className="hidden md:flex items-center gap-2 text-white/80">
+                            <Sparkles className="w-4 h-4 text-[--secondary-default] animate-pulse" />
+                            <span className="text-sm font-medium">Aurora Connect</span>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -112,7 +119,7 @@ export function NavbarUser() {
                                 <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="relative text-white hover:bg-primary hover:text-secondary-default transition transform hover:scale-110 active:scale-95"
+                                    className="relative text-white hover:bg-white/10 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 rounded-lg backdrop-blur-sm border border-white/20"
                                     aria-label={formatMessage({id: "navbar_user_notifications"})}
                                 >
                                     {notifications.some((n) => n.status === 0) ? (
@@ -121,24 +128,30 @@ export function NavbarUser() {
                                         <Bell className="w-5 h-5"/>
                                     )}
                                     {notifications.some((n) => n.status === 0) && (
-                                        <Dot
-                                            className="absolute top-1 right-1 text-[--secondary-default] animate-ping"/>
+                                        <>
+                                            <div className="absolute top-1 right-1 w-2 h-2 bg-[--secondary-default] rounded-full animate-ping" />
+                                            <div className="absolute top-1 right-1 w-2 h-2 bg-[--secondary-default] rounded-full" />
+                                        </>
                                     )}
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
-                                className="w-80 max-h-[400px] overflow-y-auto bg-[--neutral-100] border border-[--neutral-300] shadow-xl rounded-lg text-[--foreground] z-[9999]"
+                                className="w-80 max-h-[400px] overflow-y-auto bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-xl text-white z-[9999]"
                                 align="end"
                             >
-                                <DropdownMenuLabel className="text-[--primary-default] text-sm px-3 pt-2 font-semibold">
-                                    <div className="flex justify-between items-center">
-                                        <span>{formatMessage({ id: "navbar_user_notifications" })}</span>
+                                <DropdownMenuLabel className="text-white text-sm px-3 pt-2 font-semibold bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-t-xl">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <Bell className="w-4 h-4 text-blue-400" />
+                                            <span>{formatMessage({ id: "navbar_user_notifications" })}</span>
+                                        </div>
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="text-xs px-2 py-1 text-[--secondary-default] bg-neutral-200 hover:bg-[--neutral-300] transition transform hover:scale-105 active:scale-95"
+                                            className="text-xs px-3 py-1 text-white bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/80 hover:to-purple-600/80 backdrop-blur-sm transition-all duration-200 transform hover:scale-105 active:scale-95 rounded-full shadow-lg border border-white/20"
                                             onClick={handleMarkAllAsRead}
                                         >
+                                            <Zap className="w-3 h-3 mr-1" />
                                             {formatMessage({ id: "notifications_mark_all" })}
                                         </Button>
                                     </div>
@@ -146,7 +159,7 @@ export function NavbarUser() {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="mt-2 text-xs w-full text-[--error-default] bg-neutral-200 hover:bg-[--neutral-300] transition transform hover:scale-105 active:scale-95"
+                                        className="text-xs w-full text-white bg-gradient-to-r from-red-500/80 to-red-600/80 hover:from-red-600/80 hover:to-red-700/80 backdrop-blur-sm transition-all duration-200 transform hover:scale-105 active:scale-95 rounded-full shadow-lg border border-white/20"
                                         onClick={async () => {
                                             try {
                                                 await clearRead();
@@ -158,48 +171,67 @@ export function NavbarUser() {
                                             }
                                         }}
                                     >
+                                        <X className="w-3 h-3 mr-1" />
                                         {formatMessage({ id: "notifications_clear_read" })}
                                     </Button>
                                 </DropdownMenuLabel>
 
-                                <DropdownMenuSeparator className="bg-[--neutral-300]"/>
+                                <DropdownMenuSeparator className="bg-gradient-to-r from-transparent via-white/30 to-transparent my-2"/>
 
                                 {notifications.length === 0 ? (
-                                    <DropdownMenuItem disabled className="text-muted-foreground text-sm px-3 py-2">
-                                        {formatMessage({id: "notifications_empty"})}
-                                    </DropdownMenuItem>
+                                    <div className="flex flex-col items-center justify-center py-8 px-4">
+                                        <Bell className="w-12 h-12 text-white/30 mb-3" />
+                                        <p className="text-white/70 text-sm text-center">
+                                            {formatMessage({id: "notifications_empty"})}
+                                        </p>
+                                    </div>
                                 ) : (
                                     notifications.map((n) => (
                                         <div
                                             key={n.id}
-                                            className="relative flex items-center gap-2 px-2 mb-2 group"
+                                            className="relative flex items-start gap-3 px-3 py-2 mb-2 group"
                                         >
-                                            <div className="mt-2 ml-1">
-                                                <Bell className="w-4 h-4 text-[--secondary-default]"/>
+                                            <div className="flex-shrink-0 mt-1">
+                                                <div className={`p-2 rounded-full backdrop-blur-sm ${
+                                                    n.status === 0 
+                                                        ? 'bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-400/50' 
+                                                        : 'bg-white/20 border border-white/30'
+                                                }`}>
+                                                    {n.status === 0 ? (
+                                                        <BellRing className="w-4 h-4 text-blue-400 animate-pulse"/>
+                                                    ) : (
+                                                        <Bell className="w-4 h-4 text-white/70"/>
+                                                    )}
+                                                </div>
                                             </div>
 
                                             <DropdownMenuItem
                                                 onClick={() => handleNotificationClick(n)}
                                                 className={`
-                                                    flex-1 text-sm px-3 py-2 rounded-lg shadow-md transition-transform
-                                                    cursor-pointer border border-[--neutral-300]
+                                                    flex-1 text-xs px-3 py-2 rounded-lg backdrop-blur-sm transition-all duration-200
+                                                    cursor-pointer border hover:scale-[1.01] active:scale-[0.99] hover:shadow-md
                                                     ${n.status === 0
-                                                    ? "bg-[--neutral-100] border-l-4 border-[--secondary-default] text-[--foreground] animate-pulse"
-                                                    : "bg-white text-[--foreground] hover:bg-[--neutral-100]"}
-                                                    hover:scale-[1.01] active:scale-[0.98]
+                                                        ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-400/50 text-white shadow-blue-400/20 hover:from-blue-500/30 hover:to-purple-500/30"
+                                                        : "bg-white/10 text-white/90 hover:bg-white/20 border-white/30"}
                                                   `}
                                             >
-                                                <span
-                                                    className="whitespace-normal break-words leading-snug text-[--foreground]">
-                                                    {n.content}
-                                                </span>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <span className="whitespace-normal break-words leading-tight flex-1 text-xs">
+                                                        {n.content}
+                                                    </span>
+                                                    {n.status === 0 && (
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </DropdownMenuItem>
 
                                             {n.status === 1 && (
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="w-6 h-6 text-[--error-default] hover:bg-[--neutral-300] transition rounded-full"
+                                                    className="flex-shrink-0 w-6 h-6 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 rounded-md backdrop-blur-sm border border-white/20 hover:scale-105"
                                                     onClick={async () => {
                                                         try {
                                                             await remove(n.id);
@@ -211,7 +243,7 @@ export function NavbarUser() {
                                                         }
                                                     }}
                                                 >
-                                                    <X className="w-4 h-4" />
+                                                    <X className="w-3 h-3" />
                                                 </Button>
                                             )}
                                         </div>
