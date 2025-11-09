@@ -17,17 +17,16 @@ export function useRegisterDialog() {
         setShowDialog(false);
         if (!data) return;
 
-        const { name, last_name, experience, years_experience, role } = data;
+        const { name, last_name, role } = data;
 
-        if (role === "technician") {
-            localStorage.setItem("technicianExperience", experience ?? "");
-            localStorage.setItem(
-                "technicianYears",
-                !isNaN(Number(years_experience)) ? String(years_experience) : "0"
-            );
+        if (role === 'technician' && 'experience' in data && 'years_experience' in data) {
+            register(role, name.trim(), last_name.trim(), {
+                experience: data.experience,
+                years_experience: data.years_experience
+            });
+        } else {
+            register(role, name.trim(), last_name.trim());
         }
-
-        register(role, name.trim(), last_name.trim());
     };
 
     return {

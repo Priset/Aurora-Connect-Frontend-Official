@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,15 +20,11 @@ import {useTechnicians} from "@/hooks/useTechnicians";
 import { TechnicianProfileSlide } from "@/components/technician/technician-profile-slide";
 import { RequestViewDialog } from "@/components/request/requests-view-dialog";
 import { useNotifications } from "@/hooks/useNotifications";
-import {Star} from "lucide-react";
-import { useIntl } from "react-intl"
+import {Star, Send, TrendingUp, MessageCircle, FileText, Award, Users, Clock} from "lucide-react";
+import { useIntl } from "react-intl";
+import { serviceRequestSchema, ServiceRequestData } from "@/lib/validations";
 
 type TechnicianWithRating = TechnicianProfile & { avgRating: number };
-
-interface RequestForm {
-    description: string;
-    offeredPrice: number;
-}
 
 export default function ClientHomePage() {
     const { user } = useAuth0();
@@ -54,7 +51,14 @@ export default function ClientHomePage() {
         handleSubmit,
         formState: { errors },
         reset,
-    } = useForm<RequestForm>();
+    } = useForm<ServiceRequestData>({
+        resolver: zodResolver(serviceRequestSchema),
+        mode: "onChange",
+        defaultValues: {
+            description: "",
+            offeredPrice: 0,
+        },
+    });
 
     useEffect(() => {
         if (user && profile?.id) {
@@ -63,7 +67,7 @@ export default function ClientHomePage() {
     }, [user, profile]);
 
     useEffect(() => {
-        if (!clientId) return;
+        if (!clientId || !profile?.id) return;
 
         const fetchData = async () => {
             setIsLoading(true);
@@ -101,7 +105,7 @@ export default function ClientHomePage() {
         };
 
         fetchData();
-    }, [clientId, getAll, getAllChats, getAllPublic]);
+    }, [clientId, profile?.id, getAll, getAllChats, getAllPublic]);
 
     const loadRequests = async () => {
         setIsLoading(true);
@@ -118,15 +122,17 @@ export default function ClientHomePage() {
         }
     };
 
-    const onSubmit = async (data: RequestForm) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const onSubmit = async (data: ServiceRequestData) => {
         if (!clientId) {
             toast.error(formatMessage({ id: "client_home_error_no_client" }));
             return;
         }
 
+        setIsSubmitting(true);
         try {
             const req = await create({
-                client_id: clientId,
                 description: data.description,
                 offeredPrice: data.offeredPrice,
             });
@@ -150,6 +156,8 @@ export default function ClientHomePage() {
         } catch (err) {
             console.error("❌ Error al crear solicitud:", err);
             toast.error(formatMessage({ id: "client_home_error_request_sent" }));
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -159,32 +167,64 @@ export default function ClientHomePage() {
     return (
         <main className="px-4 sm:px-6 md:px-10 py-8 space-y-10 w-full">
             {isLoading ? (
-                <div className="h-10 w-1/2 bg-[--neutral-300] rounded-lg animate-pulse" />
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm animate-pulse">
+                        <div className="w-8 h-8 bg-white/20 rounded" />
+                    </div>
+                    <div className="h-8 w-64 bg-white/20 backdrop-blur-sm rounded animate-pulse" />
+                </div>
             ) : (
                 user && (
-                    <h1 className="text-2xl font-display font-bold text-white">
-                        {formatMessage(
-                            { id: "client_home_welcome" },
-                            { name: profile?.name?.split(" ")[0] || user.name?.split(" ")[0] || "User" }
-                        )}
-                    </h1>
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                            <Users className="w-8 h-8 text-white" />
+                        </div>
+                        <h1 className="text-2xl font-display font-bold text-white">
+                            {formatMessage(
+                                { id: "client_home_welcome" },
+                                { name: profile?.name?.split(" ")[0] || user.name?.split(" ")[0] || "User" }
+                            )}
+                        </h1>
+                    </div>
                 )
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-6">
                     {isLoading ? (
-                        <div className="p-6 bg-neutral-200 border border-[--neutral-300] rounded-2xl shadow-lg space-y-4 animate-pulse">
-                            <div className="h-6 w-2/3 bg-[--neutral-300] rounded" />
-                            <div className="h-4 w-full bg-[--neutral-200] rounded" />
-                            <div className="h-28 w-full bg-[--neutral-200] rounded" />
-                            <div className="h-12 w-1/2 bg-[--secondary-default] rounded-full" />
+                        <div className="rounded-2xl p-6 bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl space-y-4 animate-pulse">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                                    <div className="w-6 h-6 bg-white/30 rounded" />
+                                </div>
+                                <div className="h-8 w-48 bg-white/20 backdrop-blur-sm rounded" />
+                            </div>
+                            <div className="h-px w-full bg-white/20 backdrop-blur-sm" />
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <div className="h-4 w-32 bg-white/20 backdrop-blur-sm rounded" />
+                                    <div className="h-24 w-full bg-white/20 backdrop-blur-sm rounded-lg" />
+                                </div>
+                                <div className="space-y-2 w-1/2">
+                                    <div className="h-4 w-24 bg-white/20 backdrop-blur-sm rounded" />
+                                    <div className="h-10 w-full bg-white/20 backdrop-blur-sm rounded" />
+                                </div>
+                                <div className="h-px w-full bg-white/20 backdrop-blur-sm" />
+                                <div className="flex justify-end">
+                                    <div className="h-10 w-32 bg-gradient-to-r from-blue-500/60 to-purple-500/60 rounded" />
+                                </div>
+                            </div>
                         </div>
                     ) : (
-                        <Card className="rounded-2xl p-6 bg-neutral-200 text-[--foreground] border border-[--neutral-300] shadow-lg">
-                            <h2 className="text-2xl font-display font-bold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
-                                {formatMessage({ id: "client_home_create_request_title" })}
-                            </h2>
+                        <Card className="rounded-2xl p-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm text-white border border-white/20 shadow-xl">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-[--secondary-default]/20 rounded-lg">
+                                    <Send className="w-6 h-6 text-[--secondary-default]" />
+                                </div>
+                                <h2 className="text-2xl font-display font-bold text-white">
+                                    {formatMessage({ id: "client_home_create_request_title" })}
+                                </h2>
+                            </div>
 
                             <Separator />
 
@@ -192,8 +232,9 @@ export default function ClientHomePage() {
                                 <div className="space-y-2">
                                     <label
                                         htmlFor="description"
-                                        className="block text-sm font-semibold text-[--primary-default]"
+                                        className="block text-sm font-semibold text-white flex items-center gap-2"
                                     >
+                                        <FileText className="w-4 h-4 text-[--secondary-default]" />
                                         {formatMessage({ id: "client_home_form_description_label" })}
                                     </label>
                                     <Textarea
@@ -202,14 +243,14 @@ export default function ClientHomePage() {
                                         placeholder={formatMessage({ id: "client_home_form_description_placeholder" })}
                                         rows={4}
                                         className={cn(
-                                            "w-full resize-none rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
-                                            "placeholder:text-muted-foreground shadow-sm transition-colors",
-                                            "focus:outline-none focus:ring-1 focus:ring-[--secondary-default]"
+                                            "w-full resize-none rounded-lg border bg-white/10 backdrop-blur-sm px-4 py-2 text-sm text-white",
+                                            "placeholder:text-white/50 shadow-sm transition-all duration-200 border-white/20",
+                                            "focus:outline-none focus:ring-2 focus:ring-[--secondary-default] focus:bg-white/15"
                                         )}
                                     />
                                     {errors.description && (
                                         <p className="text-sm font-medium text-error">
-                                            {formatMessage({ id: "client_home_form_description_error" })}
+                                            {errors.description.message}
                                         </p>
                                     )}
                                 </div>
@@ -217,8 +258,11 @@ export default function ClientHomePage() {
                                 <div className="space-y-2 w-1/2">
                                     <label
                                         htmlFor="offered_price"
-                                        className="block text-sm font-semibold text-[--primary-default]"
+                                        className="block text-sm font-semibold text-white flex items-center gap-2"
                                     >
+                                        <div className="p-1 bg-green-500/20 rounded">
+                                            <span className="text-green-400 text-xs font-bold">Bs</span>
+                                        </div>
                                         {formatMessage({ id: "client_home_form_price_label" })}
                                     </label>
                                     <Input
@@ -232,9 +276,9 @@ export default function ClientHomePage() {
                                             min: 1,
                                         })}
                                         className={cn(
-                                            "w-full rounded-lg border bg-white px-4 py-2 text-sm text-[--foreground]",
-                                            "placeholder:text-muted-foreground shadow-sm transition-colors",
-                                            "focus:outline-none focus:ring-1 focus:ring-[--secondary-default]"
+                                            "w-full rounded-lg border bg-white/10 backdrop-blur-sm px-4 py-2 text-sm text-white",
+                                            "placeholder:text-white/50 shadow-sm transition-all duration-200 border-white/20",
+                                            "focus:outline-none focus:ring-2 focus:ring-[--secondary-default] focus:bg-white/15"
                                         )}
                                     />
                                     {errors.offeredPrice && (
@@ -249,10 +293,11 @@ export default function ClientHomePage() {
                                 <div className="flex flex-col sm:flex-row justify-end gap-4 mt-6">
                                     <Button
                                         type="submit"
-                                        disabled={!clientId}
-                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition transform hover:scale-105 active:scale-95"
+                                        disabled={!clientId || isSubmitting}
+                                        className="bg-[--secondary-default] hover:bg-[--secondary-hover] active:bg-[--secondary-pressed] text-white transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        {formatMessage({ id: "client_home_form_submit_button" })}
+                                        <Send className="w-4 h-4" />
+                                        {isSubmitting ? "Enviando..." : formatMessage({ id: "client_home_form_submit_button" })}
                                     </Button>
                                 </div>
                             </form>
@@ -260,12 +305,43 @@ export default function ClientHomePage() {
                     )}
 
                     {isLoading ? (
-                        <div className="h-32 w-full bg-[--neutral-200] rounded-xl animate-pulse" />
+                        <div className="p-6 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl animate-pulse">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                                    <div className="w-5 h-5 bg-white/30 rounded" />
+                                </div>
+                                <div className="h-6 w-40 bg-white/20 backdrop-blur-sm rounded" />
+                            </div>
+                            <div className="space-y-3">
+                                {[...Array(3)].map((_, idx) => (
+                                    <div key={idx} className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 bg-white/30 rounded-full" />
+                                                <div className="h-4 w-32 bg-white/30 rounded" />
+                                            </div>
+                                            <div className="h-4 w-16 bg-white/30 rounded" />
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            {[...Array(5)].map((_, i) => (
+                                                <div key={i} className="w-4 h-4 bg-white/30 rounded" />
+                                            ))}
+                                            <div className="h-4 w-12 bg-white/30 rounded ml-2" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : (
-                        <Card className="p-6 bg-neutral-200 border border-[--neutral-300] shadow-lg">
-                            <h3 className="text-lg font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit mb-4">
-                                {formatMessage({ id: "client_home_top_techs_title" })}
-                            </h3>
+                        <Card className="p-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 shadow-xl">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-yellow-500/20 rounded-lg">
+                                    <Award className="w-5 h-5 text-yellow-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-white">
+                                    {formatMessage({ id: "client_home_top_techs_title" })}
+                                </h3>
+                            </div>
                             {topTechnicians.length ? (
                                 <div className="space-y-3">
                                     {topTechnicians.map((tech, idx) => (
@@ -275,13 +351,16 @@ export default function ClientHomePage() {
                                                 setSelectedTechnicianId(tech.id);
                                                 setIsTechnicianOpen(true);
                                             }}
-                                            className="p-3 bg-white border border-[--neutral-300] rounded-lg shadow-sm transition-transform hover:scale-95"
+                                            className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.02] hover:bg-white/15 cursor-pointer"
                                         >
                                             <div className="flex justify-between items-center mb-1">
-                                                <p className="text-sm font-semibold text-[--foreground]">
-                                                    #{idx + 1} {tech.user.name} {tech.user.last_name}
-                                                </p>
-                                                <span className="text-xs text-muted-foreground">
+                                                <div className="text-sm font-semibold text-white flex items-center gap-2">
+                                                    <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                                                        {idx + 1}
+                                                    </div>
+                                                    {tech.user.name} {tech.user.last_name}
+                                                </div>
+                                                <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded">
                                                     {tech.service_reviews.length} {formatMessage({ id: "client_home_top_techs_reviews" })}
                                                 </span>
                                             </div>
@@ -296,7 +375,7 @@ export default function ClientHomePage() {
                                                         }`}
                                                     />
                                                 ))}
-                                                <span className="ml-2 text-sm text-muted-foreground">
+                                                <span className="ml-2 text-sm text-yellow-400 font-semibold">
                                                     {tech.avgRating.toFixed(1)}/5.0
                                                 </span>
                                             </div>
@@ -304,9 +383,14 @@ export default function ClientHomePage() {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-muted-foreground">
-                                    {formatMessage({ id: "client_home_top_techs_empty" })}
-                                </p>
+                                <div className="text-center py-4">
+                                    <div className="p-3 bg-yellow-500/10 rounded-full w-fit mx-auto mb-2">
+                                        <Award className="w-8 h-8 text-yellow-400" />
+                                    </div>
+                                    <p className="text-sm text-white/70">
+                                        {formatMessage({ id: "client_home_top_techs_empty" })}
+                                    </p>
+                                </div>
                             )}
                         </Card>
                     )}
@@ -314,14 +398,21 @@ export default function ClientHomePage() {
 
                 <div className="space-y-6">
                     {isLoading ? (
-                        <div className="h-16 w-full bg-[--neutral-300] rounded-lg animate-pulse" />
-                    ) : (
-                        <Card className="bg-neutral-200 border border-[--neutral-300] shadow-lg px-4 py-2">
+                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 shadow-xl animate-pulse">
                             <div className="flex items-center gap-4">
-                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100 transition transform hover:scale-105">
+                                <div className="h-8 w-24 bg-white/20 backdrop-blur-sm rounded-full" />
+                                <div className="h-8 w-28 bg-white/20 backdrop-blur-sm rounded-full" />
+                            </div>
+                        </div>
+                    ) : (
+                        <Card className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm border border-white/20 shadow-xl px-4 py-3">
+                            <div className="flex items-center gap-4">
+                                <Badge className="px-4 py-2 text-sm rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 transition-all duration-200 transform hover:scale-105 flex items-center gap-2">
+                                    <TrendingUp className="w-4 h-4" />
                                     {formatMessage({id: "client_home_stats_created"})} {createdCount}
                                 </Badge>
-                                <Badge className="px-3 py-1 text-xs rounded-full bg-[--tertiary-dark] text-neutral-100 transition transform hover:scale-105">
+                                <Badge className="px-4 py-2 text-sm rounded-full bg-green-500/20 text-green-300 border border-green-400/30 transition-all duration-200 transform hover:scale-105 flex items-center gap-2">
+                                    <Award className="w-4 h-4" />
                                     {formatMessage({ id: "client_home_stats_finalized" })} {finalizedCount}
                                 </Badge>
                             </div>
@@ -329,13 +420,35 @@ export default function ClientHomePage() {
                     )}
 
                     {isLoading ? (
-                        [...Array(2)].map((_, idx) => (
-                            <div key={idx} className="h-20 w-full bg-[--neutral-300] rounded-lg animate-pulse" />
-                        ))
+                        <div className="p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl animate-pulse">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                                    <div className="w-5 h-5 bg-white/30 rounded" />
+                                </div>
+                                <div className="h-6 w-32 bg-white/20 backdrop-blur-sm rounded" />
+                            </div>
+                            <div className="space-y-3">
+                                {[...Array(3)].map((_, idx) => (
+                                    <div key={idx} className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-3 h-3 bg-white/30 rounded" />
+                                            <div className="h-4 w-40 bg-white/30 rounded" />
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-3 h-3 bg-white/30 rounded" />
+                                            <div className="h-3 w-32 bg-white/30 rounded" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : (
-                        <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
+                        <Card className="p-4 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 shadow-xl">
                             <CardHeader>
-                                <CardTitle className="text-base font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
+                                <CardTitle className="text-base font-semibold text-white flex items-center gap-3">
+                                    <div className="p-2 bg-blue-500/20 rounded-lg">
+                                        <MessageCircle className="w-5 h-5 text-blue-400" />
+                                    </div>
                                     {formatMessage({ id: "client_home_last_chats_title" })}
                                 </CardTitle>
                             </CardHeader>
@@ -344,12 +457,18 @@ export default function ClientHomePage() {
                                     chats.map((chat) => (
                                         <Card
                                             key={chat.id}
-                                            className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95"
+                                            className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:bg-white/15"
                                         >
-                                            <p className="text-sm font-semibold text-[--foreground]">
-                                                {formatMessage({id: "client_home_chat_with"})} {chat.technician?.user?.name}{" "}{chat.technician?.user?.last_name}
-                                            </p>
-                                            <span className="text-xs text-muted-foreground">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className="p-1 bg-blue-500/20 rounded">
+                                                    <MessageCircle className="w-3 h-3 text-blue-400" />
+                                                </div>
+                                                <p className="text-sm font-semibold text-white">
+                                                    {formatMessage({id: "client_home_chat_with"})} {chat.technician?.user?.name}{" "}{chat.technician?.user?.last_name}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-1 text-xs text-white/60">
+                                                <Clock className="w-3 h-3" />
                                                 {new Date(chat.created_at).toLocaleString("es-BO", {
                                                     day: "2-digit",
                                                     month: "2-digit",
@@ -357,13 +476,18 @@ export default function ClientHomePage() {
                                                     hour: "2-digit",
                                                     minute: "2-digit",
                                                 })}
-                                              </span>
+                                            </div>
                                         </Card>
                                     ))
                                 ) : (
-                                    <p className="text-sm text-muted-foreground">
-                                        {formatMessage({ id: "client_home_no_chats" })}
-                                    </p>
+                                    <div className="text-center py-4">
+                                        <div className="p-3 bg-blue-500/10 rounded-full w-fit mx-auto mb-2">
+                                            <MessageCircle className="w-8 h-8 text-blue-400" />
+                                        </div>
+                                        <p className="text-sm text-white/70">
+                                            {formatMessage({ id: "client_home_no_chats" })}
+                                        </p>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
@@ -371,13 +495,38 @@ export default function ClientHomePage() {
                     )}
 
                     {isLoading ? (
-                        [...Array(2)].map((_, idx) => (
-                            <div key={idx} className="h-20 w-full bg-[--neutral-300] rounded-lg animate-pulse" />
-                        ))
+                        <div className="p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl animate-pulse">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                                    <div className="w-5 h-5 bg-white/30 rounded" />
+                                </div>
+                                <div className="h-6 w-40 bg-white/20 backdrop-blur-sm rounded" />
+                            </div>
+                            <div className="space-y-3">
+                                {[...Array(3)].map((_, idx) => (
+                                    <div key={idx} className="p-3 bg-white/20 backdrop-blur-sm rounded-lg">
+                                        <div className="flex items-start gap-2 mb-2">
+                                            <div className="w-3 h-3 bg-white/30 rounded mt-0.5" />
+                                            <div className="h-4 w-full bg-white/30 rounded" />
+                                        </div>
+                                        <div className="flex items-center justify-between mt-2">
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-3 h-3 bg-white/30 rounded" />
+                                                <div className="h-3 w-24 bg-white/30 rounded" />
+                                            </div>
+                                            <div className="h-4 w-16 bg-white/30 rounded-full" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : (
-                        <Card className="p-4 bg-neutral-200 border border-[--neutral-300] shadow-lg">
+                        <Card className="p-4 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 shadow-xl">
                             <CardHeader>
-                                <CardTitle className="text-base font-semibold text-[--primary-default] pb-1 border-b-2 border-[--primary-default] w-fit">
+                                <CardTitle className="text-base font-semibold text-white flex items-center gap-3">
+                                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                                        <FileText className="w-5 h-5 text-purple-400" />
+                                    </div>
                                     {formatMessage({ id: "client_home_last_requests_title" })}
                                 </CardTitle>
                             </CardHeader>
@@ -392,22 +541,30 @@ export default function ClientHomePage() {
                                                 setSelectedRequest(req);
                                                 setIsRequestDialogOpen(true);
                                             }}
-                                            className="p-3 bg-white border border-[--neutral-300] shadow-sm transition-transform hover:scale-95"
+                                            className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-sm transition-all duration-200 hover:scale-[1.02] hover:bg-white/15 cursor-pointer"
                                         >
-                                            <p className="text-sm font-medium text-[--foreground]">
-                                                “{req.description}”
-                                            </p>
-                                            <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-                                                <span>
-                                                    {formatMessage({id: "client_home_request_created_on"})}{" "}
-                                                    {new Date(req.created_at).toLocaleDateString("es-BO", {
-                                                        day: "2-digit",
-                                                        month: "2-digit",
-                                                        year: "numeric"
-                                                    })}
-                                                </span>
+                                            <div className="flex items-start gap-2 mb-2">
+                                                <div className="p-1 bg-purple-500/20 rounded mt-0.5">
+                                                    <FileText className="w-3 h-3 text-purple-400" />
+                                                </div>
+                                                <p className="text-sm font-medium text-white flex-1">
+                                                    &#34;{req.description}&#34;
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs mt-2">
+                                                <div className="flex items-center gap-1 text-white/60">
+                                                    <Clock className="w-3 h-3" />
+                                                    <span>
+                                                        {formatMessage({id: "client_home_request_created_on"})}{" "}
+                                                        {new Date(req.created_at).toLocaleDateString("es-BO", {
+                                                            day: "2-digit",
+                                                            month: "2-digit",
+                                                            year: "numeric"
+                                                        })}
+                                                    </span>
+                                                </div>
                                                 <Badge
-                                                    className="text-white"
+                                                    className="text-white border-0 shadow-sm"
                                                     variant="default"
                                                     style={{
                                                         backgroundColor: StatusMap[req.status as Status].color,
